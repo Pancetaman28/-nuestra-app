@@ -1310,23 +1310,26 @@ window.delViaje = async (id) => { if(confirm('¿Eliminar este viaje?')) await de
 
 function renderViajes(){
   const el = document.getElementById('viajes-list');
-  el.innerHTML = appData.viajes.length ? appData.viajes.map((v,i)=>`
-    <div class="card card-tap" onclick="openDetail('${v.id}')">
-      <div class="card-header">
-        <div>
-          <div class="card-title">${esc(v.name)}</div>
-          <div class="card-meta">${v.fecha_ida?'🛫 '+esc(v.fecha_ida):''} ${v.fecha_vuelta?'→ 🛬 '+esc(v.fecha_vuelta):''}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:18px;color:var(--text2);">›</span>
-          <button class="del-btn" onclick="event.stopPropagation();delViaje('${v.id}')">×</button>
-        </div>
-      </div>
-      <span class="badge ${VIAJE_BADGES[i%4]}">${esc(v.estado)}</span>
-      ${countdown(v.fecha_ida,v.fecha_vuelta)?`<div class="card-meta" style="margin-top:6px;">${countdown(v.fecha_ida,v.fecha_vuelta)}</div>`:''}
-      ${v.notes?`<div style="font-size:13px;color:var(--text2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">${esc(v.notes)}</div>`:''}
-    </div>`).join('')
-  : `<div class="empty"><span class="empty-icon">✈️</span><p>¡Añadid vuestros próximos destinos!</p></div>`;
+  if(!appData.viajes.length){
+    el.innerHTML='<div class="empty"><span class="empty-icon">&#x2708;&#xFE0F;</span><p>\u00A1A\u00F1adid vuestros pr\u00F3ximos destinos!</p></div>';
+    return;
+  }
+  el.innerHTML = appData.viajes.map(function(v,i){
+    var cd = countdown(v.fecha_ida,v.fecha_vuelta);
+    var fechas = (v.fecha_ida ? '&#x1F6EB; '+esc(v.fecha_ida) : '') + (v.fecha_vuelta ? ' &rarr; &#x1F6EC; '+esc(v.fecha_vuelta) : '');
+    return '<div class="card card-tap" onclick="openDetail(\''+v.id+'\')">'
+      + '<div class="card-header">'
+      + '<div><div class="card-title">'+esc(v.name)+'</div>'
+      + '<div class="card-meta">'+fechas+'</div></div>'
+      + '<div style="display:flex;align-items:center;gap:6px;">'
+      + '<span style="font-size:18px;color:var(--text2);">&rsaquo;</span>'
+      + '<button class="del-btn" onclick="event.stopPropagation();delViaje(\''+v.id+'\')">&#x00D7;</button>'
+      + '</div></div>'
+      + '<span class="badge '+VIAJE_BADGES[i%4]+'">'+esc(v.estado)+'</span>'
+      + (cd ? '<div class="card-meta" style="margin-top:6px;">'+cd+'</div>' : '')
+      + (v.notes ? '<div style="font-size:13px;color:var(--text2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">'+esc(v.notes)+'</div>' : '')
+      + '</div>';
+  }).join('');
 }
 
 // ─── DETAIL ───────────────────────────────────────────────
@@ -1396,15 +1399,18 @@ function calcDias(v){
 
 // DOCS
 function renderDocs(v){
-  document.getElementById('docs-list').innerHTML = (v.docs||[]).length
-    ? (v.docs||[]).map(d=>`
-        <div class="doc-card">
-          <span class="doc-icon">${d.tipo||'📄'}</span>
-          <div class="doc-info"><div class="doc-name">${esc(d.name)}</div><div class="doc-cat">${esc(d.tipo)}</div></div>
-          ${d.url?`<a class="doc-open" href="${esc(d.url)}" target="_blank">Abrir →</a>`:''}
-          <button class="del-btn" onclick="delDoc('${d.id}')">×</button>
-        </div>`).join('')
-    : `<div class="empty" style="padding:20px 0"><span class="empty-icon" style="font-size:32px">📎</span><p>Añade billetes y reservas</p></div>`;
+  if(!(v.docs||[]).length){
+    document.getElementById('docs-list').innerHTML='<div class="empty" style="padding:20px 0"><span class="empty-icon" style="font-size:32px">&#x1F4CE;</span><p>A\u00F1ade billetes y reservas</p></div>';
+    return;
+  }
+  document.getElementById('docs-list').innerHTML = (v.docs||[]).map(function(d){
+    return '<div class="doc-card">'
+      + '<span class="doc-icon">'+(d.tipo||'&#x1F4C4;')+'</span>'
+      + '<div class="doc-info"><div class="doc-name">'+esc(d.name)+'</div><div class="doc-cat">'+esc(d.tipo)+'</div></div>'
+      + (d.url ? '<a class="doc-open" href="'+esc(d.url)+'" target="_blank">Abrir &rarr;</a>' : '')
+      + '<button class="del-btn" onclick="delDoc(\''+d.id+'\')">&#x00D7;</button>'
+      + '</div>';
+  }).join('');
 }
 window.saveDoc = async () => {
   const name = document.getElementById('md-name').value.trim(); if(!name) return;
@@ -1543,12 +1549,13 @@ function renderBudget(v){
   document.getElementById('budget-total').textContent  = total.toFixed(2)+' €';
   document.getElementById('budget-previsto').textContent = (v.budget||'—')+' €';
   document.getElementById('budget-bar').style.width = pct+'%';
-  document.getElementById('budget-list').innerHTML = (v.gastos||[]).map(g=>`
-    <div class="budget-item">
-      <div><div class="bi-name">${esc(g.name)}</div><div class="bi-cat">${esc(g.cat)}</div></div>
-      <div class="bi-amt">${parseFloat(g.amt).toFixed(2)} €</div>
-      <button class="bi-del" onclick="delGasto('${g.id}')">×</button>
-    </div>`).join('');
+  document.getElementById('budget-list').innerHTML = (v.gastos||[]).map(function(g){
+    return '<div class="budget-item">'
+      + '<div><div class="bi-name">'+esc(g.name)+'</div><div class="bi-cat">'+esc(g.cat)+'</div></div>'
+      + '<div class="bi-amt">'+parseFloat(g.amt).toFixed(2)+' \u20AC</div>'
+      + '<button class="bi-del" onclick="delGasto(\''+g.id+'\')">&#x00D7;</button>'
+      + '</div>';
+  }).join('');
 }
 window.addGasto = async () => {
   const name=document.getElementById('ba-name').value.trim(); const amt=document.getElementById('ba-amt').value;
@@ -1962,7 +1969,8 @@ async function loadDistances(){
       if(d.routes?.length){
         const dist=d.routes[0].distance;
         const mins=Math.round(d.routes[0].duration/60);
-        routeSites[i]._dist=`${dist<1000?(Math.round(dist)+'m'):(dist/1000).toFixed(1)+'km')} · ~${mins} min a pie`;
+        const distStr = dist<1000 ? Math.round(dist)+'m' : (dist/1000).toFixed(1)+'km';
+        routeSites[i]._dist = distStr+' \u00B7 ~'+mins+' min a pie';
       }
     }catch(e){}
   }
