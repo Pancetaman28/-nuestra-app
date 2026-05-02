@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#378ADD">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Nuestra App">
+<title>Nuestra App</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link id="font-link" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Lora:wght@400;600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   PALETAS
+   ============================================================ */
+:root {
+  /* Cielo y miel (default) */
+  --bg:       #E6F1FB;
+  --bg2:      #F7FAFF;
+  --primary:  #B5D4F4;
+  --accent1:  #378ADD;
+  --accent2:  #FAC775;
+  --btn:      #854F0B;
+  --btn-text: #FFFFFF;
+  --text:     #1A2A3A;
+  --text2:    #5A6A7A;
+  --border:   rgba(55,138,221,0.15);
+  --card:     #FFFFFF;
+  --shadow:   0 2px 16px rgba(55,138,221,0.10);
+
+  /* Tipografía D (default) */
+  --font-title: 'Fraunces', serif;
+  --font-body:  'Montserrat', sans-serif;
+
+  --radius:    18px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); }
+body { font-family: var(--font-body); color: var(--text); display: flex; flex-direction: column; max-width: 430px; margin: 0 auto; position: relative; }
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+.screen { display: none; position: fixed; inset: 0; max-width: 430px; margin: 0 auto; flex-direction: column; background: var(--bg); z-index: 1; }
+.screen.active { display: flex; }
+
+/* ============================================================
+   SPLASH / LOGIN
+   ============================================================ */
+#screen-splash {
+  background: linear-gradient(160deg, var(--bg) 0%, var(--bg2) 100%);
+  align-items: center; justify-content: center; padding: 40px 32px;
+}
+.splash-deco {
+  position: absolute; border-radius: 50%; opacity: 0.18;
+}
+.splash-deco-1 { width: 220px; height: 220px; background: var(--accent1); top: -60px; right: -60px; }
+.splash-deco-2 { width: 160px; height: 160px; background: var(--accent2); bottom: 80px; left: -50px; }
+.splash-deco-3 { width: 80px;  height: 80px;  background: var(--accent1); bottom: 160px; right: 20px; }
+
+.splash-inner { position: relative; z-index: 1; width: 100%; }
+.splash-logo {
+  width: 72px; height: 72px; border-radius: 20px;
+  background: linear-gradient(135deg, var(--accent1), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin: 0 auto 24px; box-shadow: 0 8px 24px rgba(55,138,221,0.3);
+}
+.splash-title { font-family: var(--font-title); font-size: 32px; font-weight: 700; text-align: center; color: var(--text); margin-bottom: 6px; }
+.splash-sub   { font-size: 13px; color: var(--text2); text-align: center; margin-bottom: 40px; }
+
+.tab-switcher { display: flex; background: var(--primary); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 24px; }
+.tab-sw-btn { flex: 1; padding: 8px; border: none; border-radius: 7px; background: none; font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.2s; }
+.tab-sw-btn.active { background: var(--card); color: var(--accent1); box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
+
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; display: block; }
+.form-input {
+  width: 100%; padding: 13px 16px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14px;
+  background: var(--card); color: var(--text); outline: none; transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--accent1); }
+.form-select {
+  width: 100%; padding: 13px 16px; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14px;
+  background: var(--card); color: var(--text); outline: none;
+}
+
+.btn-primary {
+  width: 100%; padding: 15px; border: none; border-radius: var(--radius-sm);
+  background: var(--accent1); color: white; font-family: var(--font-body);
+  font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+  margin-top: 8px;
+}
+.btn-primary:active { opacity: 0.85; }
+
+.auth-error { font-size: 12px; color: #c0392b; text-align: center; margin-top: 10px; min-height: 18px; }
+
+/* ============================================================
+   MAIN APP
+   ============================================================ */
+#screen-app { z-index: 2; }
+
+.app-header {
+  background: linear-gradient(135deg, var(--accent1) 0%, var(--btn) 100%);
+  padding: 48px 20px 18px; position: relative; overflow: hidden; flex-shrink: 0;
+}
+.app-header::before { content:''; position:absolute; top:-40px; right:-40px; width:130px; height:130px; background:rgba(255,255,255,0.12); border-radius:50%; }
+.app-header::after  { content:''; position:absolute; bottom:-25px; left:20px;  width:90px;  height:90px;  background:rgba(255,255,255,0.08); border-radius:50%; }
+.header-row { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+.header-title { font-family: var(--font-title); font-size: 24px; color: white; }
+.header-sub   { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 2px; }
+.header-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,0.25); border: 2px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: white; cursor: pointer; flex-shrink: 0;
+}
+.settings-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.2); border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; color: white; margin-left: 8px;
+}
+
+.app-nav { display: flex; background: var(--card); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.nav-btn { flex: 1; padding: 12px 4px 10px; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-family: var(--font-body); font-size: 11px; font-weight: 600; color: var(--text2); display: flex; flex-direction: column; align-items: center; gap: 3px; transition: color 0.2s; }
+.nav-btn .nav-icon { font-size: 20px; }
+.nav-btn.active { color: var(--accent1); border-bottom-color: var(--accent1); }
+
+.app-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; padding-bottom: 28px; }
+.tab-section { display: none; }
+.tab-section.active { display: block; }
+
+/* ============================================================
+   CARDS & COMMON
+   ============================================================ */
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin-bottom: 12px; }
+.card-tap { cursor: pointer; transition: transform 0.15s; }
+.card-tap:active { transform: scale(0.98); }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.card-title { font-family: var(--font-title); font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.card-meta  { font-size: 12px; color: var(--text2); margin-top: 4px; }
+.del-btn    { background: none; border: none; color: var(--text2); font-size: 20px; cursor: pointer; opacity: 0.5; flex-shrink: 0; }
+.del-btn:hover { opacity: 1; }
+
+.badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px; margin-top: 6px; }
+
+.empty { text-align: center; padding: 48px 20px; color: var(--text2); }
+.empty-icon { font-size: 44px; display: block; margin-bottom: 10px; }
+.empty p { font-size: 14px; }
+
+.add-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+.add-bar input { flex: 1; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14px; background: var(--card); color: var(--text); outline: none; }
+.add-bar input:focus { border-color: var(--accent1); }
+.add-btn { width: 46px; height: 46px; border-radius: var(--radius-sm); border: none; font-size: 22px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; transition: transform 0.15s; }
+.add-btn:active { transform: scale(0.92); }
+.add-btn-viaje   { background: var(--accent1); }
+.add-btn-receta  { background: var(--accent2); color: var(--btn); }
+.add-btn-lista   { background: var(--btn); }
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; align-items: flex-end; justify-content: center; max-width: 430px; margin: 0 auto; }
+.modal-bg.open { display: flex; }
+.modal { background: var(--card); border-radius: 24px 24px 0 0; padding: 24px 20px 40px; width: 100%; max-height: 90vh; overflow-y: auto; animation: slideUp 0.28s ease; }
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 99px; margin: 0 auto 18px; }
+.modal-title { font-family: var(--font-title); font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+.modal label { display: block; font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 14px; margin-bottom: 5px; }
+.modal input, .modal textarea, .modal select { width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14px; background: var(--bg2); color: var(--text); outline: none; transition: border-color 0.2s; }
+.modal input:focus, .modal textarea:focus, .modal select:focus { border-color: var(--accent1); }
+.modal textarea { height: 80px; resize: vertical; }
+.modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+.modal-btns button { flex: 1; padding: 13px; border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 14px; font-weight: 700; cursor: pointer; transition: transform 0.15s; }
+.modal-btns button:active { transform: scale(0.97); }
+.btn-cancel { background: var(--bg); border: 1.5px solid var(--border); color: var(--text2); }
+.btn-save   { background: var(--accent1); border: none; color: white; }
+.date-row { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 8px; }
+.date-row input { text-align: center; }
+
+/* ============================================================
+   VIAJE DETAIL SCREEN
+   ============================================================ */
+#screen-detail { z-index: 10; }
+
+.detail-header {
+  background: linear-gradient(135deg, var(--accent1) 0%, var(--btn) 100%);
+  padding: 48px 20px 16px; position: relative; overflow: hidden; flex-shrink: 0;
+}
+.detail-header::before { content:''; position:absolute; top:-30px; right:-30px; width:110px; height:110px; background:rgba(255,255,255,0.12); border-radius:50%; }
+.back-btn { position:absolute; top:14px; left:16px; background:rgba(255,255,255,0.22); border:none; border-radius:99px; padding:7px 16px; font-family:var(--font-body); font-size:13px; font-weight:600; color:white; cursor:pointer; z-index:2; }
+.detail-cover { position:absolute; inset:0; object-fit:cover; opacity:0.25; width:100%; height:100%; }
+.detail-title-row { position:relative; z-index:1; margin-top:6px; }
+.detail-title { font-family:var(--font-title); font-size:26px; font-weight:700; color:white; }
+.detail-meta  { font-size:12px; color:rgba(255,255,255,0.8); margin-top:3px; }
+.detail-badge-row { position:relative; z-index:1; margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.detail-state-badge { font-size:11px; font-weight:700; padding:4px 12px; border-radius:999px; background:rgba(255,255,255,0.25); color:white; }
+.countdown-badge { font-size:12px; font-weight:700; padding:4px 12px; border-radius:999px; background:rgba(255,255,255,0.18); color:white; }
+
+/* DASHBOARD */
+.dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+.dash-card { background:var(--card); border-radius:var(--radius-sm); padding:14px; box-shadow:var(--shadow); }
+.dash-label { font-size:11px; color:var(--text2); margin-bottom:4px; }
+.dash-value { font-family:var(--font-title); font-size:22px; font-weight:700; color:var(--accent1); }
+.dash-sub   { font-size:11px; color:var(--text2); margin-top:2px; }
+.progress-bar-wrap { background:var(--primary); border-radius:99px; height:6px; margin-top:6px; overflow:hidden; }
+.progress-bar-fill { height:100%; background:var(--accent1); border-radius:99px; transition:width 0.5s; }
+
+/* DETAIL NAV */
+.detail-nav { display:flex; background:var(--card); border-bottom:1px solid var(--border); flex-shrink:0; overflow-x:auto; }
+.detail-nav::-webkit-scrollbar { display:none; }
+.dtab { flex-shrink:0; padding:11px 14px 9px; background:none; border:none; border-bottom:3px solid transparent; cursor:pointer; font-family:var(--font-body); font-size:11px; font-weight:600; color:var(--text2); display:flex; flex-direction:column; align-items:center; gap:3px; white-space:nowrap; }
+.dtab .di { font-size:17px; }
+.dtab.active { color:var(--accent1); border-bottom-color:var(--accent1); }
+
+.detail-content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px; padding-bottom:32px; }
+.dsec { display:none; }
+.dsec.active { display:block; }
+.sec-title { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; }
+
+/* DOCUMENTOS */
+.doc-card { display:flex; align-items:center; gap:12px; background:var(--card); border-radius:var(--radius-sm); box-shadow:var(--shadow); padding:13px 14px; margin-bottom:8px; }
+.doc-icon { font-size:24px; flex-shrink:0; }
+.doc-info { flex:1; min-width:0; }
+.doc-name { font-size:14px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.doc-cat  { font-size:11px; color:var(--text2); }
+.doc-open { font-size:12px; font-weight:700; color:var(--accent1); text-decoration:none; flex-shrink:0; padding:4px 8px; }
+
+/* MALETA */
+.maleta-filters { display:flex; gap:7px; margin-bottom:14px; flex-wrap:wrap; }
+.filter-pill { padding:6px 14px; border-radius:999px; border:1.5px solid var(--border); background:var(--card); font-family:var(--font-body); font-size:12px; font-weight:600; color:var(--text2); cursor:pointer; transition:all 0.15s; }
+.filter-pill.fa { background:var(--accent1); border-color:var(--accent1); color:white; }
+.filter-pill.fd { background:var(--bg); border-color:var(--accent1); color:var(--accent1); }
+.filter-pill.fm { background:var(--bg); border-color:var(--btn); color:var(--btn); }
+.maleta-cats { margin-bottom:16px; }
+.mcat-section { margin-bottom:14px; }
+.mcat-title { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.mitem { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--border); }
+.mitem:last-child { border-bottom:none; }
+.mitem input[type=checkbox] { width:17px; height:17px; cursor:pointer; flex-shrink:0; accent-color:var(--accent1); }
+.mitem-label { flex:1; font-size:14px; cursor:pointer; }
+.mitem-label.done { text-decoration:line-through; color:var(--text2); }
+.person-pill { font-size:10px; font-weight:700; padding:2px 7px; border-radius:999px; flex-shrink:0; }
+.pp-todos { background:var(--bg); color:var(--accent1); }
+.pp-david { background:var(--primary); color:var(--btn); }
+.pp-maria { background:#FAC775; color:#854F0B; }
+.mitem-del { background:none; border:none; color:var(--border); font-size:15px; cursor:pointer; flex-shrink:0; }
+.maleta-add { display:flex; gap:6px; margin-top:12px; align-items:center; }
+.maleta-add input { flex:1; padding:9px 11px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:var(--font-body); font-size:13px; background:var(--bg2); color:var(--text); outline:none; }
+.maleta-add input:focus { border-color:var(--accent1); }
+.maleta-add select { padding:9px 6px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:var(--font-body); font-size:12px; background:var(--bg2); color:var(--text); outline:none; width:78px; flex-shrink:0; }
+.maleta-add .mcat-sel { width:110px; }
+.m-add-btn { width:36px; height:36px; border:none; border-radius:var(--radius-sm); background:var(--accent1); color:white; font-size:20px; cursor:pointer; flex-shrink:0; }
+
+/* PLANTILLAS */
+.plantilla-btn { display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--bg); border:1.5px dashed var(--border); border-radius:var(--radius-sm); margin-bottom:8px; cursor:pointer; font-family:var(--font-body); font-size:13px; font-weight:600; color:var(--accent1); width:100%; transition:background 0.15s; }
+.plantilla-btn:hover { background:var(--primary); }
+
+/* PRESUPUESTO */
+.budget-hero { background:linear-gradient(135deg,var(--accent1),var(--btn)); border-radius:var(--radius); padding:20px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; }
+.budget-hero-left .bl-label { font-size:11px; color:rgba(255,255,255,0.75); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+.budget-hero-left .bl-total { font-family:var(--font-title); font-size:30px; font-weight:700; color:white; }
+.budget-hero-right .br-label { font-size:11px; color:rgba(255,255,255,0.75); text-align:right; }
+.budget-hero-right .br-val   { font-size:16px; font-weight:700; color:white; text-align:right; }
+.budget-bar-wrap { background:rgba(255,255,255,0.2); border-radius:99px; height:6px; margin-top:10px; overflow:hidden; }
+.budget-bar-fill { height:100%; background:var(--accent2); border-radius:99px; transition:width 0.5s; }
+.budget-item { display:flex; align-items:center; gap:10px; padding:11px 14px; background:var(--card); border-radius:var(--radius-sm); box-shadow:var(--shadow); margin-bottom:8px; }
+.bi-name { flex:1; font-size:14px; font-weight:500; color:var(--text); }
+.bi-cat  { font-size:11px; color:var(--text2); }
+.bi-amt  { font-size:15px; font-weight:700; color:var(--accent1); flex-shrink:0; }
+.bi-del  { background:none; border:none; color:var(--text2); opacity:0.4; font-size:16px; cursor:pointer; }
+.budget-add { display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
+.budget-add input, .budget-add select { padding:9px 10px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:var(--font-body); font-size:13px; background:var(--bg2); color:var(--text); outline:none; }
+.budget-add .ba-name { flex:1; min-width:100px; }
+.budget-add .ba-amt  { width:80px; }
+.budget-add .ba-cat  { width:120px; }
+.budget-add .ba-btn  { padding:9px 16px; border:none; border-radius:var(--radius-sm); background:var(--accent1); color:white; font-family:var(--font-body); font-size:13px; font-weight:700; cursor:pointer; }
+
+/* ITINERARIO */
+.day-block { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:14px; overflow:hidden; }
+.day-header { padding:14px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+.day-title  { font-family:var(--font-title); font-size:16px; font-weight:700; color:var(--text); }
+.day-time   { font-size:12px; color:var(--text2); }
+.day-note   { padding:8px 16px; background:var(--bg); border-bottom:1px solid var(--border); font-size:12px; color:var(--text2); }
+.day-note input { width:100%; background:none; border:none; font-family:var(--font-body); font-size:12px; color:var(--text2); outline:none; }
+.site-item { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:10px; }
+.site-item:last-child { border-bottom:none; }
+.site-item.visited { opacity:0.55; }
+.site-drag { font-size:16px; color:var(--text2); cursor:grab; flex-shrink:0; margin-top:2px; }
+.site-info { flex:1; min-width:0; }
+.site-name { font-size:14px; font-weight:600; color:var(--text); }
+.site-meta { font-size:12px; color:var(--text2); margin-top:2px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.site-time-pill { background:var(--bg); border-radius:999px; padding:2px 8px; font-size:11px; color:var(--accent1); font-weight:600; }
+.site-actions { display:flex; gap:6px; margin-top:6px; }
+.site-action-btn { font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px; border:1.5px solid var(--border); background:none; color:var(--accent1); cursor:pointer; font-family:var(--font-body); }
+.site-photo { width:52px; height:52px; border-radius:var(--radius-xs); object-fit:cover; flex-shrink:0; cursor:pointer; }
+.site-photo-placeholder { width:52px; height:52px; border-radius:var(--radius-xs); background:var(--bg); border:1.5px dashed var(--border); display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; flex-shrink:0; }
+.site-visited-check { width:22px; height:22px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; margin-top:2px; font-size:12px; transition:all 0.2s; }
+.site-visited-check.checked { background:var(--accent1); border-color:var(--accent1); color:white; }
+.day-add-site { padding:10px 16px; display:flex; gap:6px; }
+.day-add-site input { flex:1; padding:8px 11px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:var(--font-body); font-size:13px; background:var(--bg2); color:var(--text); outline:none; }
+.day-add-site input:focus { border-color:var(--accent1); }
+.day-add-site button { padding:8px 14px; border:none; border-radius:var(--radius-sm); background:var(--accent1); color:white; font-size:14px; font-weight:700; cursor:pointer; }
+
+/* CLIMA */
+.clima-hero { background:linear-gradient(135deg,var(--primary),var(--bg2)); border-radius:var(--radius); padding:20px; margin-bottom:14px; text-align:center; }
+.clima-city { font-family:var(--font-title); font-size:18px; font-weight:700; color:var(--text); }
+.clima-days { display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:8px; }
+.clima-day-card { background:var(--card); border-radius:var(--radius-sm); padding:12px 8px; box-shadow:var(--shadow); text-align:center; }
+.cdc-date { font-size:11px; color:var(--text2); margin-bottom:4px; }
+.cdc-icon { font-size:24px; margin-bottom:4px; }
+.cdc-temp { font-size:14px; font-weight:700; color:var(--text); }
+.cdc-desc { font-size:10px; color:var(--text2); margin-top:2px; }
+
+/* FOTOS */
+.fotos-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:12px; }
+.foto-thumb { aspect-ratio:1; border-radius:var(--radius-xs); object-fit:cover; width:100%; cursor:pointer; }
+.foto-add-btn { aspect-ratio:1; border-radius:var(--radius-xs); background:var(--bg); border:1.5px dashed var(--border); display:flex; align-items:center; justify-content:center; font-size:28px; cursor:pointer; color:var(--accent1); }
+.action-btn { width:100%; padding:13px; border:none; border-radius:var(--radius-sm); background:var(--accent1); color:white; font-family:var(--font-body); font-size:14px; font-weight:700; cursor:pointer; margin-top:8px; }
+
+/* NOTAS */
+.notas-area { width:100%; min-height:220px; padding:14px; border:1.5px solid var(--border); border-radius:var(--radius); font-family:var(--font-body); font-size:14px; background:var(--card); color:var(--text); outline:none; resize:none; line-height:1.6; }
+.notas-area:focus { border-color:var(--accent1); }
+
+/* ============================================================
+   SETTINGS SCREEN
+   ============================================================ */
+#screen-settings { z-index: 20; }
+.settings-header { background:linear-gradient(135deg,var(--accent1),var(--btn)); padding:48px 20px 18px; flex-shrink:0; position:relative; }
+.settings-header h2 { font-family:var(--font-title); font-size:22px; color:white; position:relative; z-index:1; }
+.settings-back { position:absolute; top:14px; left:16px; background:rgba(255,255,255,0.22); border:none; border-radius:99px; padding:7px 16px; font-family:var(--font-body); font-size:13px; font-weight:600; color:white; cursor:pointer; }
+.settings-content { flex:1; overflow-y:auto; padding:20px 16px 40px; }
+.settings-section { margin-bottom:28px; }
+.settings-section-title { font-size:12px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:14px; }
+
+.palette-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.palette-option { border:2px solid var(--border); border-radius:var(--radius-sm); padding:12px; cursor:pointer; transition:border-color 0.2s; background:var(--card); }
+.palette-option.selected { border-color:var(--accent1); }
+.palette-name { font-size:12px; font-weight:600; color:var(--text); margin-bottom:8px; }
+.palette-swatches { display:flex; gap:4px; }
+.ps { height:20px; border-radius:4px; flex:1; }
+
+.font-option { border:2px solid var(--border); border-radius:var(--radius-sm); padding:14px; cursor:pointer; margin-bottom:10px; background:var(--card); transition:border-color 0.2s; }
+.font-option.selected { border-color:var(--accent1); }
+.font-preview-title { font-size:20px; font-weight:700; color:var(--text); margin-bottom:4px; }
+.font-preview-body  { font-size:13px; color:var(--text2); }
+.font-meta { font-size:11px; color:var(--text2); margin-top:6px; border-top:1px solid var(--border); padding-top:6px; }
+
+.settings-field { margin-bottom:14px; }
+.settings-field label { display:block; font-size:11px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.settings-field input { width:100%; padding:11px 13px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:var(--font-body); font-size:14px; background:var(--bg2); color:var(--text); outline:none; }
+.settings-field input:focus { border-color:var(--accent1); }
+.settings-save { width:100%; padding:14px; border:none; border-radius:var(--radius-sm); background:var(--accent1); color:white; font-family:var(--font-body); font-size:15px; font-weight:700; cursor:pointer; margin-top:8px; }
+
+/* LISTAS */
+.list-items { margin-top:10px; }
+.list-item { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--border); }
+.list-item:last-child { border-bottom:none; }
+.list-item input[type=checkbox] { width:17px; height:17px; accent-color:var(--accent1); cursor:pointer; flex-shrink:0; }
+.list-item label { flex:1; font-size:14px; cursor:pointer; }
+.list-item label.done { text-decoration:line-through; color:var(--text2); }
+.item-del { background:none; border:none; color:var(--text2); opacity:0.4; font-size:16px; cursor:pointer; }
+.sub-add { display:flex; gap:6px; margin-top:10px; }
+.sub-add input { flex:1; padding:8px 10px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:var(--font-body); font-size:13px; background:var(--bg2); color:var(--text); outline:none; }
+.sub-add input:focus { border-color:var(--accent1); }
+.sub-add button { width:34px; height:34px; border:none; border-radius:var(--radius-sm); background:var(--btn); color:white; font-size:18px; font-weight:700; cursor:pointer; }
+
+/* RECETAS */
+.badge-receta-0 { background:#FFF8DC; color:#a07800; }
+.badge-receta-1 { background:#FFE8E8; color:#c94040; }
+.badge-receta-2 { background:#E0F7F6; color:#2a8a84; }
+.badge-receta-3 { background:#E8F9EA; color:#2d7a36; }
+.badge-receta-4 { background:#F0EFFF; color:#5854d6; }
+.badge-viaje-0  { background:#F0EFFF; color:#5854d6; }
+.badge-viaje-1  { background:#FFF8DC; color:#a07800; }
+.badge-viaje-2  { background:#E0F7F6; color:#2a8a84; }
+.badge-viaje-3  { background:#E8F9EA; color:#2d7a36; }
+
+/* PHOTO VIEWER */
+#photo-viewer { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:500; align-items:center; justify-content:center; }
+#photo-viewer.open { display:flex; }
+#photo-viewer img { max-width:90%; max-height:90%; border-radius:var(--radius-sm); }
+#photo-viewer .pv-close { position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:40px; height:40px; font-size:20px; color:white; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<!-- ===================== SPLASH / LOGIN ===================== -->
+<div id="screen-splash" class="screen active">
+  <div class="splash-deco splash-deco-1"></div>
+  <div class="splash-deco splash-deco-2"></div>
+  <div class="splash-deco splash-deco-3"></div>
+  <div class="splash-inner">
+    <div class="splash-logo">♥</div>
+    <div class="splash-title" id="splash-app-name">Nuestra App</div>
+    <div class="splash-sub">El espacio de los dos</div>
+    <div class="tab-switcher">
+      <button class="tab-sw-btn active" onclick="switchAuthTab('login')">Entrar</button>
+      <button class="tab-sw-btn" onclick="switchAuthTab('register')">Registrarse</button>
+    </div>
+    <div id="auth-login">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="login-email" placeholder="tu@email.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" id="login-pass" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary" onclick="doLogin()">Entrar →</button>
+      <div class="auth-error" id="login-error"></div>
+    </div>
+    <div id="auth-register" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <select class="form-select" id="reg-name">
+          <option value="David">David</option>
+          <option value="María">María</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="reg-email" placeholder="tu@email.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" id="reg-pass" placeholder="Mínimo 6 caracteres" />
+      </div>
+      <button class="btn-primary" onclick="doRegister()">Crear cuenta →</button>
+      <div class="auth-error" id="reg-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MAIN APP ===================== -->
+<div id="screen-app" class="screen">
+  <div class="app-header">
+    <div class="header-row">
+      <div>
+        <div class="header-title" id="header-app-name">Nuestra App</div>
+        <div class="header-sub" id="header-user-sub">Hola, David ♥</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="settings-btn" onclick="openSettings()" title="Ajustes">⚙️</button>
+        <div class="header-avatar" id="header-avatar" onclick="doLogout()">D</div>
+      </div>
+    </div>
+  </div>
+  <nav class="app-nav">
+    <button class="nav-btn active" onclick="showTab('viajes')"><span class="nav-icon" id="icon-viajes">✈️</span>Viajes</button>
+    <button class="nav-btn" onclick="showTab('recetas')"><span class="nav-icon" id="icon-recetas">🍳</span>Recetas</button>
+    <button class="nav-btn" onclick="showTab('listas')"><span class="nav-icon" id="icon-listas">📋</span>Listas</button>
+  </nav>
+  <div class="app-content">
+
+    <!-- VIAJES -->
+    <div id="tab-viajes" class="tab-section active">
+      <div class="add-bar">
+        <input id="v-input" type="text" placeholder="¿A dónde vais?" />
+        <button class="add-btn add-btn-viaje" onclick="openViajeModal()">+</button>
+      </div>
+      <div id="viajes-list"></div>
+    </div>
+
+    <!-- RECETAS -->
+    <div id="tab-recetas" class="tab-section">
+      <div class="add-bar">
+        <input id="r-input" type="text" placeholder="Nombre de la receta..." />
+        <button class="add-btn add-btn-receta" onclick="openRecetaModal()">+</button>
+      </div>
+      <div id="recetas-list"></div>
+    </div>
+
+    <!-- LISTAS -->
+    <div id="tab-listas" class="tab-section">
+      <div class="add-bar">
+        <input id="l-input" type="text" placeholder="Nueva lista (Compra, Pelis...)" />
+        <button class="add-btn add-btn-lista" onclick="addLista()">+</button>
+      </div>
+      <div id="listas-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== VIAJE DETAIL ===================== -->
+<div id="screen-detail" class="screen">
+  <div class="detail-header">
+    <button class="back-btn" onclick="closeDetail()">← Volver</button>
+    <div class="detail-title-row">
+      <div class="detail-title" id="detail-title">Lisboa</div>
+      <div class="detail-meta" id="detail-meta"></div>
+    </div>
+    <div class="detail-badge-row">
+      <span class="detail-state-badge" id="detail-state"></span>
+      <span class="countdown-badge" id="detail-countdown"></span>
+    </div>
+  </div>
+  <nav class="detail-nav">
+    <button class="dtab active" onclick="showDTab('dashboard')"><span class="di">📊</span>Resumen</button>
+    <button class="dtab" onclick="showDTab('docs')"><span class="di">📎</span>Docs</button>
+    <button class="dtab" onclick="showDTab('maleta')"><span class="di">🧳</span>Maleta</button>
+    <button class="dtab" onclick="showDTab('presupuesto')"><span class="di">💶</span>Gasto</button>
+    <button class="dtab" onclick="showDTab('itinerario')"><span class="di">🗺️</span>Ruta</button>
+    <button class="dtab" onclick="showDTab('clima')"><span class="di">🌤️</span>Clima</button>
+    <button class="dtab" onclick="showDTab('fotos')"><span class="di">📸</span>Fotos</button>
+    <button class="dtab" onclick="showDTab('notas')"><span class="di">📝</span>Notas</button>
+  </nav>
+  <div class="detail-content">
+
+    <!-- DASHBOARD -->
+    <div id="ds-dashboard" class="dsec active">
+      <div class="dash-grid" id="dash-grid"></div>
+      <div class="sec-title">Progreso del viaje</div>
+      <div class="card" style="padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:13px;color:var(--text2);">Organización</span>
+          <span style="font-size:13px;font-weight:700;color:var(--accent1);" id="dash-pct">0%</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="dash-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTOS -->
+    <div id="ds-docs" class="dsec">
+      <div class="sec-title">Documentos del viaje</div>
+      <div id="docs-list"></div>
+      <button class="action-btn" onclick="openDocModal()">+ Añadir documento</button>
+    </div>
+
+    <!-- MALETA -->
+    <div id="ds-maleta" class="dsec">
+      <div class="sec-title">Lista de la maleta</div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Cargar plantilla</div>
+        <button class="plantilla-btn" onclick="loadPlantilla('ciudad')">🏙️ Viaje de ciudad</button>
+        <button class="plantilla-btn" onclick="loadPlantilla('playa')">🏖️ Viaje de playa</button>
+        <button class="plantilla-btn" onclick="loadPlantilla('montana')">🏔️ Viaje de montaña</button>
+      </div>
+      <div class="maleta-filters">
+        <button class="filter-pill fa" id="fp-todos" onclick="setMFilter('todos')">🌍 Todos</button>
+        <button class="filter-pill" id="fp-david" onclick="setMFilter('david')">👦 David</button>
+        <button class="filter-pill" id="fp-maria" onclick="setMFilter('maria')">👧 María</button>
+      </div>
+      <div id="maleta-list"></div>
+      <div class="maleta-add">
+        <input id="maleta-inp" type="text" placeholder="Añadir cosa..." onkeydown="if(event.key==='Enter')addMaletaItem()" />
+        <select id="maleta-cat" class="mcat-sel">
+          <option value="👗 Ropa">👗 Ropa</option>
+          <option value="📄 Docs">📄 Docs</option>
+          <option value="🔌 Electrónica">🔌 Electrónica</option>
+          <option value="🧴 Higiene">🧴 Higiene</option>
+          <option value="💊 Salud">💊 Salud</option>
+          <option value="📦 Otro">📦 Otro</option>
+        </select>
+        <select id="maleta-per">
+          <option value="todos">🌍</option>
+          <option value="david">👦</option>
+          <option value="maria">👧</option>
+        </select>
+        <button class="m-add-btn" onclick="addMaletaItem()">+</button>
+      </div>
+    </div>
+
+    <!-- PRESUPUESTO -->
+    <div id="ds-presupuesto" class="dsec">
+      <div class="budget-hero">
+        <div class="budget-hero-left">
+          <div class="bl-label">Total gastado</div>
+          <div class="bl-total" id="budget-total">0,00 €</div>
+          <div class="budget-bar-wrap" style="width:160px;margin-top:8px;"><div class="budget-bar-fill" id="budget-bar" style="width:0%"></div></div>
+        </div>
+        <div class="budget-hero-right">
+          <div class="br-label">Presupuesto</div>
+          <div class="br-val" id="budget-previsto">— €</div>
+        </div>
+      </div>
+      <div class="sec-title">Gastos</div>
+      <div id="budget-list"></div>
+      <div class="budget-add">
+        <input class="ba-name" id="ba-name" type="text" placeholder="Concepto" />
+        <input class="ba-amt"  id="ba-amt"  type="number" placeholder="€" min="0" step="0.01" />
+        <select class="ba-cat" id="ba-cat">
+          <option>✈️ Vuelo</option><option>🏨 Hotel</option>
+          <option>🍽️ Comida</option><option>🎟️ Actividad</option><option>🚗 Transporte</option><option>🛍️ Compras</option><option>📦 Otro</option>
+        </select>
+        <button class="ba-btn" onclick="addGasto()">+</button>
+      </div>
+    </div>
+
+    <!-- ITINERARIO -->
+    <div id="ds-itinerario" class="dsec">
+      <div id="itinerario-days"></div>
+    </div>
+
+    <!-- CLIMA -->
+    <div id="ds-clima" class="dsec">
+      <div class="clima-hero">
+        <div class="clima-city" id="clima-city">Cargando...</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px;" id="clima-sub"></div>
+      </div>
+      <div class="clima-days" id="clima-days"></div>
+    </div>
+
+    <!-- FOTOS -->
+    <div id="ds-fotos" class="dsec">
+      <div class="sec-title">Álbum del viaje</div>
+      <div class="fotos-grid" id="fotos-grid"></div>
+      <input type="file" id="foto-input" accept="image/*" multiple style="display:none" onchange="addFotos(event)" />
+      <button class="action-btn" onclick="document.getElementById('foto-input').click()">+ Añadir fotos</button>
+      <button class="action-btn" style="background:var(--bg);color:var(--accent1);border:1.5px solid var(--border);margin-top:8px;" onclick="downloadFotos()">⬇ Descargar todas</button>
+    </div>
+
+    <!-- NOTAS -->
+    <div id="ds-notas" class="dsec">
+      <div class="sec-title">Notas del viaje</div>
+      <textarea class="notas-area" id="notas-area" placeholder="Ideas sueltas, cosas a reservar, recomendaciones..."></textarea>
+      <button class="action-btn" id="notas-btn" onclick="saveNotas()">Guardar notas</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== SETTINGS ===================== -->
+<div id="screen-settings" class="screen">
+  <div class="settings-header">
+    <button class="settings-back" onclick="closeSettings()">← Volver</button>
+    <h2>⚙️ Ajustes</h2>
+  </div>
+  <div class="settings-content">
+
+    <div class="settings-section">
+      <div class="settings-section-title">Identidad de la app</div>
+      <div class="settings-field">
+        <label>Nombre de la app</label>
+        <input id="s-app-name" type="text" value="Nuestra App" />
+      </div>
+      <div class="settings-field">
+        <label>Lema</label>
+        <input id="s-lema" type="text" value="El espacio de los dos" />
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Paleta de colores</div>
+      <div class="palette-grid" id="palette-grid"></div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Tipografía</div>
+      <div id="font-options"></div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Iconos de secciones</div>
+      <div class="settings-field">
+        <label>Icono Viajes</label>
+        <input id="s-icon-viajes" type="text" maxlength="2" value="✈️" style="width:60px;text-align:center;font-size:20px;" />
+      </div>
+      <div class="settings-field">
+        <label>Icono Recetas</label>
+        <input id="s-icon-recetas" type="text" maxlength="2" value="🍳" style="width:60px;text-align:center;font-size:20px;" />
+      </div>
+      <div class="settings-field">
+        <label>Icono Listas</label>
+        <input id="s-icon-listas" type="text" maxlength="2" value="📋" style="width:60px;text-align:center;font-size:20px;" />
+      </div>
+    </div>
+
+    <button class="settings-save" onclick="saveSettings()">Guardar cambios</button>
+    <button class="settings-save" style="background:none;border:1.5px solid var(--border);color:var(--text2);margin-top:10px;" onclick="doLogout()">Cerrar sesión</button>
+
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-bg" id="modal-viaje" onclick="closeMBg('modal-viaje')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✈️ Nuevo viaje</div>
+    <label>Destino</label>
+    <input id="mv-name" type="text" placeholder="Ej: Lisboa" />
+    <label>Estado</label>
+    <select id="mv-estado">
+      <option>💭 Pendiente / Sueño</option>
+      <option>📅 Planificando</option>
+      <option>✅ Reservado</option>
+      <option>📸 Visitado</option>
+    </select>
+    <label>Fecha de ida</label>
+    <div class="date-row">
+      <input id="mv-d1" type="number" min="1" max="31" placeholder="DD" />
+      <input id="mv-m1" type="number" min="1" max="12" placeholder="MM" />
+      <input id="mv-y1" type="number" min="2024" max="2040" placeholder="AAAA" />
+    </div>
+    <label>Fecha de vuelta</label>
+    <div class="date-row">
+      <input id="mv-d2" type="number" min="1" max="31" placeholder="DD" />
+      <input id="mv-m2" type="number" min="1" max="12" placeholder="MM" />
+      <input id="mv-y2" type="number" min="2024" max="2040" placeholder="AAAA" />
+    </div>
+    <label>Presupuesto previsto (€)</label>
+    <input id="mv-budget" type="number" placeholder="Ej: 1500" min="0" />
+    <label>Notas iniciales</label>
+    <textarea id="mv-notes" placeholder="Primera idea del viaje..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-viaje')">Cancelar</button>
+      <button class="btn-save" onclick="saveViaje()">Crear viaje</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-receta" onclick="closeMBg('modal-receta')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🍳 Nueva receta</div>
+    <label>Nombre</label>
+    <input id="mr-name" type="text" placeholder="Ej: Paella valenciana" />
+    <label>Categoría</label>
+    <select id="mr-cat">
+      <option>🥘 Plato principal</option><option>🍰 Postre</option>
+      <option>🥐 Desayuno</option><option>🥗 Ensalada / entrante</option><option>🍹 Bebida</option>
+    </select>
+    <label>Tiempo de preparación</label>
+    <input id="mr-time" type="text" placeholder="Ej: 45 min" />
+    <label>Ingredientes / notas</label>
+    <textarea id="mr-notes" placeholder="Ingredientes, pasos clave..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-receta')">Cancelar</button>
+      <button class="btn-save" onclick="saveReceta()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-doc" onclick="closeMBg('modal-doc')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📎 Añadir documento</div>
+    <label>Nombre</label>
+    <input id="md-name" type="text" placeholder="Ej: Vuelo Madrid-Roma ida" />
+    <label>Tipo</label>
+    <select id="md-tipo">
+      <option value="✈️">✈️ Vuelo</option>
+      <option value="🏨">🏨 Hotel</option>
+      <option value="🚗">🚗 Coche / Transporte</option>
+      <option value="🎟️">🎟️ Entrada / Actividad</option>
+      <option value="📄">📄 Otro documento</option>
+    </select>
+    <label>Enlace (Google Drive, email, web...)</label>
+    <input id="md-url" type="url" placeholder="https://drive.google.com/..." />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-doc')">Cancelar</button>
+      <button class="btn-save" onclick="saveDoc()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-site" onclick="closeMBg('modal-site')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📍 Añadir sitio</div>
+    <label>Nombre del sitio</label>
+    <input id="ms-name" type="text" placeholder="Ej: Coliseo Romano" />
+    <label>Categoría</label>
+    <select id="ms-cat">
+      <option>🏛️ Monumento</option><option>🍽️ Restaurante</option>
+      <option>🌿 Naturaleza</option><option>🛍️ Compras</option>
+      <option>🎭 Cultura / Arte</option><option>🏖️ Playa</option><option>📦 Otro</option>
+    </select>
+    <label>Hora de inicio</label>
+    <input id="ms-hora" type="time" />
+    <label>Tiempo estimado</label>
+    <select id="ms-tiempo">
+      <option value="30">30 min</option><option value="60">1 hora</option>
+      <option value="90">1,5 horas</option><option value="120">2 horas</option>
+      <option value="180">3 horas</option><option value="240">4 horas</option>
+      <option value="360">Medio día</option><option value="480">Día completo</option>
+    </select>
+    <label>Notas</label>
+    <textarea id="ms-notas" placeholder="Reservar antes, precio estimado, consejo..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-site')">Cancelar</button>
+      <button class="btn-save" onclick="saveSite()">Añadir</button>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTO VIEWER -->
+<div id="photo-viewer">
+  <button class="pv-close" onclick="document.getElementById('photo-viewer').classList.remove('open')">×</button>
+  <img id="pv-img" src="" alt="" />
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAUjtAX51S-5Cp0sSbBPgNmaz2R2Ym88ao",
+  authDomain: "nuestra-app-cd02a.firebaseapp.com",
+  projectId: "nuestra-app-cd02a",
+  storageBucket: "nuestra-app-cd02a.firebasestorage.app",
+  messagingSenderId: "53107031853",
+  appId: "1:53107031853:web:0df16d48906f8e43c49da4"
+};
+
+const app   = initializeApp(firebaseConfig);
+const auth  = getAuth(app);
+const db    = getFirestore(app);
+
+// ─── STATE ───────────────────────────────────────────────
+let currentUser = null;
+let currentViajeId = null;
+let maletaFilter  = 'todos';
+let currentDayId  = null;
+let appData = {
+  viajes: [], recetas: [], listas: [],
+  settings: {
+    appName: 'Nuestra App', lema: 'El espacio de los dos',
+    palette: 'cielo', font: 'D',
+    iconViajes: '✈️', iconRecetas: '🍳', iconListas: '📋'
+  }
+};
+
+// ─── HELPERS ─────────────────────────────────────────────
+function esc(s){ return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function pad(n){ return String(n||'').padStart(2,'0'); }
+function fmtDate(d,m,y){ if(!d&&!m&&!y)return''; return [pad(d),pad(m),y||''].filter(Boolean).join('/'); }
+function parseDate(str){ if(!str)return null; const p=str.split('/'); if(p.length<3)return null; return new Date(p[2],p[1]-1,p[0]); }
+function countdown(fi, fv){
+  const now = new Date(); now.setHours(0,0,0,0);
+  const ida    = parseDate(fi);
+  const vuelta = parseDate(fv);
+  if(!ida) return '';
+  if(vuelta && now > vuelta) return '📸 Viaje completado';
+  if(ida <= now && vuelta && now <= vuelta) return '🌍 ¡Estáis de viaje!';
+  const diff = Math.ceil((ida - now) / 86400000);
+  if(diff > 0) return `⏳ Faltan ${diff} días`;
+  return '';
+}
+function minutesToStr(m){ if(m<60)return m+'min'; const h=Math.floor(m/60); const r=m%60; return r?h+'h '+r+'min':h+'h'; }
+
+// ─── PALETTES ────────────────────────────────────────────
+const PALETTES = {
+  salvia:  { name:'Salvia y arena',    bg:'#EAF3DE', bg2:'#FAF7F2', primary:'#C0DD97', accent1:'#639922', accent2:'#FAC775', btn:'#3B6D11', text:'#1A2A10', text2:'#5A7040', border:'rgba(99,153,34,0.15)' },
+  rosa:    { name:'Rosa palo y topo',  bg:'#FBEAF0', bg2:'#FDF6F9', primary:'#F4C0D1', accent1:'#D4537E', accent2:'#D3D1C7', btn:'#993556', text:'#2A0F18', text2:'#7A4A5A', border:'rgba(212,83,126,0.15)' },
+  azul:    { name:'Azul niebla',       bg:'#E6F1FB', bg2:'#F7FAFF', primary:'#B5D4F4', accent1:'#378ADD', accent2:'#D3D1C7', btn:'#185FA5', text:'#0A1A2A', text2:'#4A6A8A', border:'rgba(55,138,221,0.15)' },
+  ambar:   { name:'Ámbar y crudo',     bg:'#FAEEDA', bg2:'#FDFAF5', primary:'#FAC775', accent1:'#BA7517', accent2:'#B5D4F4', btn:'#854F0B', text:'#2A1A05', text2:'#7A5A30', border:'rgba(186,117,23,0.15)' },
+  cielo:   { name:'Cielo y miel',      bg:'#E6F1FB', bg2:'#F7FAFF', primary:'#B5D4F4', accent1:'#378ADD', accent2:'#FAC775', btn:'#854F0B', text:'#1A2A3A', text2:'#5A6A7A', border:'rgba(55,138,221,0.15)' },
+};
+
+const FONTS = {
+  B: { name:'B — Lora + Montserrat',    title:"'Lora', serif",       body:"'Montserrat', sans-serif", link:'https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Montserrat:wght@400;500;600;700&display=swap' },
+  C: { name:'C — Montserrat + Lato',    title:"'Montserrat', sans-serif", body:"'Lato', sans-serif",  link:'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Lato:wght@400;700&display=swap' },
+  D: { name:'D — Fraunces + Montserrat',title:"'Fraunces', serif",    body:"'Montserrat', sans-serif", link:'https://fonts.googleapis.com/css2?family=Fraunces:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap' },
+};
+
+function applyPalette(key){
+  const p = PALETTES[key] || PALETTES.cielo;
+  const r = document.documentElement.style;
+  r.setProperty('--bg',      p.bg);
+  r.setProperty('--bg2',     p.bg2);
+  r.setProperty('--primary', p.primary);
+  r.setProperty('--accent1', p.accent1);
+  r.setProperty('--accent2', p.accent2);
+  r.setProperty('--btn',     p.btn);
+  r.setProperty('--text',    p.text);
+  r.setProperty('--text2',   p.text2);
+  r.setProperty('--border',  p.border);
+}
+
+function applyFont(key){
+  const f = FONTS[key] || FONTS.D;
+  document.documentElement.style.setProperty('--font-title', f.title);
+  document.documentElement.style.setProperty('--font-body',  f.body);
+  document.getElementById('font-link').href = f.link;
+}
+
+function applySettings(s){
+  if(!s) return;
+  applyPalette(s.palette || 'cielo');
+  applyFont(s.font || 'D');
+  const name = s.appName || 'Nuestra App';
+  document.getElementById('header-app-name').textContent = name;
+  document.getElementById('splash-app-name').textContent = name;
+  document.title = name;
+  document.getElementById('header-sub').textContent = 'Hola, '+(currentUser?.displayName||'')+'  ♥';
+  document.getElementById('icon-viajes').textContent  = s.iconViajes  || '✈️';
+  document.getElementById('icon-recetas').textContent = s.iconRecetas || '🍳';
+  document.getElementById('icon-listas').textContent  = s.iconListas  || '📋';
+}
+
+// ─── AUTH ─────────────────────────────────────────────────
+window.switchAuthTab = (tab) => {
+  document.querySelectorAll('.tab-sw-btn').forEach((b,i)=>b.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+  document.getElementById('auth-login').style.display    = tab==='login'    ? 'block' : 'none';
+  document.getElementById('auth-register').style.display = tab==='register' ? 'block' : 'none';
+};
+
+window.doLogin = async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  document.getElementById('login-error').textContent = '';
+  try { await signInWithEmailAndPassword(auth, email, pass); }
+  catch(e){ document.getElementById('login-error').textContent = 'Email o contraseña incorrectos'; }
+};
+
+window.doRegister = async () => {
+  const name  = document.getElementById('reg-name').value;
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  document.getElementById('reg-error').textContent = '';
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+    await setDoc(doc(db,'users',cred.user.uid), { name, email, createdAt: new Date().toISOString() });
+  } catch(e){ document.getElementById('reg-error').textContent = 'Error: '+e.message; }
+};
+
+window.doLogout = async () => { await signOut(auth); };
+
+onAuthStateChanged(auth, async (user) => {
+  if(user){
+    currentUser = user;
+    showScreen('screen-app');
+    document.getElementById('header-avatar').textContent = (user.displayName||'?')[0].toUpperCase();
+    document.getElementById('header-sub').textContent = 'Hola, '+(user.displayName||'')+'  ♥';
+    subscribeData();
+    subscribeSettings();
+  } else {
+    currentUser = null;
+    showScreen('screen-splash');
+  }
+});
+
+// ─── FIRESTORE SUBSCRIPTIONS ──────────────────────────────
+let unsubSettings=null, unsubViajes=null, unsubRecetas=null, unsubListas=null;
+
+function subscribeSettings(){
+  if(unsubSettings) unsubSettings();
+  unsubSettings = onSnapshot(doc(db,'settings','shared'), snap => {
+    const s = snap.exists() ? snap.data() : {};
+    appData.settings = { ...appData.settings, ...s };
+    applySettings(appData.settings);
+    renderSettingsPanel();
+  });
+}
+
+function subscribeData(){
+  if(unsubViajes)  unsubViajes();
+  if(unsubRecetas) unsubRecetas();
+  if(unsubListas)  unsubListas();
+  unsubViajes  = onSnapshot(query(collection(db,'viajes'),  orderBy('createdAt','desc')), snap => { appData.viajes  = snap.docs.map(d=>({id:d.id,...d.data()})); renderViajes(); if(currentViajeId) renderDetail(); });
+  unsubRecetas = onSnapshot(query(collection(db,'recetas'), orderBy('createdAt','desc')), snap => { appData.recetas = snap.docs.map(d=>({id:d.id,...d.data()})); renderRecetas(); });
+  unsubListas  = onSnapshot(query(collection(db,'listas'),  orderBy('createdAt','desc')), snap => { appData.listas  = snap.docs.map(d=>({id:d.id,...d.data()})); renderListas(); });
+}
+
+// ─── SCREENS ─────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+window.showTab = (t) => {
+  document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.querySelectorAll('.nav-btn')[['viajes','recetas','listas'].indexOf(t)].classList.add('active');
+};
+window.openSettings  = () => { renderSettingsPanel(); showScreen('screen-settings'); };
+window.closeSettings = () => showScreen('screen-app');
+
+// ─── MODALS ───────────────────────────────────────────────
+window.closeModal  = (id) => document.getElementById(id).classList.remove('open');
+window.closeMBg    = (id) => (e) => { if(e.target===document.getElementById(id)) closeModal(id); };
+window.openViajeModal = () => {
+  document.getElementById('mv-name').value = document.getElementById('v-input').value;
+  document.getElementById('modal-viaje').classList.add('open');
+  setTimeout(()=>document.getElementById('mv-name').focus(),150);
+};
+window.openRecetaModal = () => {
+  document.getElementById('mr-name').value = document.getElementById('r-input').value;
+  document.getElementById('modal-receta').classList.add('open');
+  setTimeout(()=>document.getElementById('mr-name').focus(),150);
+};
+window.openDocModal = () => document.getElementById('modal-doc').classList.add('open');
+
+// ─── VIAJES ───────────────────────────────────────────────
+const VIAJE_BADGES = ['badge-viaje-0','badge-viaje-1','badge-viaje-2','badge-viaje-3'];
+window.saveViaje = async () => {
+  const name = document.getElementById('mv-name').value.trim(); if(!name) return;
+  const fi = fmtDate(document.getElementById('mv-d1').value, document.getElementById('mv-m1').value, document.getElementById('mv-y1').value);
+  const fv = fmtDate(document.getElementById('mv-d2').value, document.getElementById('mv-m2').value, document.getElementById('mv-y2').value);
+  await addDoc(collection(db,'viajes'),{
+    name, estado: document.getElementById('mv-estado').value,
+    fecha_ida: fi, fecha_vuelta: fv,
+    budget: parseFloat(document.getElementById('mv-budget').value)||0,
+    notes: document.getElementById('mv-notes').value.trim(),
+    docs:[], maleta:[], gastos:[], notas:'', fotos:[],
+    createdAt: new Date().toISOString()
+  });
+  document.getElementById('v-input').value = '';
+  closeModal('modal-viaje');
+};
+window.delViaje = async (id) => { if(confirm('¿Eliminar este viaje?')) await deleteDoc(doc(db,'viajes',id)); };
+
+function renderViajes(){
+  const el = document.getElementById('viajes-list');
+  el.innerHTML = appData.viajes.length ? appData.viajes.map((v,i)=>`
+    <div class="card card-tap" onclick="openDetail('${v.id}')">
+      <div class="card-header">
+        <div>
+          <div class="card-title">${esc(v.name)}</div>
+          <div class="card-meta">${v.fecha_ida?'🛫 '+esc(v.fecha_ida):''} ${v.fecha_vuelta?'→ 🛬 '+esc(v.fecha_vuelta):''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:18px;color:var(--text2);">›</span>
+          <button class="del-btn" onclick="event.stopPropagation();delViaje('${v.id}')">×</button>
+        </div>
+      </div>
+      <span class="badge ${VIAJE_BADGES[i%4]}">${esc(v.estado)}</span>
+      ${countdown(v.fecha_ida,v.fecha_vuelta)?`<div class="card-meta" style="margin-top:6px;">${countdown(v.fecha_ida,v.fecha_vuelta)}</div>`:''}
+      ${v.notes?`<div style="font-size:13px;color:var(--text2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">${esc(v.notes)}</div>`:''}
+    </div>`).join('')
+  : `<div class="empty"><span class="empty-icon">✈️</span><p>¡Añadid vuestros próximos destinos!</p></div>`;
+}
+
+// ─── DETAIL ───────────────────────────────────────────────
+window.openDetail = (id) => {
+  currentViajeId = id; maletaFilter = 'todos';
+  showScreen('screen-detail');
+  showDTab('dashboard');
+  renderDetail();
+};
+window.closeDetail = () => { showScreen('screen-app'); currentViajeId = null; };
+window.showDTab = (t) => {
+  document.querySelectorAll('.dsec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.dtab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('ds-'+t).classList.add('active');
+  const tabs=['dashboard','docs','maleta','presupuesto','itinerario','clima','fotos','notas'];
+  document.querySelectorAll('.dtab')[tabs.indexOf(t)].classList.add('active');
+  if(t==='clima') loadClima();
+};
+
+function getViaje(){ return appData.viajes.find(v=>v.id===currentViajeId); }
+
+function renderDetail(){
+  const v = getViaje(); if(!v) return;
+  document.getElementById('detail-title').textContent    = v.name;
+  document.getElementById('detail-state').textContent    = v.estado;
+  document.getElementById('detail-countdown').textContent = countdown(v.fecha_ida, v.fecha_vuelta);
+  let meta = '';
+  if(v.fecha_ida)    meta += '🛫 ' + v.fecha_ida;
+  if(v.fecha_vuelta) meta += '  →  🛬 ' + v.fecha_vuelta;
+  document.getElementById('detail-meta').textContent = meta;
+  renderDashboard(v);
+  renderDocs(v);
+  renderMaleta(v);
+  renderBudget(v);
+  renderItinerario(v);
+  renderFotos(v);
+  document.getElementById('notas-area').value = v.notas || '';
+}
+
+// DASHBOARD
+function renderDashboard(v){
+  const dias = calcDias(v);
+  const sitiosTotales = (v.itinerario||[]).reduce((s,d)=>s+(d.sites||[]).length, 0);
+  const sitiosVisitados = (v.itinerario||[]).reduce((s,d)=>s+(d.sites||[]).filter(x=>x.visited).length, 0);
+  const gastado = (v.gastos||[]).reduce((s,g)=>s+(parseFloat(g.amt)||0),0);
+  const maletaTodos = (v.maleta||[]).length;
+  const maletaHecho = (v.maleta||[]).filter(i=>i.done).length;
+  const docsOk   = (v.docs||[]).length > 0;
+  const totalTareas = (maletaTodos>0?1:0) + (sitiosTotales>0?1:0) + (docsOk?1:0);
+  const hecho       = (maletaTodos>0&&maletaHecho===maletaTodos?1:0) + (sitiosTotales>0&&sitiosVisitados===sitiosTotales?1:0) + (docsOk?1:0);
+  const pct = totalTareas > 0 ? Math.round(hecho/totalTareas*100) : 0;
+  document.getElementById('dash-pct').textContent = pct + '%';
+  document.getElementById('dash-bar').style.width  = pct + '%';
+  document.getElementById('dash-grid').innerHTML = `
+    <div class="dash-card"><div class="dash-label">Duración</div><div class="dash-value">${dias}</div><div class="dash-sub">días</div></div>
+    <div class="dash-card"><div class="dash-label">Sitios</div><div class="dash-value">${sitiosTotales}</div><div class="dash-sub">${sitiosVisitados} visitados</div></div>
+    <div class="dash-card"><div class="dash-label">Gastado</div><div class="dash-value" style="font-size:16px;">${gastado.toFixed(0)}€</div><div class="dash-sub">de ${v.budget||'—'}€</div></div>
+    <div class="dash-card"><div class="dash-label">Maleta</div><div class="dash-value">${maletaHecho}/${maletaTodos}</div><div class="dash-sub">items listos</div></div>`;
+}
+
+function calcDias(v){
+  const fi = parseDate(v.fecha_ida); const fv = parseDate(v.fecha_vuelta);
+  if(fi&&fv) return Math.max(1, Math.ceil((fv-fi)/86400000)+1);
+  return '?';
+}
+
+// DOCS
+function renderDocs(v){
+  document.getElementById('docs-list').innerHTML = (v.docs||[]).length
+    ? (v.docs||[]).map(d=>`
+        <div class="doc-card">
+          <span class="doc-icon">${d.tipo||'📄'}</span>
+          <div class="doc-info"><div class="doc-name">${esc(d.name)}</div><div class="doc-cat">${esc(d.tipo)}</div></div>
+          ${d.url?`<a class="doc-open" href="${esc(d.url)}" target="_blank">Abrir →</a>`:''}
+          <button class="del-btn" onclick="delDoc('${d.id}')">×</button>
+        </div>`).join('')
+    : `<div class="empty" style="padding:20px 0"><span class="empty-icon" style="font-size:32px">📎</span><p>Añade billetes y reservas</p></div>`;
+}
+window.saveDoc = async () => {
+  const name = document.getElementById('md-name').value.trim(); if(!name) return;
+  const v = getViaje(); if(!v) return;
+  const docs = [...(v.docs||[]), {id: Date.now()+'', name, tipo: document.getElementById('md-tipo').value, url: document.getElementById('md-url').value.trim()}];
+  await updateDoc(doc(db,'viajes',currentViajeId), {docs});
+  document.getElementById('md-name').value = ''; document.getElementById('md-url').value = '';
+  closeModal('modal-doc');
+};
+window.delDoc = async (did) => {
+  const v = getViaje(); if(!v) return;
+  await updateDoc(doc(db,'viajes',currentViajeId), {docs: (v.docs||[]).filter(d=>d.id!==did)});
+};
+
+// MALETA
+const PLANTILLAS = {
+  ciudad: [
+    {text:'DNI / Pasaporte', cat:'📄 Docs', person:'todos'},{text:'Tarjeta bancaria', cat:'📄 Docs', person:'todos'},
+    {text:'Seguro de viaje', cat:'📄 Docs', person:'todos'},{text:'Camisetas', cat:'👗 Ropa', person:'david'},
+    {text:'Pantalones', cat:'👗 Ropa', person:'david'},{text:'Camisetas', cat:'👗 Ropa', person:'maria'},
+    {text:'Vestido / Ropa', cat:'👗 Ropa', person:'maria'},{text:'Zapatillas cómodas', cat:'👗 Ropa', person:'todos'},
+    {text:'Cargador móvil', cat:'🔌 Electrónica', person:'todos'},{text:'Auriculares', cat:'🔌 Electrónica', person:'todos'},
+    {text:'Cámara de fotos', cat:'🔌 Electrónica', person:'todos'},{text:'Neceser', cat:'🧴 Higiene', person:'todos'},
+    {text:'Medicación', cat:'💊 Salud', person:'todos'},
+  ],
+  playa: [
+    {text:'DNI / Pasaporte', cat:'📄 Docs', person:'todos'},{text:'Bañador', cat:'👗 Ropa', person:'david'},
+    {text:'Bañador / Bikini', cat:'👗 Ropa', person:'maria'},{text:'Protector solar', cat:'🧴 Higiene', person:'todos'},
+    {text:'Chanclas', cat:'👗 Ropa', person:'todos'},{text:'Toalla de playa', cat:'📦 Otro', person:'todos'},
+    {text:'Gafas de sol', cat:'👗 Ropa', person:'todos'},{text:'Sombrero', cat:'👗 Ropa', person:'todos'},
+    {text:'Cargador móvil', cat:'🔌 Electrónica', person:'todos'},{text:'Medicación', cat:'💊 Salud', person:'todos'},
+  ],
+  montana: [
+    {text:'DNI / Pasaporte', cat:'📄 Docs', person:'todos'},{text:'Ropa térmica', cat:'👗 Ropa', person:'todos'},
+    {text:'Chaqueta impermeable', cat:'👗 Ropa', person:'todos'},{text:'Botas de montaña', cat:'👗 Ropa', person:'todos'},
+    {text:'Mochila de senderismo', cat:'📦 Otro', person:'todos'},{text:'Botiquín', cat:'💊 Salud', person:'todos'},
+    {text:'Crema solar', cat:'🧴 Higiene', person:'todos'},{text:'Gafas de sol', cat:'👗 Ropa', person:'todos'},
+    {text:'Linterna', cat:'🔌 Electrónica', person:'todos'},{text:'Cargador móvil', cat:'🔌 Electrónica', person:'todos'},
+  ],
+};
+
+window.loadPlantilla = async (tipo) => {
+  const v = getViaje(); if(!v) return;
+  const base = v.maleta||[];
+  const nuevos = PLANTILLAS[tipo].map(i=>({...i, id:Date.now()+''+Math.random(), done:false}));
+  await updateDoc(doc(db,'viajes',currentViajeId), {maleta:[...base,...nuevos]});
+};
+
+window.setMFilter = (f) => {
+  maletaFilter = f;
+  ['todos','david','maria'].forEach(p=>{
+    const btn = document.getElementById('fp-'+p);
+    btn.className = 'filter-pill' + (f===p ? (p==='todos' ? ' fa' : p==='david' ? ' fd' : ' fm') : '');
+  });
+  renderMaleta(getViaje());
+};
+
+function renderMaleta(v){
+  const items = maletaFilter==='todos' ? (v.maleta||[]) : (v.maleta||[]).filter(i=>i.person===maletaFilter||i.person==='todos');
+  const cats  = [...new Set(items.map(i=>i.cat))];
+  document.getElementById('maleta-list').innerHTML = items.length
+    ? cats.map(cat=>`
+        <div class="mcat-section">
+          <div class="mcat-title">${cat}</div>
+          ${items.filter(i=>i.cat===cat).map(i=>`
+            <div class="mitem">
+              <input type="checkbox" id="mc${i.id}" ${i.done?'checked':''} onchange="toggleMaleta('${i.id}')">
+              <label for="mc${i.id}" class="mitem-label${i.done?' done':''}">${esc(i.text)}</label>
+              <span class="person-pill pp-${i.person}">${i.person==='todos'?'Ambos':i.person==='david'?'David':'María'}</span>
+              <button class="mitem-del" onclick="delMaleta('${i.id}')">×</button>
+            </div>`).join('')}
+        </div>`).join('')
+    : `<p style="color:var(--text2);font-size:14px;padding:12px 0;text-align:center;">Sin elementos para este filtro</p>`;
+}
+
+window.addMaletaItem = async () => {
+  const inp = document.getElementById('maleta-inp'); const text=inp.value.trim(); if(!text)return;
+  const v=getViaje(); if(!v)return;
+  const maleta=[...(v.maleta||[]),{id:Date.now()+'',text,cat:document.getElementById('maleta-cat').value,person:document.getElementById('maleta-per').value,done:false}];
+  await updateDoc(doc(db,'viajes',currentViajeId),{maleta});
+  inp.value='';
+};
+window.toggleMaleta = async (id) => {
+  const v=getViaje(); if(!v)return;
+  const maleta=(v.maleta||[]).map(i=>i.id===id?{...i,done:!i.done}:i);
+  await updateDoc(doc(db,'viajes',currentViajeId),{maleta});
+};
+window.delMaleta = async (id) => {
+  const v=getViaje(); if(!v)return;
+  await updateDoc(doc(db,'viajes',currentViajeId),{maleta:(v.maleta||[]).filter(i=>i.id!==id)});
+};
+
+// PRESUPUESTO
+function renderBudget(v){
+  const total=(v.gastos||[]).reduce((s,g)=>s+(parseFloat(g.amt)||0),0);
+  const pct = v.budget>0 ? Math.min(100,Math.round(total/v.budget*100)) : 0;
+  document.getElementById('budget-total').textContent  = total.toFixed(2)+' €';
+  document.getElementById('budget-previsto').textContent = (v.budget||'—')+' €';
+  document.getElementById('budget-bar').style.width = pct+'%';
+  document.getElementById('budget-list').innerHTML = (v.gastos||[]).map(g=>`
+    <div class="budget-item">
+      <div><div class="bi-name">${esc(g.name)}</div><div class="bi-cat">${esc(g.cat)}</div></div>
+      <div class="bi-amt">${parseFloat(g.amt).toFixed(2)} €</div>
+      <button class="bi-del" onclick="delGasto('${g.id}')">×</button>
+    </div>`).join('');
+}
+window.addGasto = async () => {
+  const name=document.getElementById('ba-name').value.trim(); const amt=document.getElementById('ba-amt').value;
+  if(!name||!amt)return;
+  const v=getViaje(); if(!v)return;
+  const gastos=[...(v.gastos||[]),{id:Date.now()+'',name,amt:parseFloat(amt),cat:document.getElementById('ba-cat').value}];
+  await updateDoc(doc(db,'viajes',currentViajeId),{gastos});
+  document.getElementById('ba-name').value=''; document.getElementById('ba-amt').value='';
+};
+window.delGasto = async (id) => {
+  const v=getViaje(); if(!v)return;
+  await updateDoc(doc(db,'viajes',currentViajeId),{gastos:(v.gastos||[]).filter(g=>g.id!==id)});
+};
+
+// ITINERARIO
+function renderItinerario(v){
+  const fi=parseDate(v.fecha_ida); const fv=parseDate(v.fecha_vuelta);
+  let days=[];
+  if(fi&&fv){ for(let d=new Date(fi);d<=fv;d.setDate(d.getDate()+1)) days.push(new Date(d)); }
+  const itinerario = v.itinerario||[];
+  document.getElementById('itinerario-days').innerHTML = days.length
+    ? days.map((d,i)=>{
+        const dayKey = d.toISOString().split('T')[0];
+        const dayData = itinerario.find(x=>x.dayKey===dayKey)||{dayKey,sites:[],note:''};
+        const totalMin = (dayData.sites||[]).reduce((s,x)=>s+(parseInt(x.tiempo)||0),0);
+        return `<div class="day-block">
+          <div class="day-header">
+            <div class="day-title">Día ${i+1} — ${d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})}</div>
+            <div class="day-time">${totalMin>0?minutesToStr(totalMin):''}</div>
+          </div>
+          <div class="day-note"><input type="text" value="${esc(dayData.note||'')}" placeholder="Nota del día..." onblur="saveDayNote('${dayKey}',this.value)" /></div>
+          ${(dayData.sites||[]).map((s,si)=>`
+            <div class="site-item${s.visited?' visited':''}">
+              <div class="site-visited-check${s.visited?' checked':''}" onclick="toggleSiteVisited('${dayKey}','${s.id}')">✓</div>
+              <div class="site-info">
+                <div class="site-name">${esc(s.name)}</div>
+                <div class="site-meta">
+                  <span>${esc(s.cat)}</span>
+                  ${s.hora?`<span>🕐 ${s.hora}</span>`:''}
+                  ${s.tiempo?`<span class="site-time-pill">⏱ ${minutesToStr(parseInt(s.tiempo))}</span>`:''}
+                </div>
+                ${s.notas?`<div style="font-size:12px;color:var(--text2);margin-top:4px;">${esc(s.notas)}</div>`:''}
+                <div class="site-actions">
+                  <a class="site-action-btn" href="https://www.google.com/maps/search/${encodeURIComponent(s.name+' '+v.name)}" target="_blank">📍 Maps</a>
+                  <a class="site-action-btn" href="https://claude.ai/new?q=${encodeURIComponent('Estoy visitando '+s.name+' en '+v.name+'. Cuéntame curiosidades interesantes y qué no me puedo perder aquí.')}" target="_blank">🤖 Claude</a>
+                  <button class="site-action-btn" onclick="delSite('${dayKey}','${s.id}')">🗑</button>
+                </div>
+              </div>
+              <div class="site-photo-placeholder" onclick="addSitePhoto('${dayKey}','${s.id}')">📷</div>
+            </div>`).join('')}
+          <div class="day-add-site">
+            <input type="text" id="site-inp-${dayKey}" placeholder="Añadir sitio o actividad..." onkeydown="if(event.key==='Enter'){currentDayId='${dayKey}';document.getElementById('ms-name').value=this.value;openSiteModal()}" />
+            <button onclick="currentDayId='${dayKey}';document.getElementById('ms-name').value=document.getElementById('site-inp-${dayKey}').value;openSiteModal()">+</button>
+          </div>
+        </div>`;}).join('')
+    : `<div class="empty"><span class="empty-icon">🗺️</span><p>Añade fechas al viaje para ver los días</p></div>`;
+}
+
+window.openSiteModal = () => { document.getElementById('modal-site').classList.add('open'); };
+window.saveSite = async () => {
+  const name=document.getElementById('ms-name').value.trim(); if(!name)return;
+  const v=getViaje(); if(!v)return;
+  const itinerario=[...(v.itinerario||[])];
+  let day=itinerario.find(d=>d.dayKey===currentDayId);
+  if(!day){ day={dayKey:currentDayId,sites:[],note:''}; itinerario.push(day); }
+  day.sites=[...(day.sites||[]),{id:Date.now()+'',name,cat:document.getElementById('ms-cat').value,hora:document.getElementById('ms-hora').value,tiempo:document.getElementById('ms-tiempo').value,notas:document.getElementById('ms-notas').value.trim(),visited:false}];
+  await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
+  document.getElementById('ms-name').value=''; document.getElementById('ms-notas').value='';
+  if(currentDayId) { const inp=document.getElementById('site-inp-'+currentDayId); if(inp)inp.value=''; }
+  closeModal('modal-site');
+};
+window.toggleSiteVisited = async (dayKey,sid) => {
+  const v=getViaje(); if(!v)return;
+  const itinerario=(v.itinerario||[]).map(d=>d.dayKey!==dayKey?d:{...d,sites:(d.sites||[]).map(s=>s.id!==sid?s:{...s,visited:!s.visited})});
+  await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
+};
+window.delSite = async (dayKey,sid) => {
+  const v=getViaje(); if(!v)return;
+  const itinerario=(v.itinerario||[]).map(d=>d.dayKey!==dayKey?d:{...d,sites:(d.sites||[]).filter(s=>s.id!==sid)});
+  await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
+};
+window.saveDayNote = async (dayKey,note) => {
+  const v=getViaje(); if(!v)return;
+  let itinerario=[...(v.itinerario||[])];
+  let day=itinerario.find(d=>d.dayKey===dayKey);
+  if(!day){ day={dayKey,sites:[],note}; itinerario.push(day); } else { day.note=note; }
+  await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
+};
+
+// CLIMA
+async function loadClima(){
+  const v=getViaje(); if(!v){ document.getElementById('clima-city').textContent='Sin viaje seleccionado'; return; }
+  document.getElementById('clima-city').textContent = v.name;
+  const fi=parseDate(v.fecha_ida);
+  if(!fi){ document.getElementById('clima-sub').textContent='Añade fechas al viaje para ver el clima'; return; }
+  try {
+    const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(v.name)}&count=1&language=es`);
+    const gd  = await geo.json();
+    if(!gd.results?.length){ document.getElementById('clima-sub').textContent='Ciudad no encontrada'; return; }
+    const {latitude:lat,longitude:lon,name:city} = gd.results[0];
+    document.getElementById('clima-city').textContent = city;
+    const today=new Date(); today.setHours(0,0,0,0);
+    const startDate = fi>=today ? fi : today;
+    const fv=parseDate(v.fecha_vuelta);
+    const endDate = fv && fv>=today ? fv : new Date(startDate.getTime()+6*86400000);
+    const s=startDate.toISOString().split('T')[0]; const e=endDate.toISOString().split('T')[0];
+    const wr = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&start_date=${s}&end_date=${e}`);
+    const wd = await wr.json();
+    const WC={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',95:'⛈️',99:'⛈️'};
+    const WN={0:'Despejado',1:'Casi despejado',2:'Parcialmente nublado',3:'Nublado',45:'Niebla',51:'Llovizna',61:'Lluvia',71:'Nieve',80:'Chubascos',95:'Tormenta'};
+    document.getElementById('clima-days').innerHTML = (wd.daily?.time||[]).map((t,i)=>{
+      const d=new Date(t+'T00:00:00'); const wc=wd.daily.weathercode[i];
+      return `<div class="clima-day-card">
+        <div class="cdc-date">${d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric'})}</div>
+        <div class="cdc-icon">${WC[wc]||'🌡️'}</div>
+        <div class="cdc-temp">${Math.round(wd.daily.temperature_2m_max[i])}° / ${Math.round(wd.daily.temperature_2m_min[i])}°</div>
+        <div class="cdc-desc">${WN[wc]||''}</div>
+      </div>`;}).join('');
+    document.getElementById('clima-sub').textContent = `Previsión para ${v.name}`;
+  } catch(e){ document.getElementById('clima-sub').textContent = 'Error cargando el clima'; }
+}
+
+// FOTOS
+function renderFotos(v){
+  const fotos=v.fotos||[];
+  document.getElementById('fotos-grid').innerHTML = fotos.map(f=>`
+    <img class="foto-thumb" src="${f.data}" onclick="viewPhoto('${f.id}')" />`).join('');
+}
+window.addFotos = async (e) => {
+  const v=getViaje(); if(!v)return;
+  const files=[...e.target.files];
+  const fotos=[...(v.fotos||[])];
+  for(const file of files){
+    const data = await readFile(file);
+    fotos.push({id:Date.now()+''+Math.random(),data,name:file.name});
+  }
+  await updateDoc(doc(db,'viajes',currentViajeId),{fotos});
+  e.target.value='';
+};
+function readFile(f){ return new Promise(res=>{ const r=new FileReader(); r.onload=e=>res(e.target.result); r.readAsDataURL(f); }); }
+window.viewPhoto = (id) => {
+  const v=getViaje(); if(!v)return;
+  const f=(v.fotos||[]).find(x=>x.id===id); if(!f)return;
+  document.getElementById('pv-img').src=f.data;
+  document.getElementById('photo-viewer').classList.add('open');
+};
+window.downloadFotos = () => {
+  const v=getViaje(); if(!v)return;
+  (v.fotos||[]).forEach((f,i)=>{ const a=document.createElement('a'); a.href=f.data; a.download=`${v.name}_foto_${i+1}.jpg`; a.click(); });
+};
+
+// NOTAS
+window.saveNotas = async () => {
+  const v=getViaje(); if(!v)return;
+  await updateDoc(doc(db,'viajes',currentViajeId),{notas:document.getElementById('notas-area').value});
+  const btn=document.getElementById('notas-btn'); btn.textContent='✓ Guardado'; setTimeout(()=>btn.textContent='Guardar notas',2000);
+};
+
+// ─── RECETAS ──────────────────────────────────────────────
+const RB_CATS=['badge-receta-0','badge-receta-1','badge-receta-2','badge-receta-3','badge-receta-4'];
+window.saveReceta = async () => {
+  const name=document.getElementById('mr-name').value.trim(); if(!name)return;
+  await addDoc(collection(db,'recetas'),{name,cat:document.getElementById('mr-cat').value,time:document.getElementById('mr-time').value.trim(),notes:document.getElementById('mr-notes').value.trim(),createdAt:new Date().toISOString()});
+  document.getElementById('r-input').value=''; closeModal('modal-receta');
+};
+window.delReceta = async (id) => { await deleteDoc(doc(db,'recetas',id)); };
+function renderRecetas(){
+  const el=document.getElementById('recetas-list');
+  el.innerHTML=appData.recetas.length?appData.recetas.map((r,i)=>`
+    <div class="card">
+      <div class="card-header"><div class="card-title">${esc(r.name)}</div><button class="del-btn" onclick="delReceta('${r.id}')">×</button></div>
+      <span class="badge ${RB_CATS[i%5]}">${esc(r.cat)}</span>
+      ${r.time?`<div class="card-meta">⏱ ${esc(r.time)}</div>`:''}
+      ${r.notes?`<div style="font-size:13px;color:var(--text2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">${esc(r.notes)}</div>`:''}
+    </div>`).join('')
+  :`<div class="empty"><span class="empty-icon">🍳</span><p>Guardad aquí vuestras recetas favoritas</p></div>`;
+}
+
+// ─── LISTAS ───────────────────────────────────────────────
+window.addLista = async () => {
+  const inp=document.getElementById('l-input'); const name=inp.value.trim(); if(!name)return;
+  await addDoc(collection(db,'listas'),{name,items:[],createdAt:new Date().toISOString()});
+  inp.value='';
+};
+window.addItem = async (lid) => {
+  const inp=document.getElementById('li-'+lid); const text=inp.value.trim(); if(!text)return;
+  const l=appData.listas.find(x=>x.id===lid); if(!l)return;
+  await updateDoc(doc(db,'listas',lid),{items:[...(l.items||[]),{id:Date.now()+'',text,done:false}]});
+  inp.value='';
+};
+window.toggleItem = async (lid,iid) => {
+  const l=appData.listas.find(x=>x.id===lid); if(!l)return;
+  await updateDoc(doc(db,'listas',lid),{items:(l.items||[]).map(i=>i.id===iid?{...i,done:!i.done}:i)});
+};
+window.delLista = async (id) => { await deleteDoc(doc(db,'listas',id)); };
+window.delItem  = async (lid,iid) => {
+  const l=appData.listas.find(x=>x.id===lid); if(!l)return;
+  await updateDoc(doc(db,'listas',lid),{items:(l.items||[]).filter(i=>i.id!==iid)});
+};
+function renderListas(){
+  const el=document.getElementById('listas-list');
+  el.innerHTML=appData.listas.length?appData.listas.map(l=>`
+    <div class="card">
+      <div class="card-header"><div class="card-title">${esc(l.name)}</div><button class="del-btn" onclick="delLista('${l.id}')">×</button></div>
+      <div class="list-items">
+        ${(l.items||[]).map(i=>`
+          <div class="list-item">
+            <input type="checkbox" id="cb${i.id}" ${i.done?'checked':''} onchange="toggleItem('${l.id}','${i.id}')">
+            <label for="cb${i.id}" class="${i.done?'done':''}">${esc(i.text)}</label>
+            <button class="item-del" onclick="delItem('${l.id}','${i.id}')">×</button>
+          </div>`).join('')}
+      </div>
+      <div class="sub-add">
+        <input id="li-${l.id}" type="text" placeholder="Añadir elemento..." onkeydown="if(event.key==='Enter')addItem('${l.id}')">
+        <button onclick="addItem('${l.id}')">+</button>
+      </div>
+    </div>`).join('')
+  :`<div class="empty"><span class="empty-icon">📋</span><p>Crea listas de la compra, películas, libros...</p></div>`;
+}
+
+// ─── SETTINGS PANEL ───────────────────────────────────────
+function renderSettingsPanel(){
+  const s=appData.settings;
+  document.getElementById('s-app-name').value  = s.appName  || 'Nuestra App';
+  document.getElementById('s-lema').value       = s.lema     || 'El espacio de los dos';
+  document.getElementById('s-icon-viajes').value  = s.iconViajes  || '✈️';
+  document.getElementById('s-icon-recetas').value = s.iconRecetas || '🍳';
+  document.getElementById('s-icon-listas').value  = s.iconListas  || '📋';
+
+  document.getElementById('palette-grid').innerHTML = Object.entries(PALETTES).map(([key,p])=>`
+    <div class="palette-option${(s.palette||'cielo')===key?' selected':''}" onclick="selectPalette('${key}')">
+      <div class="palette-name">${p.name}</div>
+      <div class="palette-swatches">
+        <div class="ps" style="background:${p.bg}"></div>
+        <div class="ps" style="background:${p.primary}"></div>
+        <div class="ps" style="background:${p.accent1}"></div>
+        <div class="ps" style="background:${p.accent2}"></div>
+        <div class="ps" style="background:${p.btn}"></div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('font-options').innerHTML = Object.entries(FONTS).map(([key,f])=>`
+    <div class="font-option${(s.font||'D')===key?' selected':''}" onclick="selectFont('${key}')">
+      <div class="font-preview-title" style="font-family:${f.title};font-weight:700;">${f.name.split('—')[1]?.split('+')[0]?.trim()||'Título'}</div>
+      <div class="font-preview-body"  style="font-family:${f.body};">Cuerpo — Texto de la app</div>
+      <div class="font-meta">${f.name}</div>
+    </div>`).join('');
+}
+
+window.selectPalette = (key) => {
+  appData.settings.palette=key;
+  applyPalette(key);
+  document.querySelectorAll('.palette-option').forEach((el,i)=>{
+    el.classList.toggle('selected', Object.keys(PALETTES)[i]===key);
+  });
+};
+window.selectFont = (key) => {
+  appData.settings.font=key;
+  applyFont(key);
+  document.querySelectorAll('.font-option').forEach((el,i)=>{
+    el.classList.toggle('selected', Object.keys(FONTS)[i]===key);
+  });
+};
+window.saveSettings = async () => {
+  const s = {
+    appName:    document.getElementById('s-app-name').value.trim() || 'Nuestra App',
+    lema:       document.getElementById('s-lema').value.trim(),
+    palette:    appData.settings.palette || 'cielo',
+    font:       appData.settings.font    || 'D',
+    iconViajes:  document.getElementById('s-icon-viajes').value  || '✈️',
+    iconRecetas: document.getElementById('s-icon-recetas').value || '🍳',
+    iconListas:  document.getElementById('s-icon-listas').value  || '📋',
+  };
+  await setDoc(doc(db,'settings','shared'), s);
+  applySettings(s);
+  closeSettings();
+};
+
+// ─── INIT ─────────────────────────────────────────────────
+applyPalette('cielo');
+applyFont('D');
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>

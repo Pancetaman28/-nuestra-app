@@ -1,0 +1,11 @@
+{
+  "name": "Nuestra App",
+  "short_name": "Nuestra App",
+  "description": "El espacio de los dos",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#E6F1FB",
+  "theme_color": "#378ADD",
+  "orientation": "portrait",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
