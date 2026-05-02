@@ -443,6 +443,9 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
         <input class="form-input" type="password" id="login-pass" placeholder="••••••••" />
       </div>
       <button class="btn-primary" onclick="doLogin()">Entrar →</button>
+      <div style="text-align:center;margin-top:12px;">
+        <button onclick="doResetPassword()" style="background:none;border:none;font-family:var(--font-body);font-size:13px;color:var(--accent1);cursor:pointer;text-decoration:underline;">¿Olvidaste la contraseña?</button>
+      </div>
       <div class="auth-error" id="login-error"></div>
     </div>
     <div id="auth-register" style="display:none">
@@ -573,9 +576,9 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
         <button class="plantilla-btn" onclick="loadPlantilla('montana')">🏔️ Viaje de montaña</button>
       </div>
       <div class="maleta-filters">
-        <button class="filter-pill fa" id="fp-todos" onclick="setMFilter('todos')">🌍 Todos</button>
-        <button class="filter-pill" id="fp-david" onclick="setMFilter('david')">👦 David</button>
-        <button class="filter-pill" id="fp-maria" onclick="setMFilter('maria')">👧 María</button>
+        <button class="filter-pill fa" id="fp-todos" onclick="setMFilter('todos')">🐾 Todos</button>
+        <button class="filter-pill" id="fp-david" onclick="setMFilter('david')">🐵 David</button>
+        <button class="filter-pill" id="fp-maria" onclick="setMFilter('maria')">🐷 María</button>
       </div>
       <div id="maleta-list"></div>
       <div class="maleta-add">
@@ -589,9 +592,9 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
           <option value="📦 Otro">📦 Otro</option>
         </select>
         <select id="maleta-per">
-          <option value="todos">🌍</option>
-          <option value="david">👦</option>
-          <option value="maria">👧</option>
+          <option value="todos">🐾 Ambos</option>
+          <option value="david">🐵 David</option>
+          <option value="maria">🐷 María</option>
         </select>
         <button class="m-add-btn" onclick="addMaletaItem()">+</button>
       </div>
@@ -723,17 +726,9 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       <option>📸 Visitado</option>
     </select>
     <label>Fecha de ida</label>
-    <div class="date-row">
-      <input id="mv-d1" type="number" min="1" max="31" placeholder="DD" />
-      <input id="mv-m1" type="number" min="1" max="12" placeholder="MM" />
-      <input id="mv-y1" type="number" min="2024" max="2040" placeholder="AAAA" />
-    </div>
+    <input id="mv-fecha-ida" type="date" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
     <label>Fecha de vuelta</label>
-    <div class="date-row">
-      <input id="mv-d2" type="number" min="1" max="31" placeholder="DD" />
-      <input id="mv-m2" type="number" min="1" max="12" placeholder="MM" />
-      <input id="mv-y2" type="number" min="2024" max="2040" placeholder="AAAA" />
-    </div>
+    <input id="mv-fecha-vuelta" type="date" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
     <label>Presupuesto previsto (€)</label>
     <input id="mv-budget" type="number" placeholder="Ej: 1500" min="0" />
     <label>Notas iniciales</label>
@@ -796,6 +791,12 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">📍 Añadir sitio</div>
+    <label>Buscar en Google Maps</label>
+    <div style="display:flex;gap:6px;">
+      <input id="ms-search" type="text" placeholder="Busca el sitio..." style="flex:1;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
+      <button onclick="searchMaps()" style="padding:11px 14px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:13px;font-weight:700;cursor:pointer;">Buscar</button>
+    </div>
+    <div id="ms-search-results" style="margin-top:6px;"></div>
     <label>Nombre del sitio</label>
     <input id="ms-name" type="text" placeholder="Ej: Coliseo Romano" />
     <label>Categoría</label>
@@ -831,7 +832,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
@@ -997,6 +998,45 @@ window.doBiometric = async () => {
 
 window.doLogout = async () => { await signOut(auth); };
 
+window.doResetPassword = async () => {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  if(!email){ document.getElementById('login-error').textContent='Introduce tu email primero'; return; }
+  if(!ALLOWED_EMAILS.includes(email)){ document.getElementById('login-error').textContent='Email no autorizado'; return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    document.getElementById('login-error').style.color='green';
+    document.getElementById('login-error').textContent='Email enviado. Revisa tu bandeja de entrada.';
+    setTimeout(()=>{ document.getElementById('login-error').style.color=''; document.getElementById('login-error').textContent=''; },4000);
+  } catch(e){ document.getElementById('login-error').textContent='Error: '+e.message; }
+};
+
+window.searchMaps = async () => {
+  const q = document.getElementById('ms-search').value.trim(); if(!q)return;
+  const v = getViaje();
+  const query = v ? q+' '+v.name : q;
+  const res = document.getElementById('ms-search-results');
+  res.innerHTML = `<div style="padding:8px;font-size:13px;color:var(--text2);">Buscando...</div>`;
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=4&accept-language=es`);
+    const data = await r.json();
+    if(!data.length){ res.innerHTML=`<div style="padding:8px;font-size:13px;color:var(--text2);">Sin resultados</div>`; return; }
+    res.innerHTML = data.map(p=>`
+      <div onclick="selectPlace('${esc(p.display_name.split(',')[0])}','${p.lat}','${p.lon}')"
+        style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-xs);margin-top:4px;cursor:pointer;font-size:13px;color:var(--text);background:var(--bg2);">
+        <strong>${esc(p.display_name.split(',')[0])}</strong>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px;">${esc(p.display_name.split(',').slice(1,3).join(','))}</div>
+      </div>`).join('');
+  } catch(e){ res.innerHTML=`<div style="padding:8px;font-size:13px;color:var(--text2);">Error buscando</div>`; }
+};
+
+window.selectPlace = (name, lat, lng) => {
+  document.getElementById('ms-name').value = name;
+  document.getElementById('ms-search-results').innerHTML='';
+  document.getElementById('ms-search').value='';
+  window._selectedLat = lat;
+  window._selectedLng = lng;
+};
+
 onAuthStateChanged(auth, async (user) => {
   if(user){
     currentUser = user;
@@ -1023,8 +1063,9 @@ let unsubSettings=null, unsubViajes=null, unsubRecetas=null, unsubListas=null;
 function subscribeSettings(){
   if(unsubSettings) unsubSettings();
   unsubSettings = onSnapshot(doc(db,'settings','shared'), snap => {
-    const s = snap.exists() ? snap.data() : {};
-    appData.settings = { ...appData.settings, ...s };
+    const shared = snap.exists() ? snap.data() : {};
+    const personal = JSON.parse(localStorage.getItem('personal-settings-'+currentUser?.uid)||'{}');
+    appData.settings = { ...appData.settings, ...shared, ...personal };
     applySettings(appData.settings);
     renderSettingsPanel();
   });
@@ -1057,7 +1098,8 @@ window.closeSettings = () => showScreen('screen-app');
 window.closeModal  = (id) => document.getElementById(id).classList.remove('open');
 window.closeMBg    = (id) => (e) => { if(e.target===document.getElementById(id)) closeModal(id); };
 window.openViajeModal = () => {
-  document.getElementById('mv-name').value = document.getElementById('v-input').value;
+  const val = document.getElementById('v-input').value;
+  document.getElementById('mv-name').value = val || 'Madrid';
   document.getElementById('modal-viaje').classList.add('open');
   setTimeout(()=>document.getElementById('mv-name').focus(),150);
 };
@@ -1072,14 +1114,15 @@ window.openDocModal = () => document.getElementById('modal-doc').classList.add('
 const VIAJE_BADGES = ['badge-viaje-0','badge-viaje-1','badge-viaje-2','badge-viaje-3'];
 window.saveViaje = async () => {
   const name = document.getElementById('mv-name').value.trim(); if(!name) return;
-  const fi = fmtDate(document.getElementById('mv-d1').value, document.getElementById('mv-m1').value, document.getElementById('mv-y1').value);
-  const fv = fmtDate(document.getElementById('mv-d2').value, document.getElementById('mv-m2').value, document.getElementById('mv-y2').value);
+  function isoToDisplay(iso){ if(!iso)return''; const[y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+  const fi = isoToDisplay(document.getElementById('mv-fecha-ida').value);
+  const fv = isoToDisplay(document.getElementById('mv-fecha-vuelta').value);
   await addDoc(collection(db,'viajes'),{
     name, estado: document.getElementById('mv-estado').value,
     fecha_ida: fi, fecha_vuelta: fv,
     budget: parseFloat(document.getElementById('mv-budget').value)||0,
     notes: document.getElementById('mv-notes').value.trim(),
-    docs:[], maleta:[], gastos:[], notas:'', fotos:[],
+    docs:[], maleta:[], gastos:[], notas:'', fotos:[], itinerario:[],
     createdAt: new Date().toISOString()
   });
   document.getElementById('v-input').value = '';
@@ -1261,7 +1304,7 @@ function renderMaleta(v){
             <div class="mitem">
               <input type="checkbox" id="mc${i.id}" ${i.done?'checked':''} onchange="toggleMaleta('${i.id}')">
               <label for="mc${i.id}" class="mitem-label${i.done?' done':''}">${esc(i.text)}</label>
-              <span class="person-pill pp-${i.person}">${i.person==='todos'?'Ambos':i.person==='david'?'David':'María'}</span>
+              <span class="person-pill pp-${i.person}">${i.person==='todos'?'🐾 Ambos':i.person==='david'?'🐵 David':'🐷 María'}</span>
               <button class="mitem-del" onclick="delMaleta('${i.id}')">×</button>
             </div>`).join('')}
         </div>`).join('')
@@ -1340,7 +1383,8 @@ function renderItinerario(v){
                   ${s.tiempo?`<span class="site-time-pill">⏱ ${minutesToStr(parseInt(s.tiempo))}</span>`:''}
                 </div>
                 ${s.notas?`<div style="font-size:12px;color:var(--text2);margin-top:4px;">${esc(s.notas)}</div>`:''}
-                <div class="site-actions">
+    <div class="site-actions">
+                  <a class="site-action-btn" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(s.name+' '+v.name)}" target="_blank">🧭 Ir</a>
                   <a class="site-action-btn" href="https://www.google.com/maps/search/${encodeURIComponent(s.name+' '+v.name)}" target="_blank">📍 Maps</a>
                   <a class="site-action-btn" href="https://claude.ai/new?q=${encodeURIComponent('Estoy visitando '+s.name+' en '+v.name+'. Cuéntame curiosidades interesantes y qué no me puedo perder aquí.')}" target="_blank">🤖 Claude</a>
                   <button class="site-action-btn" onclick="delSite('${dayKey}','${s.id}')">🗑</button>
@@ -1360,30 +1404,49 @@ window.openSiteModal = () => { document.getElementById('modal-site').classList.a
 window.saveSite = async () => {
   const name=document.getElementById('ms-name').value.trim(); if(!name)return;
   const v=getViaje(); if(!v)return;
-  const itinerario=[...(v.itinerario||[])];
+  const itinerario = JSON.parse(JSON.stringify(v.itinerario||[]));
   let day=itinerario.find(d=>d.dayKey===currentDayId);
   if(!day){ day={dayKey:currentDayId,sites:[],note:''}; itinerario.push(day); }
-  day.sites=[...(day.sites||[]),{id:Date.now()+'',name,cat:document.getElementById('ms-cat').value,hora:document.getElementById('ms-hora').value,tiempo:document.getElementById('ms-tiempo').value,notas:document.getElementById('ms-notas').value.trim(),visited:false}];
+  if(!day.sites) day.sites=[];
+  day.sites.push({
+    id:Date.now()+'_'+Math.random(),
+    name,
+    cat:document.getElementById('ms-cat').value,
+    hora:document.getElementById('ms-hora').value,
+    tiempo:document.getElementById('ms-tiempo').value,
+    notas:document.getElementById('ms-notas').value.trim(),
+    lat: window._selectedLat||null,
+    lng: window._selectedLng||null,
+    placeId: window._selectedPlaceId||null,
+    visited:false
+  });
+  window._selectedLat=null; window._selectedLng=null; window._selectedPlaceId=null;
   await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
-  document.getElementById('ms-name').value=''; document.getElementById('ms-notas').value='';
-  if(currentDayId) { const inp=document.getElementById('site-inp-'+currentDayId); if(inp)inp.value=''; }
+  document.getElementById('ms-name').value='';
+  document.getElementById('ms-notas').value='';
+  document.getElementById('ms-hora').value='';
+  if(currentDayId){const inp=document.getElementById('site-inp-'+currentDayId);if(inp)inp.value='';}
   closeModal('modal-site');
 };
 window.toggleSiteVisited = async (dayKey,sid) => {
   const v=getViaje(); if(!v)return;
-  const itinerario=(v.itinerario||[]).map(d=>d.dayKey!==dayKey?d:{...d,sites:(d.sites||[]).map(s=>s.id!==sid?s:{...s,visited:!s.visited})});
+  const itinerario=JSON.parse(JSON.stringify(v.itinerario||[]));
+  const day=itinerario.find(d=>d.dayKey===dayKey);
+  if(day){const s=day.sites.find(x=>x.id===sid);if(s)s.visited=!s.visited;}
   await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
 };
 window.delSite = async (dayKey,sid) => {
   const v=getViaje(); if(!v)return;
-  const itinerario=(v.itinerario||[]).map(d=>d.dayKey!==dayKey?d:{...d,sites:(d.sites||[]).filter(s=>s.id!==sid)});
+  const itinerario=JSON.parse(JSON.stringify(v.itinerario||[]));
+  const day=itinerario.find(d=>d.dayKey===dayKey);
+  if(day)day.sites=day.sites.filter(s=>s.id!==sid);
   await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
 };
 window.saveDayNote = async (dayKey,note) => {
   const v=getViaje(); if(!v)return;
-  let itinerario=[...(v.itinerario||[])];
+  const itinerario=JSON.parse(JSON.stringify(v.itinerario||[]));
   let day=itinerario.find(d=>d.dayKey===dayKey);
-  if(!day){ day={dayKey,sites:[],note}; itinerario.push(day); } else { day.note=note; }
+  if(!day){day={dayKey,sites:[],note};itinerario.push(day);}else{day.note=note;}
   await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
 };
 
@@ -1561,17 +1624,21 @@ window.selectFont = (key) => {
   });
 };
 window.saveSettings = async () => {
-  const s = {
+  const sharedSettings = {
     appName:    document.getElementById('s-app-name').value.trim() || 'Nuestra App',
     lema:       document.getElementById('s-lema').value.trim(),
-    palette:    appData.settings.palette || 'cielo',
-    font:       appData.settings.font    || 'D',
     iconViajes:  document.getElementById('s-icon-viajes').value  || '✈️',
     iconRecetas: document.getElementById('s-icon-recetas').value || '🍳',
     iconListas:  document.getElementById('s-icon-listas').value  || '📋',
   };
-  await setDoc(doc(db,'settings','shared'), s);
-  applySettings(s);
+  const personalSettings = {
+    palette: appData.settings.palette || 'cielo',
+    font:    appData.settings.font    || 'D',
+  };
+  await setDoc(doc(db,'settings','shared'), sharedSettings, {merge:true});
+  localStorage.setItem('personal-settings-'+currentUser?.uid, JSON.stringify(personalSettings));
+  appData.settings = {...appData.settings, ...sharedSettings, ...personalSettings};
+  applySettings(appData.settings);
   closeSettings();
 };
 
