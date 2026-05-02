@@ -924,13 +924,19 @@ function applySettings(s){
   applyPalette(s.palette || 'cielo');
   applyFont(s.font || 'D');
   const name = s.appName || 'Nuestra App';
-  document.getElementById('header-app-name').textContent = name;
-  document.getElementById('splash-app-name').textContent = name;
+  const headerName = document.getElementById('header-app-name');
+  const splashName = document.getElementById('splash-app-name');
+  const headerSub  = document.getElementById('header-sub');
+  const iconViajes  = document.getElementById('icon-viajes');
+  const iconRecetas = document.getElementById('icon-recetas');
+  const iconListas  = document.getElementById('icon-listas');
+  if(headerName)  headerName.textContent  = name;
+  if(splashName)  splashName.textContent  = name;
+  if(headerSub)   headerSub.textContent   = 'Hola, '+(currentUser?.displayName||'');
+  if(iconViajes)  iconViajes.textContent  = s.iconViajes  || '✈️';
+  if(iconRecetas) iconRecetas.textContent = s.iconRecetas || '🍳';
+  if(iconListas)  iconListas.textContent  = s.iconListas  || '📋';
   document.title = name;
-  document.getElementById('header-sub').textContent = 'Hola, '+(currentUser?.displayName||'')+'  ♥';
-  document.getElementById('icon-viajes').textContent  = s.iconViajes  || '✈️';
-  document.getElementById('icon-recetas').textContent = s.iconRecetas || '🍳';
-  document.getElementById('icon-listas').textContent  = s.iconListas  || '📋';
 }
 
 // ─── AUTH ─────────────────────────────────────────────────
@@ -995,15 +1001,18 @@ onAuthStateChanged(auth, async (user) => {
   if(user){
     currentUser = user;
     showScreen('screen-app');
-    document.getElementById('header-avatar').textContent = (user.displayName||'?')[0].toUpperCase();
-    document.getElementById('header-sub').textContent = 'Hola, '+(user.displayName||'');
+    const avatar = document.getElementById('header-avatar');
+    const sub    = document.getElementById('header-sub');
+    if(avatar) avatar.textContent = (user.displayName||'?')[0].toUpperCase();
+    if(sub)    sub.textContent    = 'Hola, '+(user.displayName||'');
     subscribeData();
     subscribeSettings();
   } else {
     currentUser = null;
     showScreen('screen-splash');
-    if(localStorage.getItem('saved-email')){
-      document.getElementById('biometric-btn').style.display='block';
+    const biobtn = document.getElementById('biometric-btn');
+    if(biobtn && localStorage.getItem('saved-email')){
+      biobtn.style.display='block';
     }
   }
 });
