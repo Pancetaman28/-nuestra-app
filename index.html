@@ -402,9 +402,33 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
   <div class="splash-deco splash-deco-2"></div>
   <div class="splash-deco splash-deco-3"></div>
   <div class="splash-inner">
-    <div class="splash-logo">♥</div>
+    <div class="splash-logo">
+      <svg width="44" height="44" viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="22" r="7" fill="white"/>
+        <path d="M19 41 Q19 31 30 31 Q41 31 41 41 L41 45 L19 45Z" fill="white"/>
+        <circle cx="58" cy="22" r="7" fill="white" opacity="0.8"/>
+        <path d="M47 41 Q47 31 58 31 Q69 31 69 41 L69 45 L47 45Z" fill="white" opacity="0.8"/>
+        <ellipse cx="29" cy="61" rx="10" ry="7" fill="#FAC775"/>
+        <ellipse cx="20" cy="56" rx="5" ry="6" fill="#FAC775"/>
+        <circle cx="20" cy="54" r="4" fill="#FAC775"/>
+        <ellipse cx="17.5" cy="51.5" rx="2.2" ry="3.8" fill="#e6a830"/>
+        <ellipse cx="22.5" cy="51.5" rx="2.2" ry="3.8" fill="#e6a830"/>
+        <ellipse cx="61" cy="62" rx="8" ry="6" fill="#2d2d2d"/>
+        <ellipse cx="53" cy="57" rx="4" ry="5" fill="#2d2d2d"/>
+        <circle cx="53" cy="55" r="3.2" fill="#2d2d2d"/>
+        <path d="M49.5 50.5 L52 55" stroke="#2d2d2d" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M56.5 50.5 L54 55" stroke="#2d2d2d" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="51.5" cy="54" r="1" fill="white" opacity="0.8"/>
+        <circle cx="54.5" cy="54" r="1" fill="white" opacity="0.8"/>
+      </svg>
+    </div>
     <div class="splash-title" id="splash-app-name">Nuestra App</div>
     <div class="splash-sub">El espacio de los dos</div>
+    <div id="biometric-btn" style="display:none;margin-bottom:16px;">
+      <button onclick="doBiometric()" style="width:100%;padding:14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--card);font-family:var(--font-body);font-size:15px;font-weight:700;color:var(--accent1);cursor:pointer;">
+        Entrar con Face ID / Huella
+      </button>
+    </div>
     <div class="tab-switcher">
       <button class="tab-sw-btn active" onclick="switchAuthTab('login')">Entrar</button>
       <button class="tab-sw-btn" onclick="switchAuthTab('register')">Registrarse</button>
@@ -449,7 +473,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
     <div class="header-row">
       <div>
         <div class="header-title" id="header-app-name">Nuestra App</div>
-        <div class="header-sub" id="header-user-sub">Hola, David ♥</div>
+        <div class="header-sub" id="header-user-sub">Hola, David</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;">
         <button class="settings-btn" onclick="openSettings()" title="Ajustes">⚙️</button>
@@ -759,6 +783,8 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
     </select>
     <label>Enlace (Google Drive, email, web...)</label>
     <input id="md-url" type="url" placeholder="https://drive.google.com/..." />
+    <label>O sube un archivo directamente</label>
+    <input id="md-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="width:100%;padding:8px 0;font-family:var(--font-body);font-size:13px;" />
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-doc')">Cancelar</button>
       <button class="btn-save" onclick="saveDoc()">Guardar</button>
@@ -807,6 +833,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAUjtAX51S-5Cp0sSbBPgNmaz2R2Ym88ao",
@@ -820,6 +847,9 @@ const firebaseConfig = {
 const app   = initializeApp(firebaseConfig);
 const auth  = getAuth(app);
 const db    = getFirestore(app);
+const storage = getStorage(app);
+
+const ALLOWED_EMAILS = ['davidfdez90@gmail.com', 'mariagornavarro@gmail.com'];
 
 // ─── STATE ───────────────────────────────────────────────
 let currentUser = null;
@@ -911,23 +941,52 @@ window.switchAuthTab = (tab) => {
 };
 
 window.doLogin = async () => {
-  const email = document.getElementById('login-email').value.trim();
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
   const pass  = document.getElementById('login-pass').value;
   document.getElementById('login-error').textContent = '';
-  try { await signInWithEmailAndPassword(auth, email, pass); }
-  catch(e){ document.getElementById('login-error').textContent = 'Email o contraseña incorrectos'; }
+  if (!ALLOWED_EMAILS.includes(email)) { document.getElementById('login-error').textContent = 'Acceso no autorizado'; return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    localStorage.setItem('saved-email', email);
+    offerBiometric();
+  } catch(e){ document.getElementById('login-error').textContent = 'Email o contraseña incorrectos'; }
 };
 
 window.doRegister = async () => {
   const name  = document.getElementById('reg-name').value;
-  const email = document.getElementById('reg-email').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
   const pass  = document.getElementById('reg-pass').value;
   document.getElementById('reg-error').textContent = '';
+  if (!ALLOWED_EMAILS.includes(email)) { document.getElementById('reg-error').textContent = 'Acceso no autorizado'; return; }
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, { displayName: name });
     await setDoc(doc(db,'users',cred.user.uid), { name, email, createdAt: new Date().toISOString() });
+    localStorage.setItem('saved-email', email);
   } catch(e){ document.getElementById('reg-error').textContent = 'Error: '+e.message; }
+};
+
+function offerBiometric(){
+  if(window.PublicKeyCredential) localStorage.setItem('biometric-available','1');
+}
+
+window.doBiometric = async () => {
+  const email = localStorage.getItem('saved-email');
+  if(!email){ document.getElementById('biometric-btn').style.display='none'; return; }
+  try {
+    const assertion = await navigator.credentials.get({
+      publicKey: {
+        challenge: new Uint8Array(32),
+        rpId: window.location.hostname,
+        userVerification: 'required',
+        timeout: 60000
+      }
+    });
+    if(assertion) {
+      const savedPass = localStorage.getItem('saved-pass');
+      if(savedPass) await signInWithEmailAndPassword(auth, email, savedPass);
+    }
+  } catch(e) { console.log('Biometric failed, use password'); }
 };
 
 window.doLogout = async () => { await signOut(auth); };
@@ -937,12 +996,15 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     showScreen('screen-app');
     document.getElementById('header-avatar').textContent = (user.displayName||'?')[0].toUpperCase();
-    document.getElementById('header-sub').textContent = 'Hola, '+(user.displayName||'')+'  ♥';
+    document.getElementById('header-sub').textContent = 'Hola, '+(user.displayName||'');
     subscribeData();
     subscribeSettings();
   } else {
     currentUser = null;
     showScreen('screen-splash');
+    if(localStorage.getItem('saved-email')){
+      document.getElementById('biometric-btn').style.display='block';
+    }
   }
 });
 
@@ -1116,9 +1178,19 @@ function renderDocs(v){
 window.saveDoc = async () => {
   const name = document.getElementById('md-name').value.trim(); if(!name) return;
   const v = getViaje(); if(!v) return;
-  const docs = [...(v.docs||[]), {id: Date.now()+'', name, tipo: document.getElementById('md-tipo').value, url: document.getElementById('md-url').value.trim()}];
+  let url = document.getElementById('md-url').value.trim();
+  const fileInput = document.getElementById('md-file');
+  if(fileInput && fileInput.files.length > 0){
+    const file = fileInput.files[0];
+    const storageRef = ref(storage, `viajes/${currentViajeId}/docs/${Date.now()}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    url = await getDownloadURL(storageRef);
+  }
+  const docs = [...(v.docs||[]), {id: Date.now()+'', name, tipo: document.getElementById('md-tipo').value, url}];
   await updateDoc(doc(db,'viajes',currentViajeId), {docs});
-  document.getElementById('md-name').value = ''; document.getElementById('md-url').value = '';
+  document.getElementById('md-name').value = '';
+  document.getElementById('md-url').value = '';
+  if(fileInput) fileInput.value='';
   closeModal('modal-doc');
 };
 window.delDoc = async (did) => {
@@ -1343,29 +1415,28 @@ async function loadClima(){
 function renderFotos(v){
   const fotos=v.fotos||[];
   document.getElementById('fotos-grid').innerHTML = fotos.map(f=>`
-    <img class="foto-thumb" src="${f.data}" onclick="viewPhoto('${f.id}')" />`).join('');
+    <img class="foto-thumb" src="${f.url}" onclick="viewPhotoUrl('${f.url}')" />`).join('');
 }
 window.addFotos = async (e) => {
   const v=getViaje(); if(!v)return;
   const files=[...e.target.files];
   const fotos=[...(v.fotos||[])];
   for(const file of files){
-    const data = await readFile(file);
-    fotos.push({id:Date.now()+''+Math.random(),data,name:file.name});
+    const storageRef = ref(storage, `viajes/${currentViajeId}/fotos/${Date.now()}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    fotos.push({id:Date.now()+''+Math.random(), url, name:file.name, path:storageRef.fullPath});
   }
   await updateDoc(doc(db,'viajes',currentViajeId),{fotos});
   e.target.value='';
 };
-function readFile(f){ return new Promise(res=>{ const r=new FileReader(); r.onload=e=>res(e.target.result); r.readAsDataURL(f); }); }
-window.viewPhoto = (id) => {
-  const v=getViaje(); if(!v)return;
-  const f=(v.fotos||[]).find(x=>x.id===id); if(!f)return;
-  document.getElementById('pv-img').src=f.data;
+window.viewPhotoUrl = (url) => {
+  document.getElementById('pv-img').src=url;
   document.getElementById('photo-viewer').classList.add('open');
 };
 window.downloadFotos = () => {
   const v=getViaje(); if(!v)return;
-  (v.fotos||[]).forEach((f,i)=>{ const a=document.createElement('a'); a.href=f.data; a.download=`${v.name}_foto_${i+1}.jpg`; a.click(); });
+  (v.fotos||[]).forEach((f,i)=>{ const a=document.createElement('a'); a.href=f.url; a.download=`${v.name}_foto_${i+1}.jpg`; a.target='_blank'; a.click(); });
 };
 
 // NOTAS
