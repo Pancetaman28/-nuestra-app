@@ -1044,7 +1044,7 @@ function countdown(fi, fv){
   if(vuelta && now > vuelta) return '📸 Viaje completado';
   if(ida <= now && vuelta && now <= vuelta) return '🌍 ¡Estáis de viaje!';
   const diff = Math.ceil((ida - now) / 86400000);
-  if(diff > 0) return `⏳ Faltan ${diff} días`;
+  if(diff > 0) return '\u23F3 Faltan '+diff+' d\u00EDas';
   return '';
 }
 function minutesToStr(m){ if(m<60)return m+'min'; const h=Math.floor(m/60); const r=m%60; return r?h+'h '+r+'min':h+'h'; }
@@ -1478,20 +1478,21 @@ const PERSON_LABEL = {todos:'Todos', david:'🐵 David', maria:'🐷 María', pe
 function renderMaleta(v){
   const items = maletaFilter==='todos' ? (v.maleta||[]) : (v.maleta||[]).filter(i=>i.person===maletaFilter||i.person==='todos');
   const cats  = [...new Set(items.map(i=>i.cat))];
-  document.getElementById('maleta-list').innerHTML = items.length
-    ? cats.map(cat=>`
-        <div class="mcat-section">
-          <div class="mcat-title">${esc(cat)}</div>
-          ${items.filter(i=>i.cat===cat).map(i=>`
-            <div class="mitem">
-              <input type="checkbox" id="mc${i.id}" ${i.done?'checked':''} onchange="toggleMaleta('${i.id}')">
-              <label for="mc${i.id}" class="mitem-label${i.done?' done':''}">${esc(i.text)}</label>
-              <span class="person-pill pp-${i.person}">${PERSON_LABEL[i.person]||i.person}</span>
-              <button class="mitem-del" onclick="delMaleta('${i.id}')">×</button>
-            </div>`).join('')}
-        </div>`).join('')
-    : `<p style="color:var(--text2);font-size:14px;padding:12px 0;text-align:center;">Sin elementos para este filtro</p>`;
-
+  if(!items.length){
+    document.getElementById('maleta-list').innerHTML = '<p style="color:var(--text2);font-size:14px;padding:12px 0;text-align:center;">Sin elementos para este filtro</p>';
+  } else {
+    document.getElementById('maleta-list').innerHTML = cats.map(cat=>{
+      const catItems = items.filter(i=>i.cat===cat).map(i=>{
+        return '<div class="mitem">'
+          + '<input type="checkbox" id="mc'+i.id+'" '+(i.done?'checked':'')+' onchange="toggleMaleta(\''+i.id+'\')">'
+          + '<label for="mc'+i.id+'" class="mitem-label'+(i.done?' done':'')+'">'+esc(i.text)+'</label>'
+          + '<span class="person-pill pp-'+i.person+'">'+(PERSON_LABEL[i.person]||i.person)+'</span>'
+          + '<button class="mitem-del" onclick="delMaleta(\''+i.id+'\')">×</button>'
+          + '</div>';
+      }).join('');
+      return '<div class="mcat-section"><div class="mcat-title">'+esc(cat)+'</div>'+catItems+'</div>';
+    }).join('');
+  }
   renderMaletaCatSelect(v);
 }
 
@@ -1563,56 +1564,64 @@ window.delGasto = async (id) => {
 };
 
 // ITINERARIO
+function buildSiteHTML(s, dayKey, vname){
+  var visited = s.visited ? ' visited' : '';
+  var checked = s.visited ? ' checked' : '';
+  var hora    = s.hora  ? '<span>&#x1F550; '+s.hora+'</span>' : '';
+  var tiempo  = s.tiempo? '<span class="site-time-pill">&#x23F1; '+minutesToStr(parseInt(s.tiempo))+'</span>' : '';
+  var notas   = s.notas ? '<div style="font-size:12px;color:var(--text2);margin-top:4px;">'+esc(s.notas)+'</div>' : '';
+  var photo   = s.photo
+    ? '<img src="'+esc(s.photo)+'" onclick="event.stopPropagation();viewSitePhoto(this.src)" style="width:56px;height:56px;border-radius:var(--radius-xs);object-fit:cover;" />'
+    : '<div style="width:56px;height:56px;border-radius:var(--radius-xs);background:var(--bg);border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;">&#x1F4F7;</div>';
+  var mapsIr  = 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(s.name+' '+vname);
+  var mapsBus = 'https://www.google.com/maps/search/'+encodeURIComponent(s.name+' '+vname);
+  var claudeQ = 'https://claude.ai/new?q='+encodeURIComponent('Estoy visitando '+s.name+' en '+vname+'. Cu\u00E9ntame curiosidades interesantes y qu\u00E9 no me puedo perder aqu\u00ED.');
+  return '<div class="site-item'+visited+'">'
+    + '<div class="site-visited-check'+checked+'" onclick="toggleSiteVisited(\''+dayKey+'\',\''+s.id+'\')">&#x2713;</div>'
+    + '<div class="site-info">'
+    + '<div class="site-name">'+esc(s.name)+'</div>'
+    + '<div class="site-meta"><span>'+esc(s.cat)+'</span>'+hora+tiempo+'</div>'
+    + notas
+    + '<div class="site-actions">'
+    + '<a class="site-action-btn" href="'+mapsIr+'" target="_blank">&#x1F9ED; Ir</a>'
+    + '<a class="site-action-btn" href="'+mapsBus+'" target="_blank">&#x1F4CD; Maps</a>'
+    + '<a class="site-action-btn" href="'+claudeQ+'" target="_blank">&#x1F916; Claude</a>'
+    + '<button class="site-action-btn" onclick="delSite(\''+dayKey+'\',\''+s.id+'\')">&#x1F5D1;</button>'
+    + '</div>'
+    + '</div>'
+    + '<div onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" style="cursor:pointer;flex-shrink:0;">'+photo+'</div>'
+    + '</div>';
+}
+
 function renderItinerario(v){
   const fi=parseDate(v.fecha_ida); const fv=parseDate(v.fecha_vuelta);
+  const el = document.getElementById('itinerario-days');
+  if(!fi||!fv){ el.innerHTML='<div class="empty"><span class="empty-icon">&#x1F5FA;</span><p>A\u00F1ade fechas al viaje para ver los d\u00EDas</p></div>'; return; }
   let days=[];
-  if(fi&&fv){ for(let d=new Date(fi);d<=fv;d.setDate(d.getDate()+1)) days.push(new Date(d)); }
+  for(let d=new Date(fi);d<=fv;d.setDate(d.getDate()+1)) days.push(new Date(d));
   const itinerario = v.itinerario||[];
-  document.getElementById('itinerario-days').innerHTML = days.length
-    ? days.map((d,i)=>{
-        const dayKey = d.toISOString().split('T')[0];
-        const dayData = itinerario.find(x=>x.dayKey===dayKey)||{dayKey,sites:[],note:''};
-        const totalMin = (dayData.sites||[]).reduce((s,x)=>s+(parseInt(x.tiempo)||0),0);
-        return `<div class="day-block">
-          <div class="day-header">
-            <div class="day-title">Día ${i+1} — ${d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})}</div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div class="day-time">${totalMin>0?minutesToStr(totalMin):''}</div>
-              <button onclick="openRoutePlanner('${dayKey}')" style="padding:4px 10px;border:1.5px solid var(--accent1);border-radius:999px;background:none;color:var(--accent1);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);">🗺️ Ruta</button>
-            </div>
-          </div>
-          <div class="day-note"><input type="text" value="${esc(dayData.note||'')}" placeholder="Nota del día..." onblur="saveDayNote('${dayKey}',this.value)" /></div>
-          ${(dayData.sites||[]).map((s,si)=>`
-            <div class="site-item${s.visited?' visited':''}">
-              <div class="site-visited-check${s.visited?' checked':''}" onclick="toggleSiteVisited('${dayKey}','${s.id}')">✓</div>
-              <div class="site-info">
-                <div class="site-name">${esc(s.name)}</div>
-                <div class="site-meta">
-                  <span>${esc(s.cat)}</span>
-                  ${s.hora?`<span>🕐 ${s.hora}</span>`:''}
-                  ${s.tiempo?`<span class="site-time-pill">⏱ ${minutesToStr(parseInt(s.tiempo))}</span>`:''}
-                </div>
-                ${s.notas?`<div style="font-size:12px;color:var(--text2);margin-top:4px;">${esc(s.notas)}</div>`:''}
-                <div class="site-actions">
-                  <a class="site-action-btn" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(s.name+' '+v.name)}" target="_blank">🧭 Ir</a>
-                  <a class="site-action-btn" href="https://www.google.com/maps/search/${encodeURIComponent(s.name+' '+v.name)}" target="_blank">📍 Maps</a>
-                  <a class="site-action-btn" href="https://claude.ai/new?q=${encodeURIComponent('Estoy visitando '+s.name+' en '+v.name+'. Cuéntame curiosidades interesantes y qué no me puedo perder aquí.')}" target="_blank">🤖 Claude</a>
-                  <button class="site-action-btn" onclick="delSite('${dayKey}','${s.id}')">🗑</button>
-                </div>
-              </div>
-              <div onclick="openPhotoMenu('${dayKey}','${s.id}')" style="cursor:pointer;flex-shrink:0;">
-                ${s.photo
-                  ? `<img src="${esc(s.photo)}" onclick="event.stopPropagation();viewSitePhoto(this.src)" style="width:56px;height:56px;border-radius:var(--radius-xs);object-fit:cover;" />`
-                  : `<div style="width:56px;height:56px;border-radius:var(--radius-xs);background:var(--bg);border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;">📷</div>`
-                }
-              </div>
-            </div>`).join('')}
-          <div class="day-add-site">
-            <input type="text" id="site-inp-${dayKey}" placeholder="Añadir sitio o actividad..." onkeydown="if(event.key==='Enter'){document.getElementById('ms-name').value=this.value;openSiteModal('${dayKey}')}" />
-            <button onclick="document.getElementById('ms-name').value=document.getElementById('site-inp-${dayKey}').value||'';openSiteModal('${dayKey}')">+</button>
-          </div>
-        </div>`;}).join('')
-    : `<div class="empty"><span class="empty-icon">🗺️</span><p>Añade fechas al viaje para ver los días</p></div>`;
+  el.innerHTML = days.map(function(d,i){
+    const dayKey  = d.toISOString().split('T')[0];
+    const dayData = itinerario.find(x=>x.dayKey===dayKey)||{dayKey,sites:[],note:''};
+    const totalMin= (dayData.sites||[]).reduce(function(s,x){return s+(parseInt(x.tiempo)||0);},0);
+    const dayLabel= 'D\u00EDa '+(i+1)+' \u2014 '+d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+    const timeStr = totalMin>0?minutesToStr(totalMin):'';
+    const sitesHTML = (dayData.sites||[]).map(function(s){ return buildSiteHTML(s,dayKey,v.name); }).join('');
+    return '<div class="day-block">'
+      + '<div class="day-header">'
+      + '<div class="day-title">'+dayLabel+'</div>'
+      + '<div style="display:flex;align-items:center;gap:8px;">'
+      + '<div class="day-time">'+timeStr+'</div>'
+      + '<button onclick="openRoutePlanner(\''+dayKey+'\')" style="padding:4px 10px;border:1.5px solid var(--accent1);border-radius:999px;background:none;color:var(--accent1);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#x1F5FA; Ruta</button>'
+      + '</div></div>'
+      + '<div class="day-note"><input type="text" value="'+esc(dayData.note||'')+'" placeholder="Nota del d\u00EDa..." onblur="saveDayNote(\''+dayKey+'\',this.value)" /></div>'
+      + sitesHTML
+      + '<div class="day-add-site">'
+      + '<input type="text" id="site-inp-'+dayKey+'" placeholder="A\u00F1adir sitio o actividad..." onkeydown="if(event.key===\'Enter\'){document.getElementById(\'ms-name\').value=this.value;openSiteModal(\''+dayKey+'\')}" />'
+      + '<button onclick="document.getElementById(\'ms-name\').value=document.getElementById(\'site-inp-'+dayKey+'\').value||\'\';openSiteModal(\''+dayKey+'\')">+</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
 }
 
 window.openSiteModal = (dayKey) => {
@@ -1790,23 +1799,27 @@ window.delItem  = async (lid,iid) => {
 };
 function renderListas(){
   const el=document.getElementById('listas-list');
-  el.innerHTML=appData.listas.length?appData.listas.map(l=>`
-    <div class="card">
-      <div class="card-header"><div class="card-title">${esc(l.name)}</div><button class="del-btn" onclick="delLista('${l.id}')">×</button></div>
-      <div class="list-items">
-        ${(l.items||[]).map(i=>`
-          <div class="list-item">
-            <input type="checkbox" id="cb${i.id}" ${i.done?'checked':''} onchange="toggleItem('${l.id}','${i.id}')">
-            <label for="cb${i.id}" class="${i.done?'done':''}">${esc(i.text)}</label>
-            <button class="item-del" onclick="delItem('${l.id}','${i.id}')">×</button>
-          </div>`).join('')}
-      </div>
-      <div class="sub-add">
-        <input id="li-${l.id}" type="text" placeholder="Añadir elemento..." onkeydown="if(event.key==='Enter')addItem('${l.id}')">
-        <button onclick="addItem('${l.id}')">+</button>
-      </div>
-    </div>`).join('')
-  :`<div class="empty"><span class="empty-icon">📋</span><p>Crea listas de la compra, películas, libros...</p></div>`;
+  if(!appData.listas.length){
+    el.innerHTML='<div class="empty"><span class="empty-icon">&#x1F4CB;</span><p>Crea listas de la compra, pel\u00EDculas, libros...</p></div>';
+    return;
+  }
+  el.innerHTML = appData.listas.map(function(l){
+    const itemsHTML = (l.items||[]).map(function(i){
+      return '<div class="list-item">'
+        + '<input type="checkbox" id="cb'+i.id+'" '+(i.done?'checked':'')+' onchange="toggleItem(\''+l.id+'\',\''+i.id+'\')">'
+        + '<label for="cb'+i.id+'" class="'+(i.done?'done':'')+'">'+esc(i.text)+'</label>'
+        + '<button class="item-del" onclick="delItem(\''+l.id+'\',\''+i.id+'\')">×</button>'
+        + '</div>';
+    }).join('');
+    return '<div class="card">'
+      + '<div class="card-header"><div class="card-title">'+esc(l.name)+'</div><button class="del-btn" onclick="delLista(\''+l.id+'\')">×</button></div>'
+      + '<div class="list-items">'+itemsHTML+'</div>'
+      + '<div class="sub-add">'
+      + '<input id="li-'+l.id+'" type="text" placeholder="A\u00F1adir elemento..." onkeydown="if(event.key===\'Enter\')addItem(\''+l.id+'\')">'
+      + '<button onclick="addItem(\''+l.id+'\')">+</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
 }
 
 // ─── SETTINGS PANEL ───────────────────────────────────────
