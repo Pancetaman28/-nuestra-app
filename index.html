@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#378ADD">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Nuestra App">
@@ -11,6 +11,9 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link id="font-link" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Lora:wght@400;600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 
 <style>
 /* ============================================================
@@ -403,19 +406,55 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 .route-back { position:absolute; top:14px; left:16px; background:rgba(255,255,255,0.22); border:none; border-radius:99px; padding:7px 16px; font-family:var(--font-body); font-size:13px; font-weight:600; color:white; cursor:pointer; }
 .route-title { font-family:var(--font-title); font-size:20px; color:white; margin-top:6px; }
 .route-subtitle { font-size:12px; color:rgba(255,255,255,0.8); margin-top:3px; }
-.route-map { height:240px; flex-shrink:0; background:var(--primary); position:relative; }
-.route-map iframe { width:100%; height:100%; border:none; display:block; }
-.route-content { flex:1; overflow-y:auto; padding:16px; }
-.route-list-title { font-size:11px; font-weight:700; color:var(--text2); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:10px; }
-.route-pill { display:flex; align-items:center; gap:10px; background:var(--card); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:8px; box-shadow:var(--shadow); cursor:grab; user-select:none; }
-.route-pill:active { cursor:grabbing; opacity:0.8; }
-.route-pill-num { width:26px; height:26px; border-radius:50%; background:var(--accent1); color:white; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.route-pill-info { flex:1; }
-.route-pill-name { font-size:14px; font-weight:600; color:var(--text); }
+.route-map { height:260px; flex-shrink:0; position:relative; z-index:1; }
+#leaflet-map { width:100%; height:100%; }
+.route-toggle { display:flex; background:var(--card); border-bottom:1px solid var(--border); flex-shrink:0; }
+.route-toggle-btn { flex:1; padding:10px; background:none; border:none; border-bottom:3px solid transparent; font-family:var(--font-body); font-size:12px; font-weight:700; color:var(--text2); cursor:pointer; }
+.route-toggle-btn.active { color:var(--accent1); border-bottom-color:var(--accent1); }
+.route-day-filters { display:flex; gap:6px; padding:10px 16px; overflow-x:auto; background:var(--card); border-bottom:1px solid var(--border); flex-shrink:0; }
+.route-day-filters::-webkit-scrollbar { display:none; }
+.rdf-btn { flex-shrink:0; padding:5px 12px; border-radius:999px; border:2px solid var(--border); background:var(--bg); font-family:var(--font-body); font-size:11px; font-weight:700; cursor:pointer; transition:all 0.15s; color:var(--text2); }
+.rdf-btn.active { color:white; border-color:transparent; }
+.route-content { flex:1; overflow-y:auto; padding:12px 16px; padding-bottom:32px; }
+.route-day-group { margin-bottom:16px; }
+.route-day-group-title { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.route-day-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.route-pill { display:flex; align-items:center; gap:10px; background:var(--card); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:8px; box-shadow:var(--shadow); touch-action:none; user-select:none; cursor:grab; }
+.route-pill.dragging { opacity:0.5; box-shadow:0 8px 24px rgba(0,0,0,0.15); transform:scale(1.02); }
+.route-pill-num { width:26px; height:26px; border-radius:50%; color:white; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.route-pill-info { flex:1; min-width:0; }
+.route-pill-name { font-size:14px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .route-pill-meta { font-size:11px; color:var(--text2); margin-top:2px; }
-.route-pill-dist { font-size:11px; color:var(--accent1); font-weight:600; }
-.route-drag-handle { font-size:18px; color:var(--text2); flex-shrink:0; }
-.route-open-maps { width:100%; padding:14px; border:none; border-radius:var(--radius-sm); background:var(--accent1); color:white; font-family:var(--font-body); font-size:15px; font-weight:700; cursor:pointer; margin-top:8px; }
+.route-pill-dist { font-size:11px; color:var(--accent1); font-weight:600; margin-top:2px; }
+.route-drag-handle { font-size:18px; color:var(--text2); flex-shrink:0; padding:4px; }
+.route-open-maps { width:100%; padding:14px; border:none; border-radius:var(--radius-sm); background:var(--accent1); color:white; font-family:var(--font-body); font-size:15px; font-weight:700; cursor:pointer; margin-top:4px; }
+
+/* MALETA MULTISELECT */
+.person-checks { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+.person-check-label { display:flex; align-items:center; gap:5px; padding:5px 10px; border-radius:999px; border:1.5px solid var(--border); background:var(--bg2); font-family:var(--font-body); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; }
+.person-check-label input { display:none; }
+.person-check-label.checked { border-color:var(--accent1); background:var(--primary); color:var(--btn); }
+
+/* CUSTOM CONFIRM MODAL */
+.confirm-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center; padding:20px; max-width:430px; margin:0 auto; }
+.confirm-bg.open { display:flex; }
+.confirm-box { background:var(--card); border-radius:var(--radius); padding:28px 24px 20px; width:100%; max-width:320px; animation:slideIn 0.2s ease; box-shadow:0 8px 32px rgba(0,0,0,0.2); }
+.confirm-title { font-family:var(--font-title); font-size:18px; font-weight:700; color:var(--text); margin-bottom:8px; }
+.confirm-msg { font-size:14px; color:var(--text2); line-height:1.5; margin-bottom:20px; }
+.confirm-btns { display:flex; gap:10px; }
+.confirm-btns button { flex:1; padding:12px; border-radius:var(--radius-sm); font-family:var(--font-body); font-size:14px; font-weight:700; cursor:pointer; }
+.cb-cancel  { background:var(--bg); border:1.5px solid var(--border); color:var(--text2); }
+.cb-confirm { background:var(--accent1); border:none; color:white; }
+.cb-danger  { background:#e74c3c; border:none; color:white; }
+
+/* SEARCH SUGGESTIONS */
+.search-suggestions { position:relative; }
+.suggestions-list { background:var(--card); border:1.5px solid var(--border); border-radius:var(--radius-sm); margin-top:4px; overflow:hidden; box-shadow:var(--shadow); }
+.suggestion-item { padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--border); font-size:13px; color:var(--text); }
+.suggestion-item:last-child { border-bottom:none; }
+.suggestion-item:hover, .suggestion-item:active { background:var(--bg2); }
+.suggestion-item strong { color:var(--accent1); }
+.suggestion-item small { display:block; font-size:11px; color:var(--text2); margin-top:2px; }
 
 /* PHOTO MENU */
 .photo-menu { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:400; align-items:flex-end; justify-content:center; max-width:430px; margin:0 auto; }
@@ -433,25 +472,8 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
   <div class="splash-deco splash-deco-2"></div>
   <div class="splash-deco splash-deco-3"></div>
   <div class="splash-inner">
-    <div class="splash-logo">
-      <svg width="44" height="44" viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="30" cy="22" r="7" fill="white"/>
-        <path d="M19 41 Q19 31 30 31 Q41 31 41 41 L41 45 L19 45Z" fill="white"/>
-        <circle cx="58" cy="22" r="7" fill="white" opacity="0.8"/>
-        <path d="M47 41 Q47 31 58 31 Q69 31 69 41 L69 45 L47 45Z" fill="white" opacity="0.8"/>
-        <ellipse cx="29" cy="61" rx="10" ry="7" fill="#FAC775"/>
-        <ellipse cx="20" cy="56" rx="5" ry="6" fill="#FAC775"/>
-        <circle cx="20" cy="54" r="4" fill="#FAC775"/>
-        <ellipse cx="17.5" cy="51.5" rx="2.2" ry="3.8" fill="#e6a830"/>
-        <ellipse cx="22.5" cy="51.5" rx="2.2" ry="3.8" fill="#e6a830"/>
-        <ellipse cx="61" cy="62" rx="8" ry="6" fill="#2d2d2d"/>
-        <ellipse cx="53" cy="57" rx="4" ry="5" fill="#2d2d2d"/>
-        <circle cx="53" cy="55" r="3.2" fill="#2d2d2d"/>
-        <path d="M49.5 50.5 L52 55" stroke="#2d2d2d" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M56.5 50.5 L54 55" stroke="#2d2d2d" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="51.5" cy="54" r="1" fill="white" opacity="0.8"/>
-        <circle cx="54.5" cy="54" r="1" fill="white" opacity="0.8"/>
-      </svg>
+    <div class="splash-logo" style="background:none;box-shadow:none;">
+      <img src="icon.png" alt="Nuestra App" style="width:72px;height:72px;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,0.2);" />
     </div>
     <div class="splash-title" id="splash-app-name">Nuestra App</div>
     <div class="splash-sub">El espacio de los dos</div>
@@ -651,15 +673,17 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
 <!-- ===================== VIAJE DETAIL ===================== -->
 <div id="screen-detail" class="screen">
-  <div class="detail-header">
-    <button class="back-btn" onclick="closeDetail()">← Volver</button>
-    <div class="detail-title-row">
+  <div class="detail-header" id="detail-header">
+    <img id="detail-cover-img" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.2;pointer-events:none;" />
+    <button class="back-btn" onclick="closeDetail()">&#x2190; Volver</button>
+    <div class="detail-title-row" style="position:relative;z-index:1;">
       <div class="detail-title" id="detail-title">Lisboa</div>
       <div class="detail-meta" id="detail-meta"></div>
     </div>
-    <div class="detail-badge-row">
+    <div class="detail-badge-row" style="position:relative;z-index:1;">
       <span class="detail-state-badge" id="detail-state"></span>
       <span class="countdown-badge" id="detail-countdown"></span>
+      <button onclick="openEditCover()" style="font-size:10px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.2);border:none;color:white;cursor:pointer;font-family:var(--font-body);font-weight:700;">&#x1F5BC;&#xFE0F; Portada</button>
     </div>
   </div>
   <nav class="detail-nav">
@@ -696,40 +720,47 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <!-- MALETA -->
     <div id="ds-maleta" class="dsec">
-      <div class="sec-title">Lista de la maleta</div>
-      <div style="margin-bottom:12px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Cargar plantilla</div>
-        <button class="plantilla-btn" onclick="loadPlantilla('ciudad')">🏙️ Viaje de ciudad</button>
-        <button class="plantilla-btn" onclick="loadPlantilla('playa')">🏖️ Viaje de playa</button>
-        <button class="plantilla-btn" onclick="loadPlantilla('montana')">🏔️ Viaje de montaña</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="sec-title" style="margin:0;">Maleta del viaje</div>
+        <button onclick="togglePlantillasPanel()" style="font-size:12px;font-weight:700;color:var(--accent1);background:none;border:1.5px solid var(--accent1);border-radius:999px;padding:4px 12px;cursor:pointer;">&#x1F4CB; Plantillas</button>
       </div>
-        <div class="maleta-filters">
+      <div id="plantillas-panel" style="display:none;margin-bottom:14px;padding:12px;background:var(--bg2);border-radius:var(--radius-sm);border:1.5px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:12px;font-weight:700;color:var(--text2);">Cargar plantilla</span>
+          <button onclick="openNewPlantillaModal()" style="font-size:11px;font-weight:700;color:var(--accent1);background:none;border:none;cursor:pointer;">+ Nueva</button>
+        </div>
+        <div id="plantillas-list"></div>
+      </div>
+      <div class="maleta-filters" id="maleta-filter-pills">
         <button class="filter-pill fa" id="fp-todos" onclick="setMFilter('todos')">Todos</button>
-        <button class="filter-pill" id="fp-david" onclick="setMFilter('david')">🐵 David</button>
-        <button class="filter-pill" id="fp-maria" onclick="setMFilter('maria')">🐷 María</button>
-        <button class="filter-pill" id="fp-perdigon" onclick="setMFilter('perdigon')">🐾 Perdigón</button>
-        <button class="filter-pill" id="fp-tolly" onclick="setMFilter('tolly')">🐾 Tolly</button>
+        <button class="filter-pill" id="fp-david" onclick="setMFilter('david')">&#x1F435; David</button>
+        <button class="filter-pill" id="fp-maria" onclick="setMFilter('maria')">&#x1F437; Mar&#237;a</button>
+        <button class="filter-pill" id="fp-perdigon" onclick="setMFilter('perdigon')">&#x1F43E; Perdig&#243;n</button>
+        <button class="filter-pill" id="fp-tolly" onclick="setMFilter('tolly')">&#x1F43E; Tolly</button>
       </div>
       <div id="maleta-list"></div>
-      <div class="maleta-add">
-        <input id="maleta-inp" type="text" placeholder="Añadir cosa..." onkeydown="if(event.key==='Enter')addMaletaItem()" />
-        <select id="maleta-cat" class="mcat-sel" onchange="handleCatSelect()">
-          <option value="👗 Ropa">👗 Ropa</option>
-          <option value="📄 Docs">📄 Docs</option>
-          <option value="🔌 Electrónica">🔌 Electrónica</option>
-          <option value="🧴 Higiene">🧴 Higiene</option>
-          <option value="💊 Salud">💊 Salud</option>
-          <option value="📦 Otro">📦 Otro</option>
-          <option value="__new__">+ Nueva categoría...</option>
-        </select>
-        <select id="maleta-per">
-          <option value="todos">Todos</option>
-          <option value="david">🐵 David</option>
-          <option value="maria">🐷 María</option>
-          <option value="perdigon">🐾 Perdigón</option>
-          <option value="tolly">🐾 Tolly</option>
-        </select>
-        <button class="m-add-btn" onclick="addMaletaItem()">+</button>
+      <div style="margin-top:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">A&#241;adir item</div>
+        <div class="maleta-add">
+          <input id="maleta-inp" type="text" placeholder="&#191;Qu&#233; llevar?" onkeydown="if(event.key==='Enter')addMaletaItem()" style="flex:1;padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:13px;background:var(--bg2);color:var(--text);outline:none;" />
+          <select id="maleta-cat" class="mcat-sel" onchange="handleCatSelect()">
+            <option value="Ropa">Ropa</option>
+            <option value="Docs">Docs</option>
+            <option value="Electr&#243;nica">Electr&#243;nica</option>
+            <option value="Higiene">Higiene</option>
+            <option value="Salud">Salud</option>
+            <option value="Otro">Otro</option>
+            <option value="__new__">+ Nueva...</option>
+          </select>
+          <button class="m-add-btn" onclick="addMaletaItem()">+</button>
+        </div>
+        <div class="person-checks" id="maleta-person-checks" style="margin-top:8px;">
+          <label class="person-check-label checked" id="pck-todos" onclick="togglePersonCheck('todos')"><input type="checkbox" checked /> Todos</label>
+          <label class="person-check-label" id="pck-david" onclick="togglePersonCheck('david')"><input type="checkbox" /> &#x1F435; David</label>
+          <label class="person-check-label" id="pck-maria" onclick="togglePersonCheck('maria')"><input type="checkbox" /> &#x1F437; Mar&#237;a</label>
+          <label class="person-check-label" id="pck-perdigon" onclick="togglePersonCheck('perdigon')"><input type="checkbox" /> &#x1F43E; Perdig&#243;n</label>
+          <label class="person-check-label" id="pck-tolly" onclick="togglePersonCheck('tolly')"><input type="checkbox" /> &#x1F43E; Tolly</label>
+        </div>
       </div>
     </div>
 
@@ -866,6 +897,8 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
     <input id="mv-budget" type="number" placeholder="Ej: 1500" min="0" />
     <label>Notas iniciales</label>
     <textarea id="mv-notes" placeholder="Primera idea del viaje..."></textarea>
+    <label>Imagen de portada (URL)</label>
+    <input id="mv-cover" type="url" placeholder="https://... (pega una URL de Google Im&#225;genes)" />
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-viaje')">Cancelar</button>
       <button class="btn-save" onclick="saveViaje()">Crear viaje</button>
@@ -924,12 +957,11 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">📍 Añadir sitio</div>
-    <label>Buscar en Google Maps</label>
-    <div style="display:flex;gap:6px;">
-      <input id="ms-search" type="text" placeholder="Busca el sitio..." style="flex:1;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
-      <button onclick="searchMaps()" style="padding:11px 14px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:13px;font-weight:700;cursor:pointer;">Buscar</button>
+    <label>Buscar en Maps</label>
+    <div class="search-suggestions">
+      <input id="ms-search" type="text" placeholder="Escribe para buscar..." oninput="autocompleteMaps(this.value)" autocomplete="off" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
+      <div id="ms-search-results"></div>
     </div>
-    <div id="ms-search-results" style="margin-top:6px;"></div>
     <label>Nombre del sitio</label>
     <input id="ms-name" type="text" placeholder="Ej: Coliseo Romano" />
     <label>Categoría</label>
@@ -956,20 +988,108 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
   </div>
 </div>
 
+<!-- CUSTOM CONFIRM MODAL -->
+<div class="confirm-bg" id="confirm-bg">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title">&#191;Confirmar?</div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-btns">
+      <button class="cb-cancel" id="confirm-cancel-btn">Cancelar</button>
+      <button class="cb-danger" id="confirm-ok-btn">Eliminar</button>
+    </div>
+  </div>
+</div>
+
 <!-- PHOTO VIEWER -->
 <div id="photo-viewer" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:500;align-items:center;justify-content:center;">
   <button style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;border-radius:50%;width:40px;height:40px;font-size:20px;color:white;cursor:pointer;" onclick="document.getElementById('photo-viewer').style.display='none'">×</button>
   <img id="pv-img" src="" alt="" style="max-width:90%;max-height:90%;border-radius:var(--radius-sm);" />
 </div>
 
+<!-- SITE DOC MODAL -->
+<div class="modal-bg" id="modal-site-doc" onclick="if(event.target===this)closeModal('modal-site-doc')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">&#x1F4CE; Adjuntar documento</div>
+    <label>Nombre del documento</label>
+    <input id="sd-name" type="text" placeholder="Ej: Entrada Coliseo" />
+    <label>Tipo</label>
+    <select id="sd-tipo">
+      <option value="&#x2708;&#xFE0F; Vuelo">&#x2708;&#xFE0F; Vuelo</option>
+      <option value="&#x1F3E8; Hotel">&#x1F3E8; Hotel</option>
+      <option value="&#x1F3AB; Entrada">&#x1F3AB; Entrada</option>
+      <option value="&#x1F697; Transporte">&#x1F697; Transporte</option>
+      <option value="&#x1F4C4; Otro">&#x1F4C4; Otro</option>
+    </select>
+    <label>Enlace del documento</label>
+    <input id="sd-url" type="url" placeholder="https://drive.google.com/..." />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-site-doc')">Cancelar</button>
+      <button class="btn-save" onclick="saveSiteDoc()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW PLANTILLA MODAL -->
+<div class="modal-bg" id="modal-plantilla" onclick="if(event.target===this)closeModal('modal-plantilla')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">&#x1F4CB; Nueva plantilla</div>
+    <label>Nombre de la plantilla</label>
+    <input id="plt-name" type="text" placeholder="Ej: Viaje de ski" />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-plantilla')">Cancelar</button>
+      <button class="btn-save" onclick="saveNewPlantilla()">Crear</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT SITE MODAL -->
+<div class="modal-bg" id="modal-edit-site" onclick="closeEditSiteBg(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">&#x270F;&#xFE0F; Editar parada</div>
+    <label>Nombre</label>
+    <input id="es-name" type="text" placeholder="Nombre del sitio" />
+    <label>Categor&#237;a</label>
+    <select id="es-cat">
+      <option>&#x1F3DB;&#xFE0F; Monumento</option>
+      <option>&#x1F37D;&#xFE0F; Restaurante</option>
+      <option>&#x1F33F; Naturaleza</option>
+      <option>&#x1F6CD;&#xFE0F; Compras</option>
+      <option>&#x1F3AD; Cultura / Arte</option>
+      <option>&#x1F3D6;&#xFE0F; Playa</option>
+      <option>&#x1F4E6; Otro</option>
+    </select>
+    <label>D&#237;a</label>
+    <select id="es-day"></select>
+    <label>Hora de inicio</label>
+    <input id="es-hora" type="time" />
+    <label>Tiempo estimado</label>
+    <select id="es-tiempo">
+      <option value="30">30 min</option><option value="60">1 hora</option>
+      <option value="90">1,5 horas</option><option value="120">2 horas</option>
+      <option value="180">3 horas</option><option value="240">4 horas</option>
+      <option value="360">Medio d&#237;a</option><option value="480">D&#237;a completo</option>
+    </select>
+    <label>Notas</label>
+    <textarea id="es-notas" placeholder="Notas, consejos, precio estimado..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-edit-site')">Cancelar</button>
+      <button class="btn-save" onclick="saveEditSite()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- PHOTO MENU -->
 <div class="photo-menu" id="photo-menu" onclick="closePhotoMenu(event)">
   <div class="photo-menu-inner">
     <div class="modal-handle"></div>
-    <button class="photo-menu-btn" onclick="photoFromGallery()">📷 Subir desde galería / cámara</button>
-    <button class="photo-menu-btn" onclick="photoFromUrl()">🔗 Pegar enlace de imagen</button>
-    <button class="photo-menu-btn" onclick="photoFromWikimedia()">🔍 Buscar en Wikimedia</button>
-    <button class="photo-menu-btn" onclick="photoRemove()" style="color:#c0392b;">🗑️ Eliminar foto</button>
+    <button class="photo-menu-btn" onclick="photoFromGallery()">&#x1F4F7; Galer&#237;a / c&#225;mara</button>
+    <button class="photo-menu-btn" onclick="photoFromGoogleImages()">&#x1F50D; Google</button>
+    <button class="photo-menu-btn" onclick="photoFromUrl()">&#x1F517; Enlace de imagen</button>
+    <button class="photo-menu-btn" onclick="photoFromWikimedia()">&#x1F340; Probar suerte</button>
+    <button class="photo-menu-btn" onclick="photoRemove()" style="color:#e74c3c;">&#x1F5D1; Eliminar foto</button>
     <input type="file" id="photo-file-input" accept="image/*" style="display:none" onchange="handlePhotoFile(event)" />
   </div>
 </div>
@@ -977,17 +1097,19 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 <!-- ROUTE PLANNER SCREEN -->
 <div class="route-screen" id="route-screen">
   <div class="route-header">
-    <button class="route-back" onclick="closeRoutePlanner()">← Volver</button>
-    <div class="route-title" id="route-day-title">Ruta del día</div>
+    <button class="route-back" onclick="closeRoutePlanner()">&#x2190; Volver</button>
+    <div class="route-title" id="route-day-title">Planificador de ruta</div>
     <div class="route-subtitle" id="route-day-subtitle"></div>
   </div>
-  <div class="route-map" id="route-map-container">
-    <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text2);font-size:13px;">Cargando mapa...</div>
+  <div class="route-map"><div id="leaflet-map"></div></div>
+  <div class="route-toggle">
+    <button class="route-toggle-btn active" id="rtb-general" onclick="setRouteView('general')">Vista general</button>
+    <button class="route-toggle-btn" id="rtb-dias" onclick="setRouteView('dias')">Por d&#237;as</button>
   </div>
+  <div class="route-day-filters" id="route-day-filters"></div>
   <div class="route-content">
-    <div class="route-list-title">Arrastra para reordenar</div>
     <div id="route-pills-list"></div>
-    <button class="route-open-maps" onclick="openRouteInMaps()">🗺️ Abrir ruta completa en Google Maps</button>
+    <button class="route-open-maps" onclick="openRouteInMaps()">&#x1F5FA; Abrir ruta completa en Google Maps</button>
   </div>
 </div>
 
@@ -1017,7 +1139,7 @@ const ALLOWED_EMAILS = ['davidfdez90@gmail.com', 'mariagornavarro@gmail.com'];
 // ─── STATE ───────────────────────────────────────────────
 let currentUser = null;
 let currentViajeId = null;
-let maletaFilter  = 'todos';
+let maletaFilters = ['todos']; // array for multiselect
 let currentDayId  = null;
 let appData = {
   viajes: [], recetas: [], listas: [],
@@ -1175,31 +1297,28 @@ window.doResetPassword = async () => {
   } catch(e){ document.getElementById('login-error').textContent='Error: '+e.message; }
 };
 
-window.searchMaps = async () => {
-  const q = document.getElementById('ms-search').value.trim(); if(!q)return;
-  const v = getViaje();
-  const searchQ = v ? q+' '+v.name : q;
+let _autocompleteTimer = null;
+window.autocompleteMaps = (q) => {
+  clearTimeout(_autocompleteTimer);
   const res = document.getElementById('ms-search-results');
-  res.innerHTML = `<div style="padding:8px;font-size:13px;color:var(--text2);">Buscando...</div>`;
-  try {
-    const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQ)}&format=json&limit=3&accept-language=es`);
-    const data = await r.json();
-    if(!data.length){ res.innerHTML=`<div style="padding:8px;font-size:13px;color:var(--text2);">Sin resultados. Prueba con otro nombre.</div>`; return; }
-    res.innerHTML = data.map((p,i)=>`
-      <div onclick="selectPlace('${esc(p.display_name.split(',')[0])}','${p.lat}','${p.lon}')"
-        style="border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-top:8px;overflow:hidden;cursor:pointer;">
-        <iframe
-          src="https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(p.lon)-0.005},${parseFloat(p.lat)-0.005},${parseFloat(p.lon)+0.005},${parseFloat(p.lat)+0.005}&layer=mapnik&marker=${p.lat},${p.lon}"
-          style="width:100%;height:120px;border:none;display:block;pointer-events:none;"
-          loading="lazy">
-        </iframe>
-        <div style="padding:10px 12px;background:var(--bg2);">
-          <div style="font-size:13px;font-weight:700;color:var(--text);">${esc(p.display_name.split(',')[0])}</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:2px;">${esc(p.display_name.split(',').slice(1,3).join(',').trim())}</div>
-          <div style="font-size:11px;color:var(--accent1);margin-top:4px;font-weight:600;">Toca para seleccionar →</div>
-        </div>
-      </div>`).join('');
-  } catch(e){ res.innerHTML=`<div style="padding:8px;font-size:13px;color:var(--text2);">Error buscando. Comprueba tu conexión.</div>`; }
+  if(!q || q.length < 2){ res.innerHTML=''; return; }
+  _autocompleteTimer = setTimeout(async () => {
+    const v = getViaje();
+    const searchQ = v ? q+' '+v.name : q;
+    try {
+      const r = await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(searchQ)+'&format=json&limit=5&accept-language=es');
+      const data = await r.json();
+      if(!data.length){ res.innerHTML='<div class="suggestions-list"><div class="suggestion-item" style="color:var(--text2);">Sin resultados</div></div>'; return; }
+      res.innerHTML = '<div class="suggestions-list">'+data.map(function(p){
+        var name = p.display_name.split(',')[0];
+        var addr = p.display_name.split(',').slice(1,3).join(',').trim();
+        return '<div class="suggestion-item" onclick="selectPlace(\''+esc(name)+'\',\''+p.lat+'\',\''+p.lon+'\')">'
+          + '<strong>'+esc(name)+'</strong>'
+          + '<small>'+esc(addr)+'</small>'
+          + '</div>';
+      }).join('')+'</div>';
+    } catch(e){ res.innerHTML=''; }
+  }, 350);
 };
 
 window.selectPlace = (name, lat, lng) => {
@@ -1300,13 +1419,16 @@ window.saveViaje = async () => {
     fecha_ida: fi, fecha_vuelta: fv,
     budget: parseFloat(document.getElementById('mv-budget').value)||0,
     notes: document.getElementById('mv-notes').value.trim(),
+    cover: document.getElementById('mv-cover').value.trim(),
     docs:[], maleta:[], gastos:[], notas:'', fotos:[], itinerario:[],
     createdAt: new Date().toISOString()
   });
   document.getElementById('v-input').value = '';
   closeModal('modal-viaje');
 };
-window.delViaje = async (id) => { if(confirm('¿Eliminar este viaje?')) await deleteDoc(doc(db,'viajes',id)); };
+window.delViaje = async (id) => {
+  appConfirm('&#191;Eliminar viaje?', 'Se eliminar\u00E1 el viaje y todos sus datos.', async function(){ await deleteDoc(doc(db,'viajes',id)); }, true);
+};
 
 function renderViajes(){
   const el = document.getElementById('viajes-list');
@@ -1317,27 +1439,32 @@ function renderViajes(){
   el.innerHTML = appData.viajes.map(function(v,i){
     var cd = countdown(v.fecha_ida,v.fecha_vuelta);
     var fechas = (v.fecha_ida ? '&#x1F6EB; '+esc(v.fecha_ida) : '') + (v.fecha_vuelta ? ' &rarr; &#x1F6EC; '+esc(v.fecha_vuelta) : '');
-    return '<div class="card card-tap" onclick="openDetail(\''+v.id+'\')">'
-      + '<div class="card-header">'
+    var coverStyle = v.cover ? 'style="position:relative;overflow:hidden;"' : '';
+    var coverBg = v.cover ? '<img src="'+esc(v.cover)+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.12;pointer-events:none;border-radius:var(--radius);" />' : '';
+    return '<div class="card card-tap" onclick="openDetail(\''+v.id+'\')" '+coverStyle+'>'
+      + coverBg
+      + '<div class="card-header" style="position:relative;">'
       + '<div><div class="card-title">'+esc(v.name)+'</div>'
       + '<div class="card-meta">'+fechas+'</div></div>'
       + '<div style="display:flex;align-items:center;gap:6px;">'
       + '<span style="font-size:18px;color:var(--text2);">&rsaquo;</span>'
       + '<button class="del-btn" onclick="event.stopPropagation();delViaje(\''+v.id+'\')">&#x00D7;</button>'
       + '</div></div>'
-      + '<span class="badge '+VIAJE_BADGES[i%4]+'">'+esc(v.estado)+'</span>'
-      + (cd ? '<div class="card-meta" style="margin-top:6px;">'+cd+'</div>' : '')
-      + (v.notes ? '<div style="font-size:13px;color:var(--text2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">'+esc(v.notes)+'</div>' : '')
+      + '<span class="badge '+VIAJE_BADGES[i%4]+'" style="position:relative;">'+esc(v.estado)+'</span>'
+      + (cd ? '<div class="card-meta" style="margin-top:6px;position:relative;">'+cd+'</div>' : '')
+      + (v.notes ? '<div style="font-size:13px;color:var(--text2);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);position:relative;">'+esc(v.notes)+'</div>' : '')
       + '</div>';
   }).join('');
 }
 
 // ─── DETAIL ───────────────────────────────────────────────
 window.openDetail = (id) => {
-  currentViajeId = id; maletaFilter = 'todos';
+  currentViajeId = id; maletaFilters = ['todos'];
   showScreen('screen-detail');
   showDTab('dashboard');
   renderDetail();
+  if(!globalPlantillas) loadGlobalPlantillas();
+  else renderPlantillasList();
 };
 window.closeDetail = () => { showScreen('screen-app'); currentViajeId = null; };
 window.showDTab = (t) => {
@@ -1347,6 +1474,7 @@ window.showDTab = (t) => {
   const tabs=['dashboard','docs','maleta','presupuesto','itinerario','clima','fotos','notas'];
   document.querySelectorAll('.dtab')[tabs.indexOf(t)].classList.add('active');
   if(t==='clima') loadClima();
+  if(t==='maleta') renderPlantillasList();
 };
 
 function getViaje(){ return appData.viajes.find(v=>v.id===currentViajeId); }
@@ -1358,10 +1486,16 @@ function renderDetail(){
   if(safe('detail-state'))     safe('detail-state').textContent     = v.estado;
   if(safe('detail-countdown')) safe('detail-countdown').textContent = countdown(v.fecha_ida, v.fecha_vuelta);
   let meta = '';
-  if(v.fecha_ida)    meta += '🛫 ' + v.fecha_ida;
-  if(v.fecha_vuelta) meta += '  →  🛬 ' + v.fecha_vuelta;
-  if(safe('detail-meta'))  safe('detail-meta').textContent  = meta;
-  if(safe('notas-area'))   safe('notas-area').value          = v.notas || '';
+  if(v.fecha_ida)    meta += '&#x1F6EB; ' + v.fecha_ida;
+  if(v.fecha_vuelta) meta += '  &#x2192;  &#x1F6EC; ' + v.fecha_vuelta;
+  if(safe('detail-meta'))  safe('detail-meta').innerHTML  = meta;
+  if(safe('notas-area'))   safe('notas-area').value       = v.notas || '';
+  // Cover image
+  var coverImg = safe('detail-cover-img');
+  if(coverImg){
+    if(v.cover){ coverImg.src=v.cover; coverImg.style.display='block'; }
+    else { coverImg.style.display='none'; coverImg.src=''; }
+  }
   renderDashboard(v);
   renderDocs(v);
   renderMaleta(v);
@@ -1370,25 +1504,40 @@ function renderDetail(){
   renderFotos(v);
 }
 
-// DASHBOARD
+window.openEditCover = async () => {
+  var v = getViaje(); if(!v) return;
+  var url = prompt('URL de la imagen de portada:\n(Busca en Google Im\u00e1genes, copia la URL de la imagen)', v.cover||'');
+  if(url === null) return;
+  await updateDoc(doc(db,'viajes',currentViajeId),{cover:url.trim()});
+};
 function renderDashboard(v){
-  const dias = calcDias(v);
-  const sitiosTotales = (v.itinerario||[]).reduce((s,d)=>s+(d.sites||[]).length, 0);
-  const sitiosVisitados = (v.itinerario||[]).reduce((s,d)=>s+(d.sites||[]).filter(x=>x.visited).length, 0);
-  const gastado = (v.gastos||[]).reduce((s,g)=>s+(parseFloat(g.amt)||0),0);
-  const maletaTodos = (v.maleta||[]).length;
-  const maletaHecho = (v.maleta||[]).filter(i=>i.done).length;
-  const docsOk   = (v.docs||[]).length > 0;
-  const totalTareas = (maletaTodos>0?1:0) + (sitiosTotales>0?1:0) + (docsOk?1:0);
-  const hecho       = (maletaTodos>0&&maletaHecho===maletaTodos?1:0) + (sitiosTotales>0&&sitiosVisitados===sitiosTotales?1:0) + (docsOk?1:0);
-  const pct = totalTareas > 0 ? Math.round(hecho/totalTareas*100) : 0;
-  document.getElementById('dash-pct').textContent = pct + '%';
-  document.getElementById('dash-bar').style.width  = pct + '%';
-  document.getElementById('dash-grid').innerHTML = `
-    <div class="dash-card"><div class="dash-label">Duración</div><div class="dash-value">${dias}</div><div class="dash-sub">días</div></div>
-    <div class="dash-card"><div class="dash-label">Sitios</div><div class="dash-value">${sitiosTotales}</div><div class="dash-sub">${sitiosVisitados} visitados</div></div>
-    <div class="dash-card"><div class="dash-label">Gastado</div><div class="dash-value" style="font-size:16px;">${gastado.toFixed(0)}€</div><div class="dash-sub">de ${v.budget||'—'}€</div></div>
-    <div class="dash-card"><div class="dash-label">Maleta</div><div class="dash-value">${maletaHecho}/${maletaTodos}</div><div class="dash-sub">items listos</div></div>`;
+  var dias = calcDias(v);
+  var sitiosTotales = (v.itinerario||[]).reduce(function(s,d){return s+(d.sites||[]).length;},0);
+  var sitiosVisitados = (v.itinerario||[]).reduce(function(s,d){return s+(d.sites||[]).filter(function(x){return x.visited;}).length;},0);
+  var gastado = (v.gastos||[]).reduce(function(s,g){return s+(parseFloat(g.amt)||0);},0);
+  var maletaTodos = (v.maleta||[]).length;
+  var maletaHecho = (v.maleta||[]).filter(function(i){return i.done;}).length;
+  var docsOk = (v.docs||[]).length > 0;
+
+  // Progress: weighted average of multiple factors
+  var scores = [];
+  if(v.fecha_ida && v.fecha_vuelta) scores.push(100); // has dates
+  else scores.push(0);
+  if(docsOk) scores.push(100); else scores.push(0); // has docs
+  if(sitiosTotales > 0) scores.push(Math.round(sitiosTotales >= dias ? 100 : (sitiosTotales/Math.max(1,dias))*100)); else scores.push(0); // has itinerary
+  if(maletaTodos > 0) scores.push(Math.round((maletaHecho/maletaTodos)*100)); else scores.push(0); // maleta progress
+  var pct = Math.round(scores.reduce(function(a,b){return a+b;},0)/scores.length);
+
+  var pctEl = document.getElementById('dash-pct');
+  var barEl = document.getElementById('dash-bar');
+  var gridEl = document.getElementById('dash-grid');
+  if(pctEl) pctEl.textContent = pct+'%';
+  if(barEl) barEl.style.width = pct+'%';
+  if(gridEl) gridEl.innerHTML = ''
+    + '<div class="dash-card"><div class="dash-label">Duraci\u00F3n</div><div class="dash-value">'+dias+'</div><div class="dash-sub">d\u00EDas</div></div>'
+    + '<div class="dash-card"><div class="dash-label">Sitios</div><div class="dash-value">'+sitiosTotales+'</div><div class="dash-sub">'+sitiosVisitados+' visitados</div></div>'
+    + '<div class="dash-card"><div class="dash-label">Gastado</div><div class="dash-value" style="font-size:16px;">'+gastado.toFixed(0)+'&#8364;</div><div class="dash-sub">de '+(v.budget||'\u2014')+'&#8364;</div></div>'
+    + '<div class="dash-card"><div class="dash-label">Maleta</div><div class="dash-value">'+maletaHecho+'/'+maletaTodos+'</div><div class="dash-sub">items listos</div></div>';
 }
 
 function calcDias(v){
@@ -1435,66 +1584,195 @@ window.delDoc = async (did) => {
   await updateDoc(doc(db,'viajes',currentViajeId), {docs: (v.docs||[]).filter(d=>d.id!==did)});
 };
 
-// MALETA
-const PLANTILLAS = {
-  ciudad: [
-    {text:'DNI / Pasaporte', cat:'📄 Docs', person:'todos'},{text:'Tarjeta bancaria', cat:'📄 Docs', person:'todos'},
-    {text:'Seguro de viaje', cat:'📄 Docs', person:'todos'},{text:'Camisetas', cat:'👗 Ropa', person:'david'},
-    {text:'Pantalones', cat:'👗 Ropa', person:'david'},{text:'Camisetas', cat:'👗 Ropa', person:'maria'},
-    {text:'Vestido / Ropa', cat:'👗 Ropa', person:'maria'},{text:'Zapatillas cómodas', cat:'👗 Ropa', person:'todos'},
-    {text:'Cargador móvil', cat:'🔌 Electrónica', person:'todos'},{text:'Auriculares', cat:'🔌 Electrónica', person:'todos'},
-    {text:'Cámara de fotos', cat:'🔌 Electrónica', person:'todos'},{text:'Neceser', cat:'🧴 Higiene', person:'todos'},
-    {text:'Medicación', cat:'💊 Salud', person:'todos'},
-  ],
-  playa: [
-    {text:'DNI / Pasaporte', cat:'📄 Docs', person:'todos'},{text:'Bañador', cat:'👗 Ropa', person:'david'},
-    {text:'Bañador / Bikini', cat:'👗 Ropa', person:'maria'},{text:'Protector solar', cat:'🧴 Higiene', person:'todos'},
-    {text:'Chanclas', cat:'👗 Ropa', person:'todos'},{text:'Toalla de playa', cat:'📦 Otro', person:'todos'},
-    {text:'Gafas de sol', cat:'👗 Ropa', person:'todos'},{text:'Sombrero', cat:'👗 Ropa', person:'todos'},
-    {text:'Cargador móvil', cat:'🔌 Electrónica', person:'todos'},{text:'Medicación', cat:'💊 Salud', person:'todos'},
-  ],
-  montana: [
-    {text:'DNI / Pasaporte', cat:'📄 Docs', person:'todos'},{text:'Ropa térmica', cat:'👗 Ropa', person:'todos'},
-    {text:'Chaqueta impermeable', cat:'👗 Ropa', person:'todos'},{text:'Botas de montaña', cat:'👗 Ropa', person:'todos'},
-    {text:'Mochila de senderismo', cat:'📦 Otro', person:'todos'},{text:'Botiquín', cat:'💊 Salud', person:'todos'},
-    {text:'Crema solar', cat:'🧴 Higiene', person:'todos'},{text:'Gafas de sol', cat:'👗 Ropa', person:'todos'},
-    {text:'Linterna', cat:'🔌 Electrónica', person:'todos'},{text:'Cargador móvil', cat:'🔌 Electrónica', person:'todos'},
-  ],
+// MALETA — PLANTILLAS GLOBALES
+const DEFAULT_PLANTILLAS = [
+  {
+    id:'ciudad', name:'&#x1F3D9;&#xFE0F; Viaje de ciudad',
+    items:[
+      {text:'DNI / Pasaporte', cat:'Docs', persons:['todos']},
+      {text:'Tarjeta bancaria', cat:'Docs', persons:['todos']},
+      {text:'Seguro de viaje', cat:'Docs', persons:['todos']},
+      {text:'Camisetas', cat:'Ropa', persons:['david']},
+      {text:'Pantalones', cat:'Ropa', persons:['david']},
+      {text:'Camisetas', cat:'Ropa', persons:['maria']},
+      {text:'Vestido / Ropa', cat:'Ropa', persons:['maria']},
+      {text:'Zapatillas c&#243;modas', cat:'Ropa', persons:['todos']},
+      {text:'Cargador m&#243;vil', cat:'Electr&#243;nica', persons:['todos']},
+      {text:'Auriculares', cat:'Electr&#243;nica', persons:['todos']},
+      {text:'N&#233;cese', cat:'Higiene', persons:['todos']},
+      {text:'Medicaci&#243;n', cat:'Salud', persons:['todos']},
+    ]
+  },
+  {
+    id:'playa', name:'&#x1F3D6;&#xFE0F; Viaje de playa',
+    items:[
+      {text:'DNI / Pasaporte', cat:'Docs', persons:['todos']},
+      {text:'Ba&#241;ador', cat:'Ropa', persons:['david']},
+      {text:'Ba&#241;ador / Bikini', cat:'Ropa', persons:['maria']},
+      {text:'Protector solar', cat:'Higiene', persons:['todos']},
+      {text:'Chanclas', cat:'Ropa', persons:['todos']},
+      {text:'Toalla de playa', cat:'Otro', persons:['todos']},
+      {text:'Gafas de sol', cat:'Ropa', persons:['todos']},
+      {text:'Cargador m&#243;vil', cat:'Electr&#243;nica', persons:['todos']},
+      {text:'Medicaci&#243;n', cat:'Salud', persons:['todos']},
+    ]
+  },
+  {
+    id:'montana', name:'&#x1F3D4;&#xFE0F; Viaje de monta&#241;a',
+    items:[
+      {text:'DNI / Pasaporte', cat:'Docs', persons:['todos']},
+      {text:'Ropa t&#233;rmica', cat:'Ropa', persons:['todos']},
+      {text:'Chaqueta impermeable', cat:'Ropa', persons:['todos']},
+      {text:'Botas de monta&#241;a', cat:'Ropa', persons:['todos']},
+      {text:'Mochila de senderismo', cat:'Otro', persons:['todos']},
+      {text:'Botiqu&#237;n', cat:'Salud', persons:['todos']},
+      {text:'Crema solar', cat:'Higiene', persons:['todos']},
+      {text:'Linterna', cat:'Electr&#243;nica', persons:['todos']},
+      {text:'Cargador m&#243;vil', cat:'Electr&#243;nica', persons:['todos']},
+    ]
+  }
+];
+
+let globalPlantillas = null;
+
+window.togglePlantillasPanel = () => {
+  var panel = document.getElementById('plantillas-panel');
+  if(!panel) return;
+  var isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen && !globalPlantillas) loadGlobalPlantillas();
+  else if(!isOpen) renderPlantillasList();
 };
 
-window.loadPlantilla = async (tipo) => {
-  const v = getViaje(); if(!v) return;
-  const base = v.maleta||[];
-  const nuevos = PLANTILLAS[tipo].map(i=>({...i, id:Date.now()+''+Math.random(), done:false}));
-  await updateDoc(doc(db,'viajes',currentViajeId), {maleta:[...base,...nuevos]});
+async function loadGlobalPlantillas(){
+  try {
+    var snap = await getDoc(doc(db,'plantillas','global'));
+    if(snap.exists() && snap.data().list){
+      globalPlantillas = snap.data().list;
+    } else {
+      globalPlantillas = JSON.parse(JSON.stringify(DEFAULT_PLANTILLAS));
+      await setDoc(doc(db,'plantillas','global'),{list:globalPlantillas});
+    }
+  } catch(e){ globalPlantillas = JSON.parse(JSON.stringify(DEFAULT_PLANTILLAS)); }
+  renderPlantillasList();
+}
+
+async function saveGlobalPlantillas(){
+  try { await setDoc(doc(db,'plantillas','global'),{list:globalPlantillas}); } catch(e){}
+  renderPlantillasList();
+}
+
+function renderPlantillasList(){
+  var el = document.getElementById('plantillas-list');
+  if(!el || !globalPlantillas) return;
+  el.innerHTML = globalPlantillas.map(function(p){
+    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">'
+      + '<button class="plantilla-btn" style="flex:1;margin:0;" onclick="loadPlantilla(\''+p.id+'\')">'+p.name+'</button>'
+      + '<button onclick="editPlantilla(\''+p.id+'\')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--accent1);font-size:12px;font-weight:700;cursor:pointer;">Editar</button>'
+      + '<button onclick="delPlantilla(\''+p.id+'\')" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;color:#c0392b;font-size:12px;font-weight:700;cursor:pointer;">&#xD7;</button>'
+      + '</div>';
+  }).join('') || '<div style="font-size:13px;color:var(--text2);padding:4px 0;">Sin plantillas</div>';
+}
+
+window.loadPlantilla = (id) => {
+  var v = getViaje(); if(!v) return;
+  var plantilla = (globalPlantillas||[]).find(function(p){return p.id===id;});
+  if(!plantilla) return;
+  var pName = plantilla.name.replace(/&[^;]+;/g,'');
+  if(!plantilla.items || plantilla.items.length === 0){
+    // Empty template — just close panel, user will add manually
+    appConfirm('Plantilla vac\u00EDa', '"'+pName+'" todav\u00EDa no tiene items.\nPu\u00E9dala editando con el bot\u00F3n Editar.', function(){}, false);
+    return;
+  }
+  appConfirm('Cargar "'+pName+'"', 'Se a\u00F1adir\u00E1n '+plantilla.items.length+' items a la maleta de este viaje.', async function(){
+    var base = JSON.parse(JSON.stringify(v.maleta||[]));
+    var nuevos = plantilla.items.map(function(i){
+      return {id:Date.now()+''+Math.random(), text:i.text, cat:i.cat||'Otro', persons:i.persons||['todos'], done:false};
+    });
+    await updateDoc(doc(db,'viajes',currentViajeId),{maleta:[...base,...nuevos]});
+    document.getElementById('plantillas-panel').style.display='none';
+  }, false);
+};
+
+window.delPlantilla = (id) => {
+  var plantilla = (globalPlantillas||[]).find(function(p){return p.id===id;});
+  if(!plantilla) return;
+  var pName = plantilla.name.replace(/&[^;]+;/g,'');
+  appConfirm('&#191;Eliminar plantilla?', '"'+pName+'" se eliminar\u00E1. Las maletas ya creadas no se ver\u00E1n afectadas.', async function(){
+    globalPlantillas = globalPlantillas.filter(function(p){return p.id!==id;});
+    await saveGlobalPlantillas();
+  }, true);
+};
+
+window.openNewPlantillaModal = () => {
+  document.getElementById('plt-name').value='';
+  document.getElementById('modal-plantilla').classList.add('open');
+  setTimeout(function(){ document.getElementById('plt-name').focus(); },150);
+};
+
+window.saveNewPlantilla = async () => {
+  var name = document.getElementById('plt-name').value.trim();
+  if(!name) return;
+  if(!globalPlantillas) globalPlantillas=[];
+  globalPlantillas.push({id:'custom_'+Date.now(), name:name, items:[]});
+  await saveGlobalPlantillas();
+  closeModal('modal-plantilla');
+};
+
+window.editPlantilla = (id) => {
+  var p = (globalPlantillas||[]).find(function(x){return x.id===id;});
+  if(!p) return;
+  // For now, open a simple prompt to add items
+  var item = prompt('A&#241;adir item a "'+p.name.replace(/&#\d+;/g,'')+'"\nFormato: nombre del item');
+  if(!item) return;
+  p.items.push({text:item, cat:'Otro', persons:['todos']});
+  saveGlobalPlantillas();
 };
 
 window.setMFilter = (f) => {
-  maletaFilter = f;
-  ['todos','david','maria','perdigon','tolly'].forEach(p=>{
-    const btn = document.getElementById('fp-'+p);
+  if(f === 'todos'){
+    maletaFilters = ['todos'];
+  } else {
+    maletaFilters = maletaFilters.filter(function(x){return x!=='todos';});
+    var idx = maletaFilters.indexOf(f);
+    if(idx >= 0) maletaFilters.splice(idx,1);
+    else maletaFilters.push(f);
+    if(maletaFilters.length === 0) maletaFilters = ['todos'];
+  }
+  var persons = ['todos','david','maria','perdigon','tolly'];
+  persons.forEach(function(p){
+    var btn = document.getElementById('fp-'+p);
     if(!btn) return;
-    btn.className = 'filter-pill' + (f===p ? (p==='todos'?' fa':p==='david'?' fd':p==='maria'?' fm':' fa') : '');
+    var isActive = maletaFilters.indexOf(p) >= 0;
+    btn.className = 'filter-pill' + (isActive ? (p==='todos'?' fa':p==='david'?' fd':p==='maria'?' fm':' fa') : '');
   });
   renderMaleta(getViaje());
 };
 
-const PERSON_LABEL = {todos:'Todos', david:'🐵 David', maria:'🐷 María', perdigon:'🐾 Perdigón', tolly:'🐾 Tolly'};
+const PERSON_LABEL = {todos:'Todos', david:'\uD83D\uDC35 David', maria:'\uD83D\uDC37 Mar\u00EDa', perdigon:'\uD83D\uDC3E Perdig\u00F3n', tolly:'\uD83D\uDC3E Tolly'};
 
 function renderMaleta(v){
-  const items = maletaFilter==='todos' ? (v.maleta||[]) : (v.maleta||[]).filter(i=>i.person===maletaFilter||i.person==='todos');
-  const cats  = [...new Set(items.map(i=>i.cat))];
+  (v.maleta||[]).forEach(function(i){ if(!i.persons) i.persons=[i.person||'todos']; });
+  var items = (v.maleta||[]).filter(function(i){
+    if(maletaFilters.indexOf('todos')>=0) return true;
+    var iPersons = i.persons||['todos'];
+    return maletaFilters.some(function(f){ return iPersons.indexOf(f)>=0; });
+  });
+  var cats=[];
+  items.forEach(function(i){ if(cats.indexOf(i.cat)<0) cats.push(i.cat); });
   if(!items.length){
-    document.getElementById('maleta-list').innerHTML = '<p style="color:var(--text2);font-size:14px;padding:12px 0;text-align:center;">Sin elementos para este filtro</p>';
+    document.getElementById('maleta-list').innerHTML='<p style="color:var(--text2);font-size:14px;padding:12px 0;text-align:center;">Sin elementos para este filtro</p>';
   } else {
-    document.getElementById('maleta-list').innerHTML = cats.map(cat=>{
-      const catItems = items.filter(i=>i.cat===cat).map(i=>{
+    document.getElementById('maleta-list').innerHTML=cats.map(function(cat){
+      var catItems=items.filter(function(i){return i.cat===cat;}).map(function(i){
+        var persons=i.persons||[i.person||'todos'];
+        var pillsHTML=persons.map(function(p){return '<span class="person-pill pp-'+p+'">'+(PERSON_LABEL[p]||p)+'</span>';}).join(' ');
         return '<div class="mitem">'
-          + '<input type="checkbox" id="mc'+i.id+'" '+(i.done?'checked':'')+' onchange="toggleMaleta(\''+i.id+'\')">'
-          + '<label for="mc'+i.id+'" class="mitem-label'+(i.done?' done':'')+'">'+esc(i.text)+'</label>'
-          + '<span class="person-pill pp-'+i.person+'">'+(PERSON_LABEL[i.person]||i.person)+'</span>'
-          + '<button class="mitem-del" onclick="delMaleta(\''+i.id+'\')">×</button>'
-          + '</div>';
+          +'<input type="checkbox" id="mc'+i.id+'" '+(i.done?'checked':'')+' onchange="toggleMaleta(this)" data-id="'+i.id+'">'
+          +'<label for="mc'+i.id+'" class="mitem-label'+(i.done?' done':'')+'">'+esc(i.text)+'</label>'
+          +pillsHTML
+          +'<button class="mitem-del" onclick="delMaletaById(this.dataset.id)" data-id="'+i.id+'">&#xD7;</button>'
+          +'</div>';
       }).join('');
       return '<div class="mcat-section"><div class="mcat-title">'+esc(cat)+'</div>'+catItems+'</div>';
     }).join('');
@@ -1525,22 +1803,55 @@ window.handleCatSelect = async () => {
   }
 };
 
+let _selectedPersons = ['todos'];
+
+window.togglePersonCheck = (person) => {
+  var label = document.getElementById('pck-'+person);
+  if(!label) return;
+  if(person === 'todos'){
+    _selectedPersons = ['todos'];
+    ['todos','david','maria','perdigon','tolly'].forEach(function(p){
+      var l = document.getElementById('pck-'+p);
+      if(l) l.classList.toggle('checked', p==='todos');
+    });
+  } else {
+    _selectedPersons = _selectedPersons.filter(function(p){return p!=='todos';});
+    var todosLabel = document.getElementById('pck-todos');
+    if(todosLabel) todosLabel.classList.remove('checked');
+    var idx = _selectedPersons.indexOf(person);
+    if(idx >= 0){ _selectedPersons.splice(idx,1); label.classList.remove('checked'); }
+    else { _selectedPersons.push(person); label.classList.add('checked'); }
+    if(_selectedPersons.length === 0){
+      _selectedPersons = ['todos'];
+      var tl = document.getElementById('pck-todos');
+      if(tl) tl.classList.add('checked');
+    }
+  }
+};
+
 window.addMaletaItem = async () => {
-  const inp = document.getElementById('maleta-inp'); const text=inp.value.trim(); if(!text)return;
-  const v=getViaje(); if(!v)return;
-  const maleta=[...(v.maleta||[]),{id:Date.now()+'',text,cat:document.getElementById('maleta-cat').value,person:document.getElementById('maleta-per').value,done:false}];
-  await updateDoc(doc(db,'viajes',currentViajeId),{maleta});
+  var inp = document.getElementById('maleta-inp');
+  var text = inp.value.trim(); if(!text) return;
+  var v = getViaje(); if(!v) return;
+  var cat = document.getElementById('maleta-cat').value;
+  if(cat === '__new__') return;
+  var persons = _selectedPersons.length ? JSON.parse(JSON.stringify(_selectedPersons)) : ['todos'];
+  var maleta = JSON.parse(JSON.stringify(v.maleta||[]));
+  maleta.push({id:Date.now()+'', text:text, cat:cat, persons:persons, person:persons[0], done:false});
+  await updateDoc(doc(db,'viajes',currentViajeId),{maleta:maleta});
   inp.value='';
 };
-window.toggleMaleta = async (id) => {
+window.toggleMaleta = async (el) => {
+  var id = typeof el === 'string' ? el : el.dataset.id;
   const v=getViaje(); if(!v)return;
-  const maleta=(v.maleta||[]).map(i=>i.id===id?{...i,done:!i.done}:i);
+  const maleta=(v.maleta||[]).map(i=>i.id===id?Object.assign({},i,{done:!i.done}):i);
   await updateDoc(doc(db,'viajes',currentViajeId),{maleta});
 };
 window.delMaleta = async (id) => {
   const v=getViaje(); if(!v)return;
   await updateDoc(doc(db,'viajes',currentViajeId),{maleta:(v.maleta||[]).filter(i=>i.id!==id)});
 };
+window.delMaletaById = async (id) => { await window.delMaleta(id); };
 
 // PRESUPUESTO
 function renderBudget(v){
@@ -1574,29 +1885,53 @@ window.delGasto = async (id) => {
 function buildSiteHTML(s, dayKey, vname){
   var visited = s.visited ? ' visited' : '';
   var checked = s.visited ? ' checked' : '';
-  var hora    = s.hora  ? '<span>&#x1F550; '+s.hora+'</span>' : '';
-  var tiempo  = s.tiempo? '<span class="site-time-pill">&#x23F1; '+minutesToStr(parseInt(s.tiempo))+'</span>' : '';
-  var notas   = s.notas ? '<div style="font-size:12px;color:var(--text2);margin-top:4px;">'+esc(s.notas)+'</div>' : '';
-  var photo   = s.photo
-    ? '<img src="'+esc(s.photo)+'" onclick="event.stopPropagation();viewSitePhoto(this.src)" style="width:56px;height:56px;border-radius:var(--radius-xs);object-fit:cover;" />'
-    : '<div style="width:56px;height:56px;border-radius:var(--radius-xs);background:var(--bg);border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;">&#x1F4F7;</div>';
-  var mapsIr  = 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(s.name+' '+vname);
-  var mapsBus = 'https://www.google.com/maps/search/'+encodeURIComponent(s.name+' '+vname);
+  var hora    = s.hora   ? '<span>&#x1F550; '+s.hora+'</span>' : '';
+  var tiempo  = s.tiempo ? '<span class="site-time-pill">&#x23F1; '+minutesToStr(parseInt(s.tiempo))+'</span>' : '';
+  var notas   = s.notas  ? '<div style="font-size:12px;color:var(--text2);margin-top:4px;">'+esc(s.notas)+'</div>' : '';
+
+  // Photo with mini action icons
+  var photo = s.photo
+    ? '<img src="'+esc(s.photo)+'" onclick="event.stopPropagation();viewSitePhoto(this.src)" style="width:52px;height:52px;border-radius:var(--radius-xs);object-fit:cover;display:block;" />'
+    : '<div onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" style="width:52px;height:52px;border-radius:var(--radius-xs);background:var(--bg);border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;">&#x1F4F7;</div>';
+  var photoIcons = s.photo
+    ? '<div style="display:flex;gap:4px;margin-top:3px;justify-content:center;">'
+      + '<button onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" title="Cambiar foto" style="background:none;border:none;font-size:14px;cursor:pointer;padding:2px;opacity:0.7;">&#x21BA;</button>'
+      + '<button onclick="confirmDelPhoto(\''+dayKey+'\',\''+s.id+'\')" title="Borrar foto" style="background:none;border:none;font-size:13px;cursor:pointer;padding:2px;opacity:0.7;">&#x1F5D1;</button>'
+      + '</div>'
+    : '';
+
+  // Site docs
+  var siteDocs = (s.docs||[]);
+  var siteDocsHTML = siteDocs.length
+    ? '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;">'
+      + siteDocs.map(function(d){
+          return '<a href="'+esc(d.url)+'" target="_blank" style="font-size:11px;padding:2px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--accent1);text-decoration:none;font-weight:600;">'
+            + esc(d.tipo)+' '+esc(d.name)+'</a>';
+        }).join('')
+      + '</div>'
+    : '';
+
+  var mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(s.name+' '+vname);
   var claudeQ = 'https://claude.ai/new?q='+encodeURIComponent('Estoy visitando '+s.name+' en '+vname+'. Cu\u00E9ntame curiosidades interesantes y qu\u00E9 no me puedo perder aqu\u00ED.');
-  return '<div class="site-item'+visited+'">'
+
+  return '<div class="site-item'+visited+'" style="position:relative;">'
+    + '<button onclick="appConfirm(\'&#191;Eliminar \'+\''+esc(s.name)+'\'+\'?\',\'Esta parada se eliminar\u00E1 del itinerario.\',function(){delSiteConfirmed(\''+dayKey+'\',\''+s.id+'\')},true)" style="position:absolute;top:8px;right:8px;background:none;border:none;font-size:16px;color:var(--text2);cursor:pointer;opacity:0.5;line-height:1;z-index:2;">&#xD7;</button>'
     + '<div class="site-visited-check'+checked+'" onclick="toggleSiteVisited(\''+dayKey+'\',\''+s.id+'\')">&#x2713;</div>'
-    + '<div class="site-info">'
+    + '<div class="site-info" style="padding-right:20px;">'
     + '<div class="site-name">'+esc(s.name)+'</div>'
     + '<div class="site-meta"><span>'+esc(s.cat)+'</span>'+hora+tiempo+'</div>'
     + notas
+    + siteDocsHTML
     + '<div class="site-actions">'
-    + '<a class="site-action-btn" href="'+mapsIr+'" target="_blank">&#x1F9ED; Ir</a>'
-    + '<a class="site-action-btn" href="'+mapsBus+'" target="_blank">&#x1F4CD; Maps</a>'
-    + '<a class="site-action-btn" href="'+claudeQ+'" target="_blank">&#x1F916; Claude</a>'
-    + '<button class="site-action-btn" onclick="delSite(\''+dayKey+'\',\''+s.id+'\')">&#x1F5D1;</button>'
+    + '<a class="site-action-btn" href="'+mapsUrl+'" target="_blank">Maps</a>'
+    + '<a class="site-action-btn" href="'+claudeQ+'" target="_blank">Tu gu\u00EDa</a>'
+    + '<button class="site-action-btn" onclick="openSiteDocModal(\''+dayKey+'\',\''+s.id+'\')">+ Doc</button>'
     + '</div>'
     + '</div>'
-    + '<div onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" style="cursor:pointer;flex-shrink:0;">'+photo+'</div>'
+    + '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;">'
+    + '<div onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" style="cursor:pointer;">'+photo+'</div>'
+    + photoIcons
+    + '</div>'
     + '</div>';
 }
 
@@ -1634,8 +1969,13 @@ function renderItinerario(v){
 window.openSiteModal = (dayKey) => {
   window._currentDayId = dayKey;
   currentDayId = dayKey;
-  document.getElementById('ms-search-results').innerHTML='';
-  document.getElementById('ms-search').value='';
+  var res = document.getElementById('ms-search-results');
+  var inp = document.getElementById('ms-search');
+  if(res) res.innerHTML='';
+  if(inp) inp.value='';
+  document.getElementById('ms-name').value='';
+  document.getElementById('ms-notas').value='';
+  document.getElementById('ms-hora').value='';
   document.getElementById('modal-site').classList.add('open');
 };
 window.saveSite = async () => {
@@ -1681,11 +2021,7 @@ window.toggleSiteVisited = async (dayKey,sid) => {
   await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
 };
 window.delSite = async (dayKey,sid) => {
-  const v=getViaje(); if(!v)return;
-  const itinerario=JSON.parse(JSON.stringify(v.itinerario||[]));
-  const day=itinerario.find(d=>d.dayKey===dayKey);
-  if(day)day.sites=day.sites.filter(s=>s.id!==sid);
-  await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
+  appConfirm('&#191;Eliminar parada?', 'Esta parada se eliminar\u00E1 del itinerario.', function(){ delSiteConfirmed(dayKey,sid); }, true);
 };
 window.saveDayNote = async (dayKey,note) => {
   const v=getViaje(); if(!v)return;
@@ -1892,116 +2228,373 @@ window.saveSettings = async () => {
 };
 
 // ─── ROUTE PLANNER ────────────────────────────────────────
-let routeDayKey = null;
-let routeSites  = [];
+const DAY_COLORS = ['#378ADD','#E05A47','#4CAF50','#FF9800','#9C27B0','#00BCD4','#E91E63','#607D8B'];
+let routeViajeId  = null;
+let routeView     = 'general'; // 'general' or 'dias'
+let routeActiveDay = null;
+let leafletMap    = null;
+let routeMarkers  = [];
+let routeLines    = [];
+let _sortableInstances = [];
+let _editSiteData = null;
+
+function getAllRouteSites(v){
+  var fi = parseDate(v.fecha_ida); var fv = parseDate(v.fecha_vuelta);
+  if(!fi||!fv) return [];
+  var days = [];
+  for(var d=new Date(fi);d<=fv;d.setDate(d.getDate()+1)) days.push(new Date(d));
+  var result = [];
+  days.forEach(function(d,dayIdx){
+    var dayKey = d.toISOString().split('T')[0];
+    var dayData = (v.itinerario||[]).find(function(x){return x.dayKey===dayKey;})||{dayKey:dayKey,sites:[]};
+    (dayData.sites||[]).forEach(function(s){
+      result.push(Object.assign({},s,{dayKey:dayKey,dayIdx:dayIdx,dayDate:d}));
+    });
+  });
+  return result;
+}
+
+function getDaysList(v){
+  var fi = parseDate(v.fecha_ida); var fv = parseDate(v.fecha_vuelta);
+  if(!fi||!fv) return [];
+  var days = [];
+  for(var d=new Date(fi);d<=fv;d.setDate(d.getDate()+1)){
+    days.push(new Date(d));
+  }
+  return days;
+}
 
 window.openRoutePlanner = (dayKey) => {
   const v = getViaje(); if(!v) return;
-  routeDayKey = dayKey;
-  const fi = parseDate(v.fecha_ida);
-  const dayDate = new Date(dayKey);
-  const dayNum = fi ? Math.ceil((dayDate-fi)/86400000)+1 : 1;
-  const dayData = (v.itinerario||[]).find(d=>d.dayKey===dayKey)||{sites:[]};
-  routeSites = JSON.parse(JSON.stringify(dayData.sites||[]));
-  document.getElementById('route-day-title').textContent = `Día ${dayNum} — Ruta`;
-  const totalMin = routeSites.reduce((s,x)=>s+(parseInt(x.tiempo)||0),0);
-  document.getElementById('route-day-subtitle').textContent = `${routeSites.length} sitios · ${totalMin>0?minutesToStr(totalMin):'sin tiempo estimado'}`;
-  renderRoutePills();
-  renderRouteMap();
+  routeViajeId  = currentViajeId;
+  routeView     = 'general';
+  routeActiveDay = dayKey || null;
+  document.getElementById('route-day-title').textContent = v.name+' \u2014 Ruta';
   document.getElementById('route-screen').classList.add('open');
+  document.getElementById('rtb-general').classList.add('active');
+  document.getElementById('rtb-dias').classList.remove('active');
+  renderRouteDayFilters(v);
+  renderRoutePills(v);
+  setTimeout(function(){ initLeafletMap(v); }, 100);
 };
 
 window.closeRoutePlanner = () => {
   document.getElementById('route-screen').classList.remove('open');
-  routeDayKey=null; routeSites=[];
+  if(leafletMap){ leafletMap.remove(); leafletMap=null; }
+  routeMarkers=[]; routeLines=[];
 };
 
-function renderRoutePills(){
-  const el = document.getElementById('route-pills-list');
-  if(!routeSites.length){
-    el.innerHTML=`<div class="empty" style="padding:20px 0"><span class="empty-icon" style="font-size:32px">📍</span><p>No hay sitios en este día</p></div>`;
-    return;
+window.setRouteView = (view) => {
+  routeView = view;
+  document.getElementById('rtb-general').classList.toggle('active', view==='general');
+  document.getElementById('rtb-dias').classList.toggle('active', view==='dias');
+  const v = getViaje(); if(!v) return;
+  renderRoutePills(v);
+};
+
+function renderRouteDayFilters(v){
+  var days = getDaysList(v);
+  var fi = parseDate(v.fecha_ida);
+  var html = '<button class="rdf-btn active" id="rdf-all" onclick="filterRouteDay(null)" style="background:var(--accent1);color:white;border-color:var(--accent1);">Todos</button>';
+  days.forEach(function(d,i){
+    var dayKey = d.toISOString().split('T')[0];
+    var color = DAY_COLORS[i % DAY_COLORS.length];
+    var label = 'D\u00EDa '+(i+1);
+    html += '<button class="rdf-btn" id="rdf-'+dayKey+'" onclick="filterRouteDay(\''+dayKey+'\')" style="--day-color:'+color+'">'+label+'</button>';
+  });
+  document.getElementById('route-day-filters').innerHTML = html;
+}
+
+window.filterRouteDay = (dayKey) => {
+  routeActiveDay = dayKey;
+  document.querySelectorAll('.rdf-btn').forEach(function(b){ b.classList.remove('active'); b.style.background=''; b.style.color=''; b.style.borderColor=''; });
+  if(!dayKey){
+    var btn = document.getElementById('rdf-all');
+    if(btn){ btn.classList.add('active'); btn.style.background='var(--accent1)'; btn.style.color='white'; btn.style.borderColor='var(--accent1)'; }
+  } else {
+    var btn2 = document.getElementById('rdf-'+dayKey);
+    if(btn2){ btn2.classList.add('active'); btn2.style.background='var(--accent1)'; btn2.style.color='white'; btn2.style.borderColor='var(--accent1)'; }
   }
-  el.innerHTML = routeSites.map((s,i)=>`
-    <div class="route-pill" draggable="true" id="rp-${i}"
-      ondragstart="dragStart(${i})" ondragover="dragOver(event,${i})" ondrop="dragDrop(${i})" ondragend="dragEnd()">
-      <span class="route-drag-handle">⠿</span>
-      <div class="route-pill-num">${i+1}</div>
-      <div class="route-pill-info">
-        <div class="route-pill-name">${esc(s.name)}</div>
-        <div class="route-pill-meta">${esc(s.cat)}${s.hora?' · 🕐'+s.hora:''}</div>
-        ${i>0&&s._dist?`<div class="route-pill-dist">📏 ${s._dist}</div>`:''}
-      </div>
-    </div>`).join('');
-  loadDistances();
-}
-
-let dragIdx = null;
-window.dragStart = (i) => { dragIdx=i; };
-window.dragOver  = (e,i) => { e.preventDefault(); };
-window.dragDrop  = async (i) => {
-  if(dragIdx===null||dragIdx===i) return;
-  const arr=[...routeSites];
-  const [moved]=arr.splice(dragIdx,1);
-  arr.splice(i,0,moved);
-  routeSites=arr;
-  renderRoutePills();
-  renderRouteMap();
-  await saveRouteOrder();
+  const v = getViaje(); if(!v) return;
+  renderRoutePills(v);
+  updateLeafletMap(v);
 };
-window.dragEnd = () => { dragIdx=null; };
 
-async function saveRouteOrder(){
-  const v=getViaje(); if(!v) return;
-  const itinerario=JSON.parse(JSON.stringify(v.itinerario||[]));
-  const day=itinerario.find(d=>d.dayKey===routeDayKey);
-  if(day){ day.sites=routeSites.map(s=>({...s,_dist:undefined})); }
-  await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
-}
+function renderRoutePills(v){
+  var el = document.getElementById('route-pills-list');
+  _sortableInstances.forEach(function(s){ try{ s.destroy(); }catch(e){} });
+  _sortableInstances = [];
+  var allSites = getAllRouteSites(v);
 
-async function loadDistances(){
-  for(let i=1;i<routeSites.length;i++){
-    const a=routeSites[i-1]; const b=routeSites[i];
-    if(!a.lat||!a.lng||!b.lat||!b.lng) continue;
-    try{
-      const r=await fetch(`https://router.project-osrm.org/route/v1/foot/${a.lng},${a.lat};${b.lng},${b.lat}?overview=false`);
-      const d=await r.json();
-      if(d.routes?.length){
-        const dist=d.routes[0].distance;
-        const mins=Math.round(d.routes[0].duration/60);
-        const distStr = dist<1000 ? Math.round(dist)+'m' : (dist/1000).toFixed(1)+'km';
-        routeSites[i]._dist = distStr+' \u00B7 ~'+mins+' min a pie';
+  if(routeView === 'general'){
+    var sites = routeActiveDay ? allSites.filter(function(s){return s.dayKey===routeActiveDay;}) : allSites;
+    if(!sites.length){
+      el.innerHTML = '<div class="empty" style="padding:20px 0"><span class="empty-icon" style="font-size:32px">&#x1F4CD;</span><p>No hay sitios a&#241;adidos</p></div>';
+      return;
+    }
+    el.innerHTML = '<div id="sortable-general">'+sites.map(function(s,i){
+      var color = DAY_COLORS[s.dayIdx % DAY_COLORS.length];
+      return buildRoutePill(s, i+1, color, 'D'+(s.dayIdx+1));
+    }).join('')+'</div>';
+    var container = document.getElementById('sortable-general');
+    if(container && window.Sortable){
+      _sortableInstances.push(new Sortable(container, {
+        animation:150, handle:'.route-drag-handle', ghostClass:'dragging',
+        onEnd: async function(){ await saveRouteFromDOM(); }
+      }));
+    }
+  } else {
+    var days = getDaysList(v);
+    var html = '';
+    days.forEach(function(d,dayIdx){
+      var dayKey = d.toISOString().split('T')[0];
+      if(routeActiveDay && routeActiveDay !== dayKey) return;
+      var color = DAY_COLORS[dayIdx % DAY_COLORS.length];
+      var dayData = (v.itinerario||[]).find(function(x){return x.dayKey===dayKey;})||{sites:[]};
+      var sites = dayData.sites||[];
+      var dayLabel = 'D&#237;a '+(dayIdx+1)+' &#8212; '+d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+      html += '<div class="route-day-group">';
+      html += '<div class="route-day-group-title"><span class="route-day-dot" style="background:'+color+'"></span>'+dayLabel+'</div>';
+      html += '<div class="sortable-day-group" data-daykey="'+dayKey+'" data-color="'+color+'" style="min-height:40px;'+(sites.length===0?'border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:8px;display:flex;align-items:center;justify-content:center;':'')+'">';
+      if(sites.length===0){
+        html += '<span style="font-size:12px;color:var(--text2);">Arrastra aqu\u00ED</span>';
+      } else {
+        sites.forEach(function(s,i){
+          html += buildRoutePill(Object.assign({},s,{dayKey:dayKey,dayIdx:dayIdx}), i+1, color, '');
+        });
       }
-    }catch(e){}
+      html += '</div>';
+      html += '</div>';
+    });
+    el.innerHTML = html || '<div class="empty"><p>No hay sitios</p></div>';
+    if(window.Sortable){
+      document.querySelectorAll('.sortable-day-group').forEach(function(container){
+        _sortableInstances.push(new Sortable(container, {
+          group:'route-days', animation:150, handle:'.route-drag-handle', ghostClass:'dragging',
+          onEnd: async function(){
+            // Update pill colors immediately based on new day
+            document.querySelectorAll('.sortable-day-group').forEach(function(c){
+              var color = c.dataset.color;
+              c.querySelectorAll('.route-pill-num').forEach(function(el){ el.style.background=color; });
+            });
+            await saveRouteFromDOM();
+          }
+        }));
+      });
+    }
   }
-  renderRoutePills();
 }
 
-function renderRouteMap(){
-  const el=document.getElementById('route-map-container');
-  const sites=routeSites.filter(s=>s.lat&&s.lng);
-  if(!sites.length){
-    el.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text2);font-size:13px;padding:20px;text-align:center;">Añade sitios buscando en Maps para ver la ruta</div>`;
+function buildRoutePill(s, num, color, dayLabel){
+  var dist = s._dist ? '<div class="route-pill-dist">&#x1F4CF; '+esc(s._dist)+'</div>' : '';
+  var meta = esc(s.cat)+(s.hora?' &#183; &#x1F550;'+s.hora:'')+(dayLabel?' &#183; <span style="color:'+color+'">'+dayLabel+'</span>':'');
+  return '<div class="route-pill" data-daykey="'+s.dayKey+'" data-siteid="'+s.id+'" data-dayidx="'+s.dayIdx+'">'
+    + '<span class="route-drag-handle" style="cursor:grab;font-size:18px;color:var(--text2);padding:0 4px;">&#x283F;</span>'
+    + '<div class="route-pill-num" style="background:'+color+'">'+num+'</div>'
+    + '<div class="route-pill-info" onclick="openEditSite(this.closest(\'.route-pill\').dataset.daykey,this.closest(\'.route-pill\').dataset.siteid)" style="cursor:pointer;flex:1;min-width:0;">'
+    + '<div class="route-pill-name">'+esc(s.name)+'</div>'
+    + '<div class="route-pill-meta">'+meta+'</div>'
+    + dist
+    + '</div>'
+    + '<button onclick="event.stopPropagation();delSite(this.closest(\'.route-pill\').dataset.daykey,this.closest(\'.route-pill\').dataset.siteid)" style="background:none;border:none;color:var(--text2);font-size:16px;cursor:pointer;padding:4px;opacity:0.5;flex-shrink:0;">&#xD7;</button>'
+    + '</div>';
+}
+
+async function saveRouteFromDOM(){
+  const v = getViaje(); if(!v) return;
+  var itinerario = JSON.parse(JSON.stringify(v.itinerario||[]));
+  if(routeView === 'general'){
+    var pills = document.querySelectorAll('#sortable-general .route-pill');
+    var newOrder = {};
+    pills.forEach(function(pill){
+      var dk = pill.dataset.daykey; if(!newOrder[dk]) newOrder[dk]=[];
+      newOrder[dk].push(pill.dataset.siteid);
+    });
+    Object.keys(newOrder).forEach(function(dk){
+      var day = itinerario.find(function(d){return d.dayKey===dk;}); if(!day) return;
+      var ordered=[];
+      newOrder[dk].forEach(function(sid){ var s=day.sites.find(function(x){return x.id===sid;}); if(s) ordered.push(s); });
+      day.sites = ordered;
+    });
+  } else {
+    // Cross-day drag: rebuild each day from DOM
+    var processedSites = {};
+    document.querySelectorAll('.sortable-day-group').forEach(function(container){
+      var newDayKey = container.dataset.daykey;
+      var targetDay = itinerario.find(function(d){return d.dayKey===newDayKey;});
+      if(!targetDay){ targetDay={dayKey:newDayKey,sites:[],note:''}; itinerario.push(targetDay); }
+      var newSites = [];
+      container.querySelectorAll('.route-pill').forEach(function(pill){
+        var oldDayKey=pill.dataset.daykey; var sid=pill.dataset.siteid;
+        if(processedSites[sid]) return; processedSites[sid]=true;
+        // Search in ALL days
+        var found=null;
+        itinerario.forEach(function(d){ var s=d.sites.find(function(x){return x.id===sid;}); if(s) found=s; });
+        if(found) newSites.push(found);
+      });
+      targetDay.sites = newSites;
+    });
+    // Remove sites that moved from days that are no longer their container
+    itinerario.forEach(function(day){
+      var container = document.querySelector('.sortable-day-group[data-daykey="'+day.dayKey+'"]');
+      if(container){
+        var ids=Array.from(container.querySelectorAll('.route-pill')).map(function(p){return p.dataset.siteid;});
+        day.sites=day.sites.filter(function(s){return ids.indexOf(s.id)>=0;});
+      }
+    });
+  }
+  await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
+  // Update local data immediately without waiting for Firebase
+  var vLocal = getViaje();
+  if(vLocal){ vLocal.itinerario = itinerario; }
+  updateLeafletMap(getViaje());
+}
+
+
+function initLeafletMap(v){
+  if(leafletMap){ leafletMap.remove(); leafletMap=null; }
+  var mapEl = document.getElementById('leaflet-map');
+  if(!mapEl) return;
+  leafletMap = L.map('leaflet-map', {zoomControl:true, attributionControl:false});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+    attribution:'',maxZoom:19,subdomains:'abcd'
+  }).addTo(leafletMap);
+  updateLeafletMap(v);
+}
+
+function updateLeafletMap(v){
+  if(!leafletMap||!v) return;
+  routeMarkers.forEach(function(m){m.remove();});
+  routeLines.forEach(function(l){l.remove();});
+  routeMarkers=[]; routeLines=[];
+  var allSites = getAllRouteSites(v);
+  var sites = routeActiveDay ? allSites.filter(function(s){return s.dayKey===routeActiveDay;}) : allSites;
+  var validSites = sites.filter(function(s){return s.lat&&s.lng;});
+  if(!validSites.length){
+    leafletMap.setView([40.416775,-3.703790],6);
     return;
   }
-  const lats=sites.map(s=>parseFloat(s.lat));
-  const lngs=sites.map(s=>parseFloat(s.lng));
-  const clat=(Math.min(...lats)+Math.max(...lats))/2;
-  const clng=(Math.min(...lngs)+Math.max(...lngs))/2;
-  const markers=sites.map((s,i)=>`${s.lat},${s.lng}`).join('|');
-  el.innerHTML=`<iframe src="https://www.openstreetmap.org/export/embed.html?bbox=${Math.min(...lngs)-0.02},${Math.min(...lats)-0.02},${Math.max(...lngs)+0.02},${Math.max(...lats)+0.02}&layer=mapnik" style="width:100%;height:100%;border:none;" loading="lazy"></iframe>`;
+  // Draw lines per day
+  var byDay = {};
+  validSites.forEach(function(s){
+    if(!byDay[s.dayKey]) byDay[s.dayKey]=[];
+    byDay[s.dayKey].push(s);
+  });
+  Object.keys(byDay).forEach(function(dk){
+    var daySites = byDay[dk];
+    var color = DAY_COLORS[daySites[0].dayIdx % DAY_COLORS.length];
+    if(daySites.length > 1){
+      var latlngs = daySites.map(function(s){return [parseFloat(s.lat),parseFloat(s.lng)];});
+      var line = L.polyline(latlngs,{color:color,weight:3,opacity:0.7,dashArray:'6,8'}).addTo(leafletMap);
+      routeLines.push(line);
+    }
+    daySites.forEach(function(s,i){
+      var color2 = DAY_COLORS[s.dayIdx % DAY_COLORS.length];
+      var icon = L.divIcon({
+        className:'',
+        html: '<div style="width:28px;height:28px;border-radius:50%;background:'+color2+';border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;">'+(i+1)+'</div>',
+        iconSize:[28,28], iconAnchor:[14,14]
+      });
+      var marker = L.marker([parseFloat(s.lat),parseFloat(s.lng)],{icon:icon})
+        .bindPopup('<strong>'+esc(s.name)+'</strong><br><small>'+esc(s.cat)+'</small>')
+        .addTo(leafletMap);
+      routeMarkers.push(marker);
+    });
+  });
+  var latlngs = validSites.map(function(s){return [parseFloat(s.lat),parseFloat(s.lng)];});
+  leafletMap.fitBounds(L.latLngBounds(latlngs).pad(0.2));
 }
 
 window.openRouteInMaps = () => {
-  const sites=routeSites.filter(s=>s.lat&&s.lng);
-  if(!sites.length){ alert('Los sitios necesitan coordenadas. Búscalos con el buscador al añadirlos.'); return; }
-  const waypoints=sites.map((s,i)=>i===0?`origin=${s.lat},${s.lng}`:i===sites.length-1?`destination=${s.lat},${s.lng}`:`${s.lat},${s.lng}`);
-  const origin=`origin=${sites[0].lat},${sites[0].lng}`;
-  const dest=`destination=${sites[sites.length-1].lat},${sites[sites.length-1].lng}`;
-  const waypts=sites.slice(1,-1).map(s=>`${s.lat},${s.lng}`).join('|');
-  let url=`https://www.google.com/maps/dir/?api=1&${origin}&${dest}&travelmode=walking`;
-  if(waypts) url+=`&waypoints=${encodeURIComponent(waypts)}`;
+  const v = getViaje(); if(!v) return;
+  var allSites = getAllRouteSites(v);
+  var sites = routeActiveDay ? allSites.filter(function(s){return s.dayKey===routeActiveDay;}) : allSites;
+  var valid = sites.filter(function(s){return s.lat&&s.lng;});
+  if(!valid.length){ alert('Los sitios necesitan coordenadas. B\u00FAscalos con el buscador al a\u00F1adirlos.'); return; }
+  var origin = 'origin='+valid[0].lat+','+valid[0].lng;
+  var dest   = 'destination='+valid[valid.length-1].lat+','+valid[valid.length-1].lng;
+  var waypts = valid.slice(1,-1).map(function(s){return s.lat+','+s.lng;}).join('|');
+  var url = 'https://www.google.com/maps/dir/?api=1&'+origin+'&'+dest+'&travelmode=walking';
+  if(waypts) url += '&waypoints='+encodeURIComponent(waypts);
   window.open(url,'_blank');
+};
+
+// ─── EDIT SITE ────────────────────────────────────────────
+window.openEditSite = (dayKey, siteId) => {
+  const v = getViaje(); if(!v) return;
+  const itinerario = v.itinerario||[];
+  var day = itinerario.find(function(d){return d.dayKey===dayKey;});
+  if(!day) return;
+  var site = (day.sites||[]).find(function(s){return s.id===siteId;});
+  if(!site) return;
+  _editSiteData = {dayKey:dayKey, siteId:siteId};
+
+  document.getElementById('es-name').value  = site.name||'';
+  document.getElementById('es-hora').value  = site.hora||'';
+  document.getElementById('es-notas').value = site.notas||'';
+  document.getElementById('es-tiempo').value = site.tiempo||'60';
+
+  // Set category
+  var catSel = document.getElementById('es-cat');
+  for(var i=0;i<catSel.options.length;i++){
+    if(catSel.options[i].value===site.cat || catSel.options[i].text===site.cat){ catSel.selectedIndex=i; break; }
+  }
+
+  // Build day selector
+  var days = getDaysList(v);
+  var fi = parseDate(v.fecha_ida);
+  var daySel = document.getElementById('es-day');
+  daySel.innerHTML = days.map(function(d,i){
+    var dk = d.toISOString().split('T')[0];
+    var label = 'D&#237;a '+(i+1)+' &#8212; '+d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+    return '<option value="'+dk+'"'+(dk===dayKey?' selected':'')+'>'+label+'</option>';
+  }).join('');
+
+  document.getElementById('modal-edit-site').classList.add('open');
+};
+
+window.closeEditSiteBg = (e) => {
+  if(e.target===document.getElementById('modal-edit-site')) closeModal('modal-edit-site');
+};
+
+window.saveEditSite = async () => {
+  if(!_editSiteData) return;
+  const v = getViaje(); if(!v) return;
+  var itinerario = JSON.parse(JSON.stringify(v.itinerario||[]));
+  var oldDayKey = _editSiteData.dayKey;
+  var newDayKey = document.getElementById('es-day').value;
+  var siteId    = _editSiteData.siteId;
+
+  // Find and remove site from old day
+  var oldDay = itinerario.find(function(d){return d.dayKey===oldDayKey;});
+  var site = null;
+  if(oldDay){
+    site = oldDay.sites.find(function(s){return s.id===siteId;});
+    oldDay.sites = oldDay.sites.filter(function(s){return s.id!==siteId;});
+  }
+  if(!site) return;
+
+  // Update site data
+  site.name   = document.getElementById('es-name').value.trim()||site.name;
+  site.cat    = document.getElementById('es-cat').value;
+  site.hora   = document.getElementById('es-hora').value;
+  site.tiempo = document.getElementById('es-tiempo').value;
+  site.notas  = document.getElementById('es-notas').value.trim();
+
+  // Add to new day (may be same day)
+  var newDay = itinerario.find(function(d){return d.dayKey===newDayKey;});
+  if(!newDay){ newDay={dayKey:newDayKey,sites:[],note:''}; itinerario.push(newDay); }
+  newDay.sites.push(site);
+
+  await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
+  closeModal('modal-edit-site');
+  _editSiteData = null;
+  // Refresh route planner if open
+  var routeScreen = document.getElementById('route-screen');
+  if(routeScreen && routeScreen.classList.contains('open')){
+    renderRoutePills(getViaje());
+    updateLeafletMap(getViaje());
+  }
 };
 
 // ─── PHOTO MENU ───────────────────────────────────────────
@@ -2030,10 +2623,23 @@ window.handlePhotoFile = async (e) => {
   e.target.value='';
 };
 
+window.photoFromGoogleImages = () => {
+  document.getElementById('photo-menu').classList.remove('open');
+  var v = getViaje();
+  var siteName = '';
+  if(v && photoDayKey && photoSiteKey){
+    var day = (v.itinerario||[]).find(function(d){return d.dayKey===photoDayKey;});
+    var site = day && (day.sites||[]).find(function(s){return s.id===photoSiteKey;});
+    if(site) siteName = site.name;
+  }
+  var query = siteName ? encodeURIComponent(siteName) : 'lugar';
+  window.open('https://www.google.com/search?q='+query+'&tbm=isch','_blank');
+};
+
 window.photoFromUrl = () => {
   document.getElementById('photo-menu').classList.remove('open');
-  const url=prompt('Pega el enlace de la imagen:');
-  if(url) updateSitePhoto(url);
+  var url = prompt('Pega el enlace de la imagen (copia la URL de Google Im\u00e1genes u otro sitio):');
+  if(url && url.trim()) updateSitePhoto(url.trim());
 };
 
 window.photoFromWikimedia = async () => {
@@ -2050,7 +2656,14 @@ window.photoFromWikimedia = async () => {
 
 window.photoRemove = async () => {
   document.getElementById('photo-menu').classList.remove('open');
-  await updateSitePhoto(null);
+  appConfirm('&#191;Eliminar foto?', 'Se eliminar\u00E1 la foto de este sitio.', async function(){ await updateSitePhoto(null); }, true);
+};
+
+window.confirmDelPhoto = async (dayKey, siteId) => {
+  appConfirm('&#191;Eliminar foto?', 'Se eliminar\u00E1 la foto de este sitio.', async function(){
+    photoDayKey = dayKey; photoSiteKey = siteId;
+    await updateSitePhoto(null);
+  }, true);
 };
 
 async function updateSitePhoto(url){
@@ -2088,6 +2701,76 @@ window.viewSitePhoto = (url) => {
   if(!url) return;
   document.getElementById('pv-img').src=url;
   document.getElementById('photo-viewer').style.display='flex';
+};
+
+// ─── CUSTOM CONFIRM ───────────────────────────────────────
+let _confirmCallback = null;
+window.appConfirm = (title, msg, callback, isDanger) => {
+  _confirmCallback = callback;
+  var bg = document.getElementById('confirm-bg');
+  var tEl = document.getElementById('confirm-title');
+  var mEl = document.getElementById('confirm-msg');
+  var okBtn = document.getElementById('confirm-ok-btn');
+  if(tEl) tEl.innerHTML = title;
+  if(mEl) mEl.innerHTML = msg||'';
+  if(okBtn){
+    okBtn.className = isDanger ? 'cb-danger' : 'cb-confirm';
+    okBtn.textContent = isDanger ? 'Eliminar' : 'Confirmar';
+  }
+  if(bg) bg.classList.add('open');
+};
+document.addEventListener('DOMContentLoaded', function(){
+  var bg = document.getElementById('confirm-bg');
+  var cancelBtn = document.getElementById('confirm-cancel-btn');
+  var okBtn = document.getElementById('confirm-ok-btn');
+  if(cancelBtn) cancelBtn.onclick = function(){ if(bg) bg.classList.remove('open'); _confirmCallback=null; };
+  if(okBtn) okBtn.onclick = function(){ if(bg) bg.classList.remove('open'); if(_confirmCallback){ _confirmCallback(); _confirmCallback=null; } };
+  if(bg) bg.onclick = function(e){ if(e.target===bg){ bg.classList.remove('open'); _confirmCallback=null; } };
+});
+
+// ─── SITE DOCS ────────────────────────────────────────────
+let _sitedocDayKey = null;
+let _sitedocSiteId = null;
+
+window.openSiteDocModal = (dayKey, siteId) => {
+  _sitedocDayKey = dayKey; _sitedocSiteId = siteId;
+  document.getElementById('sd-name').value = '';
+  document.getElementById('sd-url').value  = '';
+  document.getElementById('modal-site-doc').classList.add('open');
+};
+
+window.saveSiteDoc = async () => {
+  var name = document.getElementById('sd-name').value.trim(); if(!name) return;
+  var url  = document.getElementById('sd-url').value.trim();
+  var tipo = document.getElementById('sd-tipo').value;
+  var v = getViaje(); if(!v) return;
+  var docId = Date.now()+'_site';
+  var newDoc = {id:docId, name:name, tipo:tipo, url:url, siteId:_sitedocSiteId};
+
+  // Add to viaje docs
+  var docs = JSON.parse(JSON.stringify(v.docs||[]));
+  docs.push(newDoc);
+
+  // Add to site docs
+  var itinerario = JSON.parse(JSON.stringify(v.itinerario||[]));
+  var day = itinerario.find(function(d){return d.dayKey===_sitedocDayKey;});
+  if(day){
+    var site = (day.sites||[]).find(function(s){return s.id===_sitedocSiteId;});
+    if(site){ if(!site.docs) site.docs=[]; site.docs.push(newDoc); }
+  }
+
+  await updateDoc(doc(db,'viajes',currentViajeId),{docs:docs, itinerario:itinerario});
+  closeModal('modal-site-doc');
+};
+
+window.delSiteConfirmed = async (dayKey, sid) => {
+  const v=getViaje(); if(!v)return;
+  const itinerario=JSON.parse(JSON.stringify(v.itinerario||[]));
+  const day=itinerario.find(function(d){return d.dayKey===dayKey;});
+  if(day) day.sites=day.sites.filter(function(s){return s.id!==sid;});
+  await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
+  var vLocal = appData.viajes.find(function(x){return x.id===currentViajeId;});
+  if(vLocal){ vLocal.itinerario=itinerario; renderRoutePills(vLocal); updateLeafletMap(vLocal); renderItinerario(vLocal); }
 };
 
 // ─── INIT ─────────────────────────────────────────────────
