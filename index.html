@@ -390,6 +390,17 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 .badge-viaje-2  { background:#E0F7F6; color:#2a8a84; }
 .badge-viaje-3  { background:#E8F9EA; color:#2d7a36; }
 
+/* HOME GRID */
+.home-grid-btn { background:var(--card); border:none; border-radius:var(--radius); padding:16px 8px 12px; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; box-shadow:var(--shadow); transition:transform 0.15s; width:100%; }
+.home-grid-btn:active { transform:scale(0.95); }
+.home-grid-icon { width:52px; height:52px; border-radius:14px; background:var(--accent1); display:flex; align-items:center; justify-content:center; }
+.home-grid-btn span { font-family:var(--font-body); font-size:12px; font-weight:700; color:var(--text); }
+
+/* BACK TO MENU BAR — shown on all non-home tabs */
+.back-to-menu-bar { display:flex; align-items:center; gap:8px; padding:8px 0 12px; }
+.back-to-menu-btn { display:flex; align-items:center; gap:5px; background:none; border:none; font-family:var(--font-body); font-size:13px; font-weight:700; color:var(--accent1); cursor:pointer; padding:4px 0; }
+.back-to-menu-btn svg { flex-shrink:0; }
+
 /* COMING SOON */
 .coming-soon-screen { padding: 24px 8px; }
 .cs-icon { font-size: 52px; text-align:center; margin-bottom:12px; }
@@ -431,11 +442,13 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
 /* MALETA MULTISELECT */
 .person-checks { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
-.person-check-label { display:flex; align-items:center; gap:5px; padding:5px 10px; border-radius:999px; border:1.5px solid var(--border); background:var(--bg2); font-family:var(--font-body); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; }
-.person-check-label input { display:none; }
+.person-check-label { display:inline-flex; align-items:center; gap:0; padding:6px 14px; border-radius:999px; border:1.5px solid var(--border); background:var(--bg2); font-family:var(--font-body); font-size:12px; font-weight:700; cursor:pointer; transition:all 0.15s; color:var(--text2); user-select:none; }
 .person-check-label.checked { border-color:var(--accent1); background:var(--primary); color:var(--btn); }
 
-/* CUSTOM CONFIRM MODAL */
+/* FILE INPUT STYLED */
+.file-input-label { display:flex; align-items:center; gap:8px; padding:11px 13px; border:1.5px dashed var(--border); border-radius:var(--radius-sm); background:var(--bg2); cursor:pointer; font-family:var(--font-body); font-size:13px; color:var(--accent1); font-weight:600; transition:border-color 0.2s; }
+.file-input-label:hover { border-color:var(--accent1); }
+.file-input-label input[type=file] { display:none; }
 .confirm-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center; padding:20px; max-width:430px; margin:0 auto; }
 .confirm-bg.open { display:flex; }
 .confirm-box { background:var(--card); border-radius:var(--radius); padding:28px 24px 20px; width:100%; max-width:320px; animation:slideIn 0.2s ease; box-shadow:0 8px 32px rgba(0,0,0,0.2); }
@@ -473,7 +486,9 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
   <div class="splash-deco splash-deco-3"></div>
   <div class="splash-inner">
     <div class="splash-logo" style="background:none;box-shadow:none;">
-      <img src="icon.png" alt="Nuestra App" style="width:72px;height:72px;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,0.2);" />
+      <img src="icon.png" alt="Nuestra App" style="width:72px;height:72px;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,0.2);"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+      <div style="display:none;width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,var(--accent1),var(--btn));align-items:center;justify-content:center;font-size:32px;box-shadow:0 8px 24px rgba(0,0,0,0.2);">&#x1F43E;</div>
     </div>
     <div class="splash-title" id="splash-app-name">Nuestra App</div>
     <div class="splash-sub">El espacio de los dos</div>
@@ -537,8 +552,9 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       </div>
     </div>
   </div>
-  <nav class="app-nav">
-    <button class="nav-btn active" onclick="showTab('viajes')"><span class="nav-icon" id="icon-viajes">✈️</span>Viajes</button>
+  <nav class="app-nav" style="display:none;">
+    <button class="nav-btn active" onclick="showTab('home')"><span class="nav-icon">&#x2302;</span>Inicio</button>
+    <button class="nav-btn" onclick="showTab('viajes')"><span class="nav-icon" id="icon-viajes">✈️</span>Viajes</button>
     <button class="nav-btn" onclick="showTab('recetas')"><span class="nav-icon" id="icon-recetas">🍳</span>Recetas</button>
     <button class="nav-btn" onclick="showTab('listas')"><span class="nav-icon" id="icon-listas">📋</span>Listas</button>
     <button class="nav-btn" onclick="showTab('casa')"><span class="nav-icon">🏠</span>Casa</button>
@@ -550,8 +566,104 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
   </nav>
   <div class="app-content">
 
+    <!-- HOME -->
+    <div id="tab-home" class="tab-section active">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-top:4px;">
+        <div>
+          <div style="font-family:var(--font-title);font-size:22px;font-weight:700;color:var(--text);" id="home-greeting">Hola</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:1px;" id="home-date"></div>
+        </div>
+        <!-- Bell icon with dot -->
+        <div style="position:relative;">
+          <button onclick="markNotificationsRead()" style="background:var(--card);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </button>
+          <div id="home-notif-dot" style="display:none;position:absolute;top:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#FF4444;border:2px solid var(--bg);"></div>
+        </div>
+      </div>
+
+      <!-- Notification banner -->
+      <div id="home-banner" style="margin-bottom:20px;position:relative;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent1),var(--btn));padding:16px 20px 16px;min-height:66px;">
+        <div id="home-banner-content" style="color:white;">
+          <div id="home-banner-text" style="font-size:14px;font-weight:600;line-height:1.4;padding-right:40px;">Cargando...</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+            <div id="home-banner-dots" style="display:flex;gap:5px;"></div>
+            <div style="display:flex;gap:4px;">
+              <button onclick="bannerPrev()" style="background:rgba(255,255,255,0.2);border:none;border-radius:50%;width:26px;height:26px;color:white;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#x2039;</button>
+              <button onclick="bannerNext()" style="background:rgba(255,255,255,0.2);border:none;border-radius:50%;width:26px;height:26px;color:white;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#x203A;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid iOS style — monochrome icons with app accent color -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <button class="home-grid-btn" onclick="showTab('viajes')">
+          <div class="home-grid-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l2-8 7 3 7-3 2 8"/><path d="M12 12V3"/><path d="M8 6l4-3 4 3"/></svg>
+          </div>
+          <span>Viajes</span>
+        </button>
+        <button class="home-grid-btn" onclick="showTab('recetas')">
+          <div class="home-grid-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3v7"/></svg>
+          </div>
+          <span>Recetas</span>
+        </button>
+        <button class="home-grid-btn" onclick="showTab('listas')">
+          <div class="home-grid-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1" fill="white"/><circle cx="3" cy="12" r="1" fill="white"/><circle cx="3" cy="18" r="1" fill="white"/></svg>
+          </div>
+          <span>Listas</span>
+        </button>
+        <button class="home-grid-btn" onclick="showTab('casa')">
+          <div class="home-grid-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <span>Casa</span>
+        </button>
+        <button class="home-grid-btn" onclick="showTab('agenda')">
+          <div class="home-grid-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <span>Agenda</span>
+        </button>
+        <button class="home-grid-btn" onclick="showTab('gastos')">
+          <div class="home-grid-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <span>Gastos</span>
+        </button>
+        <button class="home-grid-btn" onclick="showTab('deseos')">
+          <div class="home-grid-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <span>Deseos</span>
+        </button>
+        <button class="home-grid-btn" onclick="showTab('cine')">
+          <div class="home-grid-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+          </div>
+          <span>Cine</span>
+        </button>
+        <button class="home-grid-btn" onclick="showTab('perros')">
+          <div class="home-grid-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="2"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/></svg>
+          </div>
+          <span>Perros</span>
+        </button>
+      </div>
+    </div>
+
     <!-- VIAJES -->
-    <div id="tab-viajes" class="tab-section active">
+    <div id="tab-viajes" class="tab-section">
+      <div class="back-to-menu-bar">
+        <button class="back-to-menu-btn" onclick="showTab('home')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Men&#250;
+        </button>
+      </div>
       <div class="add-bar">
         <input id="v-input" type="text" placeholder="¿A dónde vais?" />
         <button class="add-btn add-btn-viaje" onclick="openViajeModal()">+</button>
@@ -561,6 +673,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <!-- RECETAS -->
     <div id="tab-recetas" class="tab-section">
+      <div class="back-to-menu-bar"><button class="back-to-menu-btn" onclick="showTab('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Men&#250;</button></div>
       <div class="add-bar">
         <input id="r-input" type="text" placeholder="Nombre de la receta..." />
         <button class="add-btn add-btn-receta" onclick="openRecetaModal()">+</button>
@@ -570,6 +683,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <!-- LISTAS -->
     <div id="tab-listas" class="tab-section">
+      <div class="back-to-menu-bar"><button class="back-to-menu-btn" onclick="showTab('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Men&#250;</button></div>
       <div class="add-bar">
         <input id="l-input" type="text" placeholder="Nueva lista (Compra, Pelis...)" />
         <button class="add-btn add-btn-lista" onclick="addLista()">+</button>
@@ -579,6 +693,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <!-- CASA -->
     <div id="tab-casa" class="tab-section">
+      <div class="back-to-menu-bar"><button class="back-to-menu-btn" onclick="showTab('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Men&#250;</button></div>
       <div class="coming-soon-screen">
         <div class="cs-icon">🏠</div>
         <div class="cs-title">Casa</div>
@@ -594,6 +709,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <!-- AGENDA -->
     <div id="tab-agenda" class="tab-section">
+      <div class="back-to-menu-bar"><button class="back-to-menu-btn" onclick="showTab('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Men&#250;</button></div>
       <div class="coming-soon-screen">
         <div class="cs-icon">📅</div>
         <div class="cs-title">Agenda</div>
@@ -609,6 +725,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <!-- GASTOS -->
     <div id="tab-gastos" class="tab-section">
+      <div class="back-to-menu-bar"><button class="back-to-menu-btn" onclick="showTab('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Men&#250;</button></div>
       <div class="coming-soon-screen">
         <div class="cs-icon">💰</div>
         <div class="cs-title">Gastos compartidos</div>
@@ -624,6 +741,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <!-- DESEOS -->
     <div id="tab-deseos" class="tab-section">
+      <div class="back-to-menu-bar"><button class="back-to-menu-btn" onclick="showTab('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Men&#250;</button></div>
       <div class="coming-soon-screen">
         <div class="cs-icon">🎁</div>
         <div class="cs-title">Lista de deseos</div>
@@ -639,6 +757,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <!-- CINE -->
     <div id="tab-cine" class="tab-section">
+      <div class="back-to-menu-bar"><button class="back-to-menu-btn" onclick="showTab('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Men&#250;</button></div>
       <div class="coming-soon-screen">
         <div class="cs-icon">🎬</div>
         <div class="cs-title">Cine y series</div>
@@ -654,6 +773,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <!-- PERROS -->
     <div id="tab-perros" class="tab-section">
+      <div class="back-to-menu-bar"><button class="back-to-menu-btn" onclick="showTab('home')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Men&#250;</button></div>
       <div class="coming-soon-screen">
         <div class="cs-icon">🐾</div>
         <div class="cs-title">Perdigón y Tolly</div>
@@ -720,17 +840,17 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <!-- MALETA -->
     <div id="ds-maleta" class="dsec">
+      <!-- Header -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div class="sec-title" style="margin:0;">Maleta del viaje</div>
+        <div class="sec-title" style="margin:0;">Maleta de viaje</div>
         <button onclick="togglePlantillasPanel()" style="font-size:12px;font-weight:700;color:var(--accent1);background:none;border:1.5px solid var(--accent1);border-radius:999px;padding:4px 12px;cursor:pointer;">&#x1F4CB; Plantillas</button>
       </div>
+      <!-- Plantillas panel -->
       <div id="plantillas-panel" style="display:none;margin-bottom:14px;padding:12px;background:var(--bg2);border-radius:var(--radius-sm);border:1.5px solid var(--border);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:12px;font-weight:700;color:var(--text2);">Cargar plantilla</span>
-          <button onclick="openNewPlantillaModal()" style="font-size:11px;font-weight:700;color:var(--accent1);background:none;border:none;cursor:pointer;">+ Nueva</button>
-        </div>
+        <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;">Cargar plantilla</div>
         <div id="plantillas-list"></div>
       </div>
+      <!-- Filtros personas -->
       <div class="maleta-filters" id="maleta-filter-pills">
         <button class="filter-pill fa" id="fp-todos" onclick="setMFilter('todos')">Todos</button>
         <button class="filter-pill" id="fp-david" onclick="setMFilter('david')">&#x1F435; David</button>
@@ -738,12 +858,20 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
         <button class="filter-pill" id="fp-perdigon" onclick="setMFilter('perdigon')">&#x1F43E; Perdig&#243;n</button>
         <button class="filter-pill" id="fp-tolly" onclick="setMFilter('tolly')">&#x1F43E; Tolly</button>
       </div>
+      <!-- Lista -->
       <div id="maleta-list"></div>
-      <div style="margin-top:14px;">
+      <!-- Guardar como plantilla + Limpiar -->
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button onclick="openSavePlantillaModal()" style="flex:1;padding:10px;border:1.5px dashed var(--border);border-radius:var(--radius-sm);background:none;color:var(--accent1);font-family:var(--font-body);font-size:13px;font-weight:700;cursor:pointer;">&#x2B; Guardar como plantilla</button>
+        <button onclick="clearMaleta()" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;color:#e74c3c;font-family:var(--font-body);font-size:12px;font-weight:700;cursor:pointer;" title="Limpiar lista">&#x1F5D1;</button>
+      </div>
+      <!-- A&#241;adir item -->
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
         <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">A&#241;adir item</div>
         <div class="maleta-add">
           <input id="maleta-inp" type="text" placeholder="&#191;Qu&#233; llevar?" onkeydown="if(event.key==='Enter')addMaletaItem()" style="flex:1;padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:13px;background:var(--bg2);color:var(--text);outline:none;" />
-          <select id="maleta-cat" class="mcat-sel" onchange="handleCatSelect()">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <select id="maleta-cat" class="mcat-sel" onchange="handleCatSelect()" style="flex:1;">
             <option value="Ropa">Ropa</option>
             <option value="Docs">Docs</option>
             <option value="Electr&#243;nica">Electr&#243;nica</option>
@@ -752,14 +880,16 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
             <option value="Otro">Otro</option>
             <option value="__new__">+ Nueva...</option>
           </select>
+          <button onclick="openManageCatsModal()" style="padding:9px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--text2);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);white-space:nowrap;">Gestionar</button>
+        </div>
           <button class="m-add-btn" onclick="addMaletaItem()">+</button>
         </div>
         <div class="person-checks" id="maleta-person-checks" style="margin-top:8px;">
-          <label class="person-check-label checked" id="pck-todos" onclick="togglePersonCheck('todos')"><input type="checkbox" checked /> Todos</label>
-          <label class="person-check-label" id="pck-david" onclick="togglePersonCheck('david')"><input type="checkbox" /> &#x1F435; David</label>
-          <label class="person-check-label" id="pck-maria" onclick="togglePersonCheck('maria')"><input type="checkbox" /> &#x1F437; Mar&#237;a</label>
-          <label class="person-check-label" id="pck-perdigon" onclick="togglePersonCheck('perdigon')"><input type="checkbox" /> &#x1F43E; Perdig&#243;n</label>
-          <label class="person-check-label" id="pck-tolly" onclick="togglePersonCheck('tolly')"><input type="checkbox" /> &#x1F43E; Tolly</label>
+          <label class="person-check-label checked" id="pck-todos" onclick="togglePersonCheck('todos')">Todos</label>
+          <label class="person-check-label" id="pck-david" onclick="togglePersonCheck('david')">&#x1F435; David</label>
+          <label class="person-check-label" id="pck-maria" onclick="togglePersonCheck('maria')">&#x1F437; Mar&#237;a</label>
+          <label class="person-check-label" id="pck-perdigon" onclick="togglePersonCheck('perdigon')">&#x1F43E; Perdig&#243;n</label>
+          <label class="person-check-label" id="pck-tolly" onclick="togglePersonCheck('tolly')">&#x1F43E; Tolly</label>
         </div>
       </div>
     </div>
@@ -931,21 +1061,25 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 <div class="modal-bg" id="modal-doc" onclick="closeMBg('modal-doc')">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">📎 Añadir documento</div>
+    <div class="modal-title">Añadir documento</div>
     <label>Nombre</label>
     <input id="md-name" type="text" placeholder="Ej: Vuelo Madrid-Roma ida" />
     <label>Tipo</label>
     <select id="md-tipo">
-      <option value="✈️">✈️ Vuelo</option>
-      <option value="🏨">🏨 Hotel</option>
-      <option value="🚗">🚗 Coche / Transporte</option>
-      <option value="🎟️">🎟️ Entrada / Actividad</option>
-      <option value="📄">📄 Otro documento</option>
+      <option value="Vuelo">Vuelo</option>
+      <option value="Hotel">Hotel</option>
+      <option value="Transporte">Transporte</option>
+      <option value="Entrada">Entrada / Actividad</option>
+      <option value="Otro">Otro documento</option>
     </select>
     <label>Enlace (Google Drive, email, web...)</label>
     <input id="md-url" type="url" placeholder="https://drive.google.com/..." />
-    <label>O sube un archivo directamente</label>
-    <input id="md-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="width:100%;padding:8px 0;font-family:var(--font-body);font-size:13px;" />
+    <label>O sube un archivo</label>
+    <label class="file-input-label" id="md-file-label" style="margin-top:0;text-transform:none;letter-spacing:0;">
+      <span style="font-size:18px;">&#x1F4C2;</span>
+      <span id="md-file-text">Seleccionar archivo...</span>
+      <input id="md-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="document.getElementById('md-file-text').textContent=this.files[0]?this.files[0].name:'Seleccionar archivo...'" />
+    </label>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-doc')">Cancelar</button>
       <button class="btn-save" onclick="saveDoc()">Guardar</button>
@@ -956,7 +1090,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 <div class="modal-bg" id="modal-site" onclick="closeMBg('modal-site')">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">📍 Añadir sitio</div>
+    <div class="modal-title" id="ms-modal-title">Añadir sitio</div>
     <label>Buscar en Maps</label>
     <div class="search-suggestions">
       <input id="ms-search" type="text" placeholder="Escribe para buscar..." oninput="autocompleteMaps(this.value)" autocomplete="off" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
@@ -964,11 +1098,11 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
     </div>
     <label>Nombre del sitio</label>
     <input id="ms-name" type="text" placeholder="Ej: Coliseo Romano" />
-    <label>Categoría</label>
+    <label>Categor&#237;a</label>
     <select id="ms-cat">
-      <option>🏛️ Monumento</option><option>🍽️ Restaurante</option>
-      <option>🌿 Naturaleza</option><option>🛍️ Compras</option>
-      <option>🎭 Cultura / Arte</option><option>🏖️ Playa</option><option>📦 Otro</option>
+      <option>&#x1F3DB;&#xFE0F; Monumento</option><option>&#x1F37D;&#xFE0F; Restaurante</option>
+      <option>&#x1F33F; Naturaleza</option><option>&#x1F6CD;&#xFE0F; Compras</option>
+      <option>&#x1F3AD; Cultura / Arte</option><option>&#x1F3D6;&#xFE0F; Playa</option><option>&#x1F4E6; Otro</option>
     </select>
     <label>Hora de inicio</label>
     <input id="ms-hora" type="time" />
@@ -977,13 +1111,24 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       <option value="30">30 min</option><option value="60">1 hora</option>
       <option value="90">1,5 horas</option><option value="120">2 horas</option>
       <option value="180">3 horas</option><option value="240">4 horas</option>
-      <option value="360">Medio día</option><option value="480">Día completo</option>
+      <option value="360">Medio d&#237;a</option><option value="480">D&#237;a completo</option>
     </select>
     <label>Notas</label>
     <textarea id="ms-notas" placeholder="Reservar antes, precio estimado, consejo..."></textarea>
+    <label>Documento adjunto (opcional)</label>
+    <input id="ms-doc-name" type="text" placeholder="Nombre del documento" style="margin-bottom:6px;" />
+    <div style="display:flex;gap:6px;align-items:center;">
+      <input id="ms-doc-url" type="url" placeholder="https://... (enlace)" style="flex:1;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
+      <span style="font-size:12px;color:var(--text2);">o</span>
+      <label class="file-input-label" style="margin:0;text-transform:none;letter-spacing:0;font-size:13px;padding:10px 14px;white-space:nowrap;border:1.5px solid var(--border);">
+        &#x1F4C2; Archivo
+        <input id="ms-doc-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+      </label>
+    </div>
+    <div id="ms-doc-filename" style="font-size:11px;color:var(--text2);margin-top:3px;"></div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-site')">Cancelar</button>
-      <button class="btn-save" onclick="saveSite()">Añadir</button>
+      <button class="btn-save" id="ms-save-btn" onclick="saveSite()">A&#241;adir</button>
     </div>
   </div>
 </div>
@@ -1011,7 +1156,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">&#x1F4CE; Adjuntar documento</div>
-    <label>Nombre del documento</label>
+    <label>Nombre</label>
     <input id="sd-name" type="text" placeholder="Ej: Entrada Coliseo" />
     <label>Tipo</label>
     <select id="sd-tipo">
@@ -1021,8 +1166,14 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       <option value="&#x1F697; Transporte">&#x1F697; Transporte</option>
       <option value="&#x1F4C4; Otro">&#x1F4C4; Otro</option>
     </select>
-    <label>Enlace del documento</label>
+    <label>Enlace (Drive, web...)</label>
     <input id="sd-url" type="url" placeholder="https://drive.google.com/..." />
+    <label>O sube un archivo</label>
+    <label class="file-input-label" style="margin-top:0;text-transform:none;letter-spacing:0;">
+      <span style="font-size:18px;">&#x1F4C2;</span>
+      <span id="sd-file-text">Seleccionar archivo...</span>
+      <input id="sd-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="document.getElementById('sd-file-text').textContent=this.files[0]?this.files[0].name:'Seleccionar archivo...'" />
+    </label>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-site-doc')">Cancelar</button>
       <button class="btn-save" onclick="saveSiteDoc()">Guardar</button>
@@ -1030,16 +1181,34 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
   </div>
 </div>
 
-<!-- NEW PLANTILLA MODAL -->
-<div class="modal-bg" id="modal-plantilla" onclick="if(event.target===this)closeModal('modal-plantilla')">
+<!-- MANAGE CATEGORIES MODAL -->
+<div class="modal-bg" id="modal-manage-cats" onclick="if(event.target===this)closeModal('modal-manage-cats')">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">&#x1F4CB; Nueva plantilla</div>
+    <div class="modal-title">Categor&#237;as</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Las predefinidas no se pueden eliminar. Puedes borrar las que hayas creado t&#250;.</p>
+    <div id="manage-cats-list"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <input id="new-cat-input" type="text" placeholder="Nueva categor&#237;a..." style="flex:1;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
+      <button onclick="addManageCat()" style="padding:11px 16px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:14px;font-weight:700;cursor:pointer;">+</button>
+    </div>
+    <div class="modal-btns" style="margin-top:14px;">
+      <button class="btn-save" style="width:100%;" onclick="closeModal('modal-manage-cats')">Listo</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE AS PLANTILLA MODAL -->
+<div class="modal-bg" id="modal-save-plantilla" onclick="if(event.target===this)closeModal('modal-save-plantilla')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">&#x1F4CB; Guardar como plantilla</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Se guardar&#225; la lista actual para usarla en futuros viajes.</p>
     <label>Nombre de la plantilla</label>
-    <input id="plt-name" type="text" placeholder="Ej: Viaje de ski" />
+    <input id="sap-name" type="text" placeholder="Ej: Viaje de playa con perros" />
     <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-plantilla')">Cancelar</button>
-      <button class="btn-save" onclick="saveNewPlantilla()">Crear</button>
+      <button class="btn-cancel" onclick="closeModal('modal-save-plantilla')">Cancelar</button>
+      <button class="btn-save" onclick="saveCurrentAsPlantilla()">Guardar</button>
     </div>
   </div>
 </div>
@@ -1300,34 +1469,66 @@ window.doResetPassword = async () => {
 let _autocompleteTimer = null;
 window.autocompleteMaps = (q) => {
   clearTimeout(_autocompleteTimer);
-  const res = document.getElementById('ms-search-results');
-  if(!q || q.length < 2){ res.innerHTML=''; return; }
+  var res = document.getElementById('ms-search-results');
+  if(!q || q.length < 2){ if(res) res.innerHTML=''; return; }
   _autocompleteTimer = setTimeout(async () => {
-    const v = getViaje();
-    const searchQ = v ? q+' '+v.name : q;
+    var v = getViaje();
+    // Try search with context first, then without
+    var searches = [
+      'https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=6&accept-language=es&countrycodes=es&addressdetails=1',
+      'https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=6&accept-language=es&addressdetails=1'
+    ];
     try {
-      const r = await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(searchQ)+'&format=json&limit=5&accept-language=es');
-      const data = await r.json();
-      if(!data.length){ res.innerHTML='<div class="suggestions-list"><div class="suggestion-item" style="color:var(--text2);">Sin resultados</div></div>'; return; }
-      res.innerHTML = '<div class="suggestions-list">'+data.map(function(p){
+      var r = await fetch(searches[0]);
+      var data = await r.json();
+      // If no results with Spain filter, try worldwide
+      if(!data.length){
+        var r2 = await fetch(searches[1]);
+        data = await r2.json();
+      }
+      if(!data.length){
+        if(res) res.innerHTML='<div class="suggestions-list"><div class="suggestion-item" style="color:var(--text2);">Sin resultados — prueba con otro nombre</div></div>';
+        return;
+      }
+      if(res) res.innerHTML = '<div class="suggestions-list">'+data.map(function(p){
         var name = p.display_name.split(',')[0];
-        var addr = p.display_name.split(',').slice(1,3).join(',').trim();
+        var type = p.type || p.class || '';
+        var addr = p.display_name.split(',').slice(1,4).join(', ').trim();
         return '<div class="suggestion-item" onclick="selectPlace(\''+esc(name)+'\',\''+p.lat+'\',\''+p.lon+'\')">'
           + '<strong>'+esc(name)+'</strong>'
           + '<small>'+esc(addr)+'</small>'
           + '</div>';
       }).join('')+'</div>';
-    } catch(e){ res.innerHTML=''; }
-  }, 350);
+    } catch(e){ if(res) res.innerHTML=''; }
+  }, 300);
 };
 
 window.selectPlace = (name, lat, lng) => {
-  document.getElementById('ms-name').value = name;
-  document.getElementById('ms-search-results').innerHTML=`
-    <div style="padding:8px 0;font-size:12px;color:var(--accent1);font-weight:600;">✓ Seleccionado: ${esc(name)}</div>`;
-  document.getElementById('ms-search').value='';
+  var nameEl = document.getElementById('ms-name');
+  if(nameEl) nameEl.value = name;
   window._selectedLat = lat;
   window._selectedLng = lng;
+  var res = document.getElementById('ms-search-results');
+  if(!res) return;
+  var mapId = 'minimap-'+Date.now();
+  res.innerHTML = '<div style="border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-top:6px;">'
+    + '<div id="'+mapId+'" style="width:100%;height:150px;"></div>'
+    + '<div style="padding:8px 12px;background:var(--bg2);display:flex;justify-content:space-between;align-items:center;">'
+    + '<span style="font-size:12px;font-weight:700;color:var(--accent1);">&#x2713; '+esc(name)+'</span>'
+    + '<button onclick="document.getElementById(\'ms-search-results\').innerHTML=\'\'" style="font-size:11px;background:none;border:none;color:var(--text2);cursor:pointer;">Cambiar</button>'
+    + '</div></div>';
+  var searchEl = document.getElementById('ms-search');
+  if(searchEl) searchEl.value = '';
+  // Init Leaflet minimap
+  setTimeout(function(){
+    var mapEl = document.getElementById(mapId);
+    if(!mapEl || !window.L) return;
+    var mm = L.map(mapId, {zoomControl:true, attributionControl:false, scrollWheelZoom:true});
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd'}).addTo(mm);
+    var latF = parseFloat(lat); var lngF = parseFloat(lng);
+    mm.setView([latF,lngF], 15);
+    L.marker([latF,lngF]).addTo(mm);
+  }, 100);
 };
 
 onAuthStateChanged(auth, async (user) => {
@@ -1368,7 +1569,7 @@ function subscribeData(){
   if(unsubViajes)  unsubViajes();
   if(unsubRecetas) unsubRecetas();
   if(unsubListas)  unsubListas();
-  unsubViajes  = onSnapshot(query(collection(db,'viajes'),  orderBy('createdAt','desc')), snap => { appData.viajes  = snap.docs.map(d=>({id:d.id,...d.data()})); renderViajes(); if(currentViajeId) renderDetail(); });
+  unsubViajes  = onSnapshot(query(collection(db,'viajes'),  orderBy('createdAt','desc')), snap => { appData.viajes  = snap.docs.map(d=>({id:d.id,...d.data()})); renderViajes(); if(currentViajeId) renderDetail(); renderHomeBanner(); });
   unsubRecetas = onSnapshot(query(collection(db,'recetas'), orderBy('createdAt','desc')), snap => { appData.recetas = snap.docs.map(d=>({id:d.id,...d.data()})); renderRecetas(); });
   unsubListas  = onSnapshot(query(collection(db,'listas'),  orderBy('createdAt','desc')), snap => { appData.listas  = snap.docs.map(d=>({id:d.id,...d.data()})); renderListas(); });
 }
@@ -1381,12 +1582,18 @@ function showScreen(id){
 window.showTab = (t) => {
   document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  const el = document.getElementById('tab-'+t);
+  var el = document.getElementById('tab-'+t);
   if(el) el.classList.add('active');
-  const tabs=['viajes','recetas','listas','casa','agenda','gastos','deseos','cine','perros'];
-  const idx = tabs.indexOf(t);
-  const btns = document.querySelectorAll('.nav-btn');
+  var tabs=['home','viajes','recetas','listas','casa','agenda','gastos','deseos','cine','perros'];
+  var idx = tabs.indexOf(t);
+  var btns = document.querySelectorAll('.nav-btn');
   if(idx>=0 && btns[idx]) btns[idx].classList.add('active');
+  // Hide nav on home, show on others
+  var nav = document.querySelector('.app-nav');
+  if(nav) nav.style.display = t==='home' ? 'none' : 'flex';
+  // Update back-to-menu bar visibility
+  document.querySelectorAll('.back-to-menu-bar').forEach(function(b){ b.style.display = t==='home'?'none':'flex'; });
+  if(t==='home'){ markNotificationsRead(); updateHomeDate(); }
 };
 window.openSettings  = () => { renderSettingsPanel(); showScreen('screen-settings'); };
 window.closeSettings = () => showScreen('screen-app');
@@ -1581,7 +1788,11 @@ window.saveDoc = async () => {
 };
 window.delDoc = async (did) => {
   const v = getViaje(); if(!v) return;
-  await updateDoc(doc(db,'viajes',currentViajeId), {docs: (v.docs||[]).filter(d=>d.id!==did)});
+  var d = (v.docs||[]).find(function(x){return x.id===did;});
+  var docName = d ? d.name : 'este documento';
+  appConfirm('&#191;Eliminar documento?', '"'+esc(docName)+'" se eliminar\u00E1.', async function(){
+    await updateDoc(doc(db,'viajes',currentViajeId), {docs: (v.docs||[]).filter(function(x){return x.id!==did;})});
+  }, true);
 };
 
 // MALETA — PLANTILLAS GLOBALES
@@ -1704,30 +1915,29 @@ window.delPlantilla = (id) => {
   }, true);
 };
 
-window.openNewPlantillaModal = () => {
-  document.getElementById('plt-name').value='';
-  document.getElementById('modal-plantilla').classList.add('open');
-  setTimeout(function(){ document.getElementById('plt-name').focus(); },150);
+window.openSavePlantillaModal = () => {
+  document.getElementById('sap-name').value = '';
+  document.getElementById('modal-save-plantilla').classList.add('open');
+  setTimeout(function(){ document.getElementById('sap-name').focus(); }, 150);
 };
 
-window.saveNewPlantilla = async () => {
-  var name = document.getElementById('plt-name').value.trim();
+window.saveCurrentAsPlantilla = async () => {
+  var name = document.getElementById('sap-name').value.trim();
   if(!name) return;
+  var v = getViaje();
+  var items = v ? (v.maleta||[]).map(function(i){
+    return {text:i.text, cat:i.cat, persons:i.persons||['todos']};
+  }) : [];
   if(!globalPlantillas) globalPlantillas=[];
-  globalPlantillas.push({id:'custom_'+Date.now(), name:name, items:[]});
+  globalPlantillas.push({id:'custom_'+Date.now(), name:name, items:items});
   await saveGlobalPlantillas();
-  closeModal('modal-plantilla');
+  closeModal('modal-save-plantilla');
+  appConfirm('&#x2713; Plantilla guardada', '"'+name+'" se ha guardado con '+items.length+' items.', function(){}, false);
 };
 
-window.editPlantilla = (id) => {
-  var p = (globalPlantillas||[]).find(function(x){return x.id===id;});
-  if(!p) return;
-  // For now, open a simple prompt to add items
-  var item = prompt('A&#241;adir item a "'+p.name.replace(/&#\d+;/g,'')+'"\nFormato: nombre del item');
-  if(!item) return;
-  p.items.push({text:item, cat:'Otro', persons:['todos']});
-  saveGlobalPlantillas();
-};
+// Keep for backwards compat
+window.openNewPlantillaModal = window.openSavePlantillaModal;
+window.saveNewPlantilla = window.saveCurrentAsPlantilla;
 
 window.setMFilter = (f) => {
   if(f === 'todos'){
@@ -1780,34 +1990,51 @@ function renderMaleta(v){
   renderMaletaCatSelect(v);
 }
 
+const DEFAULT_CATS = ['Ropa','Docs','Electr\u00F3nica','Higiene','Salud','Otro'];
+
 function renderMaletaCatSelect(v){
-  const customCats = (v.maletaCats||[]);
-  const defaultCats = ['👗 Ropa','📄 Docs','🔌 Electrónica','🧴 Higiene','💊 Salud','📦 Otro'];
-  const allCats = [...new Set([...defaultCats, ...customCats])];
-  const sel = document.getElementById('maleta-cat');
+  var customCats = (v && v.maletaCats)||[];
+  var sel = document.getElementById('maleta-cat');
   if(!sel) return;
-  sel.innerHTML = allCats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
-  sel.innerHTML += `<option value="__new__">+ Nueva categoría...</option>`;
+  sel.innerHTML = DEFAULT_CATS.map(function(c){
+    return '<option value="'+c+'">'+c+'</option>';
+  }).join('');
+  customCats.forEach(function(c){
+    sel.innerHTML += '<option value="'+esc(c)+'">'+esc(c)+'</option>';
+  });
+  sel.innerHTML += '<option value="__new__">+ Nueva categor\u00EDa...</option>';
 }
 
-window.handleCatSelect = async () => {
-  const sel = document.getElementById('maleta-cat');
-  if(sel.value === '__new__'){
-    const nombre = prompt('Nombre de la nueva categoría:');
-    if(!nombre){ sel.value='📦 Otro'; return; }
-    const v=getViaje(); if(!v)return;
-    const maletaCats=[...(v.maletaCats||[]), nombre];
-    await updateDoc(doc(db,'viajes',currentViajeId),{maletaCats});
+window.handleCatSelect = () => {
+  var sel = document.getElementById('maleta-cat');
+  if(!sel) return;
+  var val = sel.value;
+  if(val !== '__new__') return;
+  // Use app modal pattern via a custom inline modal
+  var name = window.prompt('Nombre de la nueva categor\u00EDa:');
+  if(!name || !name.trim()){ sel.value='Otro'; return; }
+  name = name.trim();
+  var v = getViaje(); if(!v){ sel.value='Otro'; return; }
+  var maletaCats = [...(v.maletaCats||[])];
+  if(maletaCats.indexOf(name)<0) maletaCats.push(name);
+  updateDoc(doc(db,'viajes',currentViajeId),{maletaCats:maletaCats}).then(function(){
     renderMaletaCatSelect(getViaje());
-    sel.value=nombre;
-  }
+    var s = document.getElementById('maleta-cat');
+    if(s) s.value = name;
+  });
+};
+
+window.delMaletaCat = (cat) => {
+  appConfirm('&#191;Eliminar categor\u00EDa?', '"'+esc(cat)+'" se eliminar\u00E1. Los items ya creados conservan su categor\u00EDa.', async function(){
+    var v = getViaje(); if(!v) return;
+    var maletaCats = (v.maletaCats||[]).filter(function(c){return c!==cat;});
+    await updateDoc(doc(db,'viajes',currentViajeId),{maletaCats:maletaCats});
+  }, true);
 };
 
 let _selectedPersons = ['todos'];
 
 window.togglePersonCheck = (person) => {
-  var label = document.getElementById('pck-'+person);
-  if(!label) return;
   if(person === 'todos'){
     _selectedPersons = ['todos'];
     ['todos','david','maria','perdigon','tolly'].forEach(function(p){
@@ -1819,8 +2046,15 @@ window.togglePersonCheck = (person) => {
     var todosLabel = document.getElementById('pck-todos');
     if(todosLabel) todosLabel.classList.remove('checked');
     var idx = _selectedPersons.indexOf(person);
-    if(idx >= 0){ _selectedPersons.splice(idx,1); label.classList.remove('checked'); }
-    else { _selectedPersons.push(person); label.classList.add('checked'); }
+    if(idx >= 0){
+      _selectedPersons.splice(idx,1);
+      var lbl = document.getElementById('pck-'+person);
+      if(lbl) lbl.classList.remove('checked');
+    } else {
+      _selectedPersons.push(person);
+      var lbl2 = document.getElementById('pck-'+person);
+      if(lbl2) lbl2.classList.add('checked');
+    }
     if(_selectedPersons.length === 0){
       _selectedPersons = ['todos'];
       var tl = document.getElementById('pck-todos');
@@ -1889,47 +2123,47 @@ function buildSiteHTML(s, dayKey, vname){
   var tiempo  = s.tiempo ? '<span class="site-time-pill">&#x23F1; '+minutesToStr(parseInt(s.tiempo))+'</span>' : '';
   var notas   = s.notas  ? '<div style="font-size:12px;color:var(--text2);margin-top:4px;">'+esc(s.notas)+'</div>' : '';
 
-  // Photo with mini action icons
   var photo = s.photo
     ? '<img src="'+esc(s.photo)+'" onclick="event.stopPropagation();viewSitePhoto(this.src)" style="width:52px;height:52px;border-radius:var(--radius-xs);object-fit:cover;display:block;" />'
     : '<div onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" style="width:52px;height:52px;border-radius:var(--radius-xs);background:var(--bg);border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;">&#x1F4F7;</div>';
   var photoIcons = s.photo
-    ? '<div style="display:flex;gap:4px;margin-top:3px;justify-content:center;">'
-      + '<button onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" title="Cambiar foto" style="background:none;border:none;font-size:14px;cursor:pointer;padding:2px;opacity:0.7;">&#x21BA;</button>'
-      + '<button onclick="confirmDelPhoto(\''+dayKey+'\',\''+s.id+'\')" title="Borrar foto" style="background:none;border:none;font-size:13px;cursor:pointer;padding:2px;opacity:0.7;">&#x1F5D1;</button>'
+    ? '<div style="display:flex;gap:6px;margin-top:3px;justify-content:center;">'
+      + '<button onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" title="Cambiar" style="background:none;border:none;font-size:14px;cursor:pointer;padding:2px;opacity:0.6;">&#x21BA;</button>'
+      + '<button onclick="confirmDelPhoto(\''+dayKey+'\',\''+s.id+'\')" title="Borrar" style="background:none;border:none;font-size:13px;cursor:pointer;padding:2px;opacity:0.6;">&#x1F5D1;</button>'
       + '</div>'
-    : '';
+    : '<div style="margin-top:3px;text-align:center;"><button onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" style="font-size:10px;color:var(--text2);background:none;border:none;cursor:pointer;">+ foto</button></div>';
 
-  // Site docs
   var siteDocs = (s.docs||[]);
   var siteDocsHTML = siteDocs.length
     ? '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;">'
       + siteDocs.map(function(d){
-          return '<a href="'+esc(d.url)+'" target="_blank" style="font-size:11px;padding:2px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--accent1);text-decoration:none;font-weight:600;">'
+          return '<a href="'+esc(d.url||'#')+'" target="_blank" style="font-size:11px;padding:2px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--accent1);text-decoration:none;font-weight:600;">'
             + esc(d.tipo)+' '+esc(d.name)+'</a>';
-        }).join('')
-      + '</div>'
-    : '';
+        }).join('')+'</div>' : '';
 
   var mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(s.name+' '+vname);
   var claudeQ = 'https://claude.ai/new?q='+encodeURIComponent('Estoy visitando '+s.name+' en '+vname+'. Cu\u00E9ntame curiosidades interesantes y qu\u00E9 no me puedo perder aqu\u00ED.');
 
-  return '<div class="site-item'+visited+'" style="position:relative;">'
-    + '<button onclick="appConfirm(\'&#191;Eliminar \'+\''+esc(s.name)+'\'+\'?\',\'Esta parada se eliminar\u00E1 del itinerario.\',function(){delSiteConfirmed(\''+dayKey+'\',\''+s.id+'\')},true)" style="position:absolute;top:8px;right:8px;background:none;border:none;font-size:16px;color:var(--text2);cursor:pointer;opacity:0.5;line-height:1;z-index:2;">&#xD7;</button>'
+  // Layout: [check] [info+actions] [photo+X(top-right)]
+  return '<div class="site-item'+visited+'" style="position:relative;padding-right:0;">'
     + '<div class="site-visited-check'+checked+'" onclick="toggleSiteVisited(\''+dayKey+'\',\''+s.id+'\')">&#x2713;</div>'
-    + '<div class="site-info" style="padding-right:20px;">'
+    + '<div class="site-info">'
     + '<div class="site-name">'+esc(s.name)+'</div>'
     + '<div class="site-meta"><span>'+esc(s.cat)+'</span>'+hora+tiempo+'</div>'
-    + notas
-    + siteDocsHTML
+    + notas + siteDocsHTML
     + '<div class="site-actions">'
     + '<a class="site-action-btn" href="'+mapsUrl+'" target="_blank">Maps</a>'
     + '<a class="site-action-btn" href="'+claudeQ+'" target="_blank">Tu gu\u00EDa</a>'
+    + '<button class="site-action-btn" onclick="openEditSiteFromItinerary(\''+dayKey+'\',\''+s.id+'\')">&#x270E; Editar</button>'
     + '<button class="site-action-btn" onclick="openSiteDocModal(\''+dayKey+'\',\''+s.id+'\')">+ Doc</button>'
     + '</div>'
     + '</div>'
-    + '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;">'
+    // Photo column with X in top-right corner of the column
+    + '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px;position:relative;">'
+    + '<div style="display:flex;align-items:flex-start;gap:0;">'
     + '<div onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" style="cursor:pointer;">'+photo+'</div>'
+    + '<button onclick="delSite(null,\''+dayKey+'\',\''+s.id+'\')" style="background:none;border:1.5px solid var(--border);border-radius:999px;font-size:11px;font-weight:700;color:var(--text2);cursor:pointer;padding:3px 10px;white-space:nowrap;font-family:var(--font-body);flex-shrink:0;align-self:flex-start;">Quitar</button>'
+    + '</div>'
     + photoIcons
     + '</div>'
     + '</div>';
@@ -1954,7 +2188,7 @@ function renderItinerario(v){
       + '<div class="day-title">'+dayLabel+'</div>'
       + '<div style="display:flex;align-items:center;gap:8px;">'
       + '<div class="day-time">'+timeStr+'</div>'
-      + '<button onclick="openRoutePlanner(\''+dayKey+'\')" style="padding:4px 10px;border:1.5px solid var(--accent1);border-radius:999px;background:none;color:var(--accent1);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#x1F5FA; Ruta</button>'
+      + '<button onclick="openRoutePlanner(\''+dayKey+'\')" style="padding:4px 10px;border:1.5px solid var(--accent1);border-radius:999px;background:none;color:var(--accent1);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#x270E; Organizar</button>'
       + '</div></div>'
       + '<div class="day-note"><input type="text" value="'+esc(dayData.note||'')+'" placeholder="Nota del d\u00EDa..." onblur="saveDayNote(\''+dayKey+'\',this.value)" /></div>'
       + sitesHTML
@@ -1968,41 +2202,129 @@ function renderItinerario(v){
 
 window.openSiteModal = (dayKey) => {
   window._currentDayId = dayKey;
-  currentDayId = dayKey;
+  window._editSiteId = null; // new site
   var res = document.getElementById('ms-search-results');
   var inp = document.getElementById('ms-search');
+  var title = document.getElementById('ms-modal-title');
+  var saveBtn = document.getElementById('ms-save-btn');
   if(res) res.innerHTML='';
   if(inp) inp.value='';
+  if(title) title.textContent = 'A\u00F1adir sitio';
+  if(saveBtn) saveBtn.textContent = 'A\u00F1adir';
   document.getElementById('ms-name').value='';
   document.getElementById('ms-notas').value='';
   document.getElementById('ms-hora').value='';
+  document.getElementById('ms-doc-name').value='';
+  document.getElementById('ms-doc-url').value='';
+  var docFile = document.getElementById('ms-doc-file');
+  if(docFile) docFile.value='';
+  var docFn = document.getElementById('ms-doc-filename');
+  if(docFn) docFn.textContent='';
+  document.getElementById('modal-site').classList.add('open');
+};
+
+window.openEditSiteFromItinerary = (dayKey, siteId) => {
+  const v = getViaje(); if(!v) return;
+  const day = (v.itinerario||[]).find(function(d){return d.dayKey===dayKey;});
+  if(!day) return;
+  const site = (day.sites||[]).find(function(s){return s.id===siteId;});
+  if(!site) return;
+
+  window._currentDayId = dayKey;
+  window._editSiteId = siteId;
+
+  var res = document.getElementById('ms-search-results');
+  var inp = document.getElementById('ms-search');
+  var title = document.getElementById('ms-modal-title');
+  var saveBtn = document.getElementById('ms-save-btn');
+  if(res) res.innerHTML='';
+  if(inp) inp.value='';
+  if(title) title.textContent = '&#x270E; Editar sitio';
+  if(saveBtn) saveBtn.textContent = 'Guardar';
+
+  document.getElementById('ms-name').value  = site.name||'';
+  document.getElementById('ms-notas').value = site.notas||'';
+  document.getElementById('ms-hora').value  = site.hora||'';
+  document.getElementById('ms-doc-name').value = '';
+  document.getElementById('ms-doc-url').value  = '';
+  var docFn = document.getElementById('ms-doc-filename');
+  if(docFn) docFn.textContent='';
+
+  // Set category
+  var catSel = document.getElementById('ms-cat');
+  for(var i=0;i<catSel.options.length;i++){
+    if(catSel.options[i].text===site.cat || catSel.options[i].value===site.cat){ catSel.selectedIndex=i; break; }
+  }
+  // Set tiempo
+  var tiempoSel = document.getElementById('ms-tiempo');
+  for(var j=0;j<tiempoSel.options.length;j++){
+    if(tiempoSel.options[j].value===String(site.tiempo)){ tiempoSel.selectedIndex=j; break; }
+  }
+  // Set coords if available
+  window._selectedLat = site.lat||null;
+  window._selectedLng = site.lng||null;
+
   document.getElementById('modal-site').classList.add('open');
 };
 window.saveSite = async () => {
-  const name=document.getElementById('ms-name').value.trim(); if(!name)return;
-  const v=getViaje(); if(!v)return;
-  const dayKey = window._currentDayId; if(!dayKey)return;
+  const name = document.getElementById('ms-name').value.trim(); if(!name) return;
+  const v = getViaje(); if(!v) return;
+  const dayKey = window._currentDayId; if(!dayKey) return;
+  const editId = window._editSiteId;
   const itinerario = JSON.parse(JSON.stringify(v.itinerario||[]));
-  let day=itinerario.find(d=>d.dayKey===dayKey);
-  if(!day){ day={dayKey,sites:[],note:''}; itinerario.push(day); }
-  if(!day.sites) day.sites=[];
-  day.sites.push({
-    id:Date.now()+'_'+Math.random(),
-    name,
-    cat:document.getElementById('ms-cat').value,
+
+  // Handle optional doc attachment
+  var newDoc = null;
+  var docName = (document.getElementById('ms-doc-name')||{}).value||'';
+  var docUrl  = (document.getElementById('ms-doc-url')||{}).value||'';
+  var docFile = document.getElementById('ms-doc-file');
+  docName = docName.trim(); docUrl = docUrl.trim();
+  if(docName && docFile && docFile.files.length > 0){
+    var file = docFile.files[0];
+    var sRef = ref(storage, 'viajes/'+currentViajeId+'/site-docs/'+Date.now()+'_'+file.name);
+    await uploadBytes(sRef, file);
+    docUrl = await getDownloadURL(sRef);
+  }
+  if(docName || docUrl){
+    newDoc = {id:Date.now()+'_sd', name:docName||'Documento', tipo:'&#x1F4C4; Otro', url:docUrl};
+  }
+
+  var siteData = {
+    name, cat:document.getElementById('ms-cat').value,
     hora:document.getElementById('ms-hora').value,
     tiempo:document.getElementById('ms-tiempo').value,
     notas:document.getElementById('ms-notas').value.trim(),
-    lat: window._selectedLat||null,
-    lng: window._selectedLng||null,
-    visited:false
-  });
-  window._selectedLat=null; window._selectedLng=null;
+    lat:window._selectedLat||null, lng:window._selectedLng||null,
+  };
+
+  if(editId){
+    // Edit existing site
+    itinerario.forEach(function(d){
+      var s = (d.sites||[]).find(function(x){return x.id===editId;});
+      if(s){ Object.assign(s, siteData); if(newDoc){ if(!s.docs) s.docs=[]; s.docs.push(newDoc); } }
+    });
+  } else {
+    // New site
+    let day = itinerario.find(function(d){return d.dayKey===dayKey;});
+    if(!day){ day={dayKey:dayKey,sites:[],note:''}; itinerario.push(day); }
+    if(!day.sites) day.sites=[];
+    var newSite = Object.assign({id:Date.now()+'_'+Math.random(), visited:false, docs:[]}, siteData);
+    if(newDoc) newSite.docs.push(newDoc);
+    day.sites.push(newSite);
+  }
+
+  // Also add doc to viaje docs if present
+  var updateData = {itinerario};
+  if(newDoc){
+    newDoc.siteId = editId || 'new';
+    updateData.docs = [...(v.docs||[]), newDoc];
+  }
+
+  window._selectedLat=null; window._selectedLng=null; window._editSiteId=null;
   try {
-    await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
+    await updateDoc(doc(db,'viajes',currentViajeId), updateData);
   } catch(e){
-    console.error('Error guardando sitio:', e);
-    alert('Error guardando. Comprueba tu conexión.');
+    appConfirm('Error guardando', 'Comprueba tu conexi\u00F3n e int\u00E9ntalo de nuevo.', function(){}, false);
     return;
   }
   document.getElementById('ms-name').value='';
@@ -2010,6 +2332,10 @@ window.saveSite = async () => {
   document.getElementById('ms-hora').value='';
   document.getElementById('ms-search').value='';
   document.getElementById('ms-search-results').innerHTML='';
+  if(document.getElementById('ms-doc-name')) document.getElementById('ms-doc-name').value='';
+  if(document.getElementById('ms-doc-url'))  document.getElementById('ms-doc-url').value='';
+  if(docFile) docFile.value='';
+  var dfn = document.getElementById('ms-doc-filename'); if(dfn) dfn.textContent='';
   const inp=document.getElementById('site-inp-'+dayKey); if(inp)inp.value='';
   closeModal('modal-site');
 };
@@ -2020,7 +2346,7 @@ window.toggleSiteVisited = async (dayKey,sid) => {
   if(day){const s=day.sites.find(x=>x.id===sid);if(s)s.visited=!s.visited;}
   await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
 };
-window.delSite = async (dayKey,sid) => {
+window.delSite = async (el, dayKey, sid) => {
   appConfirm('&#191;Eliminar parada?', 'Esta parada se eliminar\u00E1 del itinerario.', function(){ delSiteConfirmed(dayKey,sid); }, true);
 };
 window.saveDayNote = async (dayKey,note) => {
@@ -2355,9 +2681,9 @@ function renderRoutePills(v){
       var dayLabel = 'D&#237;a '+(dayIdx+1)+' &#8212; '+d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
       html += '<div class="route-day-group">';
       html += '<div class="route-day-group-title"><span class="route-day-dot" style="background:'+color+'"></span>'+dayLabel+'</div>';
-      html += '<div class="sortable-day-group" data-daykey="'+dayKey+'" data-color="'+color+'" style="min-height:40px;'+(sites.length===0?'border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:8px;display:flex;align-items:center;justify-content:center;':'')+'">';
+      html += '<div class="sortable-day-group" data-daykey="'+dayKey+'" data-color="'+color+'" style="min-height:44px;'+(sites.length===0?'border:1.5px dashed var(--border);border-radius:var(--radius-sm);':'')+'position:relative;">';
       if(sites.length===0){
-        html += '<span style="font-size:12px;color:var(--text2);">Arrastra aqu\u00ED</span>';
+        html += '<div class="empty-day-placeholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text2);pointer-events:none;">Arrastra aqu\u00ED</div>';
       } else {
         sites.forEach(function(s,i){
           html += buildRoutePill(Object.assign({},s,{dayKey:dayKey,dayIdx:dayIdx}), i+1, color, '');
@@ -2417,30 +2743,39 @@ async function saveRouteFromDOM(){
       day.sites = ordered;
     });
   } else {
-    // Cross-day drag: rebuild each day from DOM
+    // Cross-day drag: only update days that are currently visible in DOM
+    var visibleDayKeys = Array.from(document.querySelectorAll('.sortable-day-group')).map(function(c){return c.dataset.daykey;});
     var processedSites = {};
+    // First, collect all sites from DOM grouped by new day
+    var domOrder = {};
     document.querySelectorAll('.sortable-day-group').forEach(function(container){
       var newDayKey = container.dataset.daykey;
+      domOrder[newDayKey] = [];
+      container.querySelectorAll('.route-pill').forEach(function(pill){
+        var sid = pill.dataset.siteid;
+        if(!processedSites[sid]){ processedSites[sid]=true; domOrder[newDayKey].push(sid); }
+      });
+    });
+    // Remove processed sites from ALL visible days in itinerario
+    itinerario.forEach(function(day){
+      if(visibleDayKeys.indexOf(day.dayKey) >= 0){
+        day.sites = (day.sites||[]).filter(function(s){ return !processedSites[s.id]; });
+      }
+    });
+    // Re-add sites in their new day order
+    Object.keys(domOrder).forEach(function(newDayKey){
       var targetDay = itinerario.find(function(d){return d.dayKey===newDayKey;});
       if(!targetDay){ targetDay={dayKey:newDayKey,sites:[],note:''}; itinerario.push(targetDay); }
-      var newSites = [];
-      container.querySelectorAll('.route-pill').forEach(function(pill){
-        var oldDayKey=pill.dataset.daykey; var sid=pill.dataset.siteid;
-        if(processedSites[sid]) return; processedSites[sid]=true;
-        // Search in ALL days
-        var found=null;
-        itinerario.forEach(function(d){ var s=d.sites.find(function(x){return x.id===sid;}); if(s) found=s; });
-        if(found) newSites.push(found);
+      var allSites = getAllRouteSites(getViaje()||{itinerario:[]});
+      domOrder[newDayKey].forEach(function(sid){
+        // Find the site in the original data
+        var found = null;
+        (v.itinerario||[]).forEach(function(d){
+          var s=(d.sites||[]).find(function(x){return x.id===sid;});
+          if(s) found=s;
+        });
+        if(found) targetDay.sites.push(found);
       });
-      targetDay.sites = newSites;
-    });
-    // Remove sites that moved from days that are no longer their container
-    itinerario.forEach(function(day){
-      var container = document.querySelector('.sortable-day-group[data-daykey="'+day.dayKey+'"]');
-      if(container){
-        var ids=Array.from(container.querySelectorAll('.route-pill')).map(function(p){return p.dataset.siteid;});
-        day.sites=day.sites.filter(function(s){return ids.indexOf(s.id)>=0;});
-      }
     });
   }
   await updateDoc(doc(db,'viajes',currentViajeId),{itinerario});
@@ -2646,12 +2981,12 @@ window.photoFromWikimedia = async () => {
   document.getElementById('photo-menu').classList.remove('open');
   const v=getViaje(); if(!v) return;
   const itinerario=JSON.parse(JSON.stringify(v.itinerario||[]));
-  const day=itinerario.find(d=>d.dayKey===photoDayKey);
-  const site=day?.sites?.find(s=>s.id===photoSiteKey);
+  const day=itinerario.find(function(d){return d.dayKey===photoDayKey;});
+  const site=day && (day.sites||[]).find(function(s){return s.id===photoSiteKey;});
   if(!site) return;
   const url=await fetchWikimediaPhoto(site.name);
-  if(url) await updateSitePhoto(url);
-  else alert('No encontré foto en Wikimedia para este sitio.');
+  if(url){ await updateSitePhoto(url); }
+  else { appConfirm('&#x1F605; Vaya, no hubo suerte', 'No encontramos imagen para "'+esc(site.name)+'". Prueba con Google o pega un enlace.', function(){}, false); }
 };
 
 window.photoRemove = async () => {
@@ -2726,6 +3061,31 @@ document.addEventListener('DOMContentLoaded', function(){
   if(cancelBtn) cancelBtn.onclick = function(){ if(bg) bg.classList.remove('open'); _confirmCallback=null; };
   if(okBtn) okBtn.onclick = function(){ if(bg) bg.classList.remove('open'); if(_confirmCallback){ _confirmCallback(); _confirmCallback=null; } };
   if(bg) bg.onclick = function(e){ if(e.target===bg){ bg.classList.remove('open'); _confirmCallback=null; } };
+
+  // Swipe banner
+  var banner = document.getElementById('home-banner');
+  if(banner){
+    var touchX = 0;
+    banner.addEventListener('touchstart', function(e){ touchX=e.touches[0].clientX; },{passive:true});
+    banner.addEventListener('touchend', function(e){
+      var dx = e.changedTouches[0].clientX - touchX;
+      if(Math.abs(dx)>40 && homeNotifs.length>1){
+        homeNotifIdx = dx<0 ? (homeNotifIdx+1)%homeNotifs.length : (homeNotifIdx-1+homeNotifs.length)%homeNotifs.length;
+        showBannerNotif(homeNotifIdx);
+        clearInterval(homeNotifTimer);
+        homeNotifTimer = setInterval(function(){ homeNotifIdx=(homeNotifIdx+1)%homeNotifs.length; showBannerNotif(homeNotifIdx); },4000);
+      }
+    },{passive:true});
+  }
+
+  // File name display for site modal doc
+  var msDocFile = document.getElementById('ms-doc-file');
+  if(msDocFile){
+    msDocFile.addEventListener('change', function(){
+      var fn = document.getElementById('ms-doc-filename');
+      if(fn) fn.textContent = this.files.length ? this.files[0].name : '';
+    });
+  }
 });
 
 // ─── SITE DOCS ────────────────────────────────────────────
@@ -2741,25 +3101,32 @@ window.openSiteDocModal = (dayKey, siteId) => {
 
 window.saveSiteDoc = async () => {
   var name = document.getElementById('sd-name').value.trim(); if(!name) return;
-  var url  = document.getElementById('sd-url').value.trim();
   var tipo = document.getElementById('sd-tipo').value;
+  var urlInput = document.getElementById('sd-url').value.trim();
+  var fileInput = document.getElementById('sd-file');
   var v = getViaje(); if(!v) return;
+  var url = urlInput;
+  // Upload file if provided
+  if(fileInput && fileInput.files.length > 0){
+    var file = fileInput.files[0];
+    var storageRef = ref(storage, 'viajes/'+currentViajeId+'/site-docs/'+Date.now()+'_'+file.name);
+    await uploadBytes(storageRef, file);
+    url = await getDownloadURL(storageRef);
+  }
   var docId = Date.now()+'_site';
-  var newDoc = {id:docId, name:name, tipo:tipo, url:url, siteId:_sitedocSiteId};
-
-  // Add to viaje docs
+  var newDoc = {id:docId, name:name, tipo:tipo, url:url||'', siteId:_sitedocSiteId};
   var docs = JSON.parse(JSON.stringify(v.docs||[]));
   docs.push(newDoc);
-
-  // Add to site docs
   var itinerario = JSON.parse(JSON.stringify(v.itinerario||[]));
   var day = itinerario.find(function(d){return d.dayKey===_sitedocDayKey;});
   if(day){
     var site = (day.sites||[]).find(function(s){return s.id===_sitedocSiteId;});
     if(site){ if(!site.docs) site.docs=[]; site.docs.push(newDoc); }
   }
-
   await updateDoc(doc(db,'viajes',currentViajeId),{docs:docs, itinerario:itinerario});
+  if(fileInput) fileInput.value='';
+  document.getElementById('sd-name').value='';
+  document.getElementById('sd-url').value='';
   closeModal('modal-site-doc');
 };
 
@@ -2773,9 +3140,166 @@ window.delSiteConfirmed = async (dayKey, sid) => {
   if(vLocal){ vLocal.itinerario=itinerario; renderRoutePills(vLocal); updateLeafletMap(vLocal); renderItinerario(vLocal); }
 };
 
+function updateHomeDate(){
+  var el = document.getElementById('home-date');
+  var greet = document.getElementById('home-greeting');
+  if(!el||!greet) return;
+  var now = new Date();
+  var days = ['domingo','lunes','martes','mi\u00E9rcoles','jueves','viernes','s\u00E1bado'];
+  var months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  el.textContent = days[now.getDay()]+', '+now.getDate()+' de '+months[now.getMonth()];
+  var h = now.getHours();
+  greet.textContent = h<12 ? 'Buenos d\u00EDas' : h<20 ? 'Buenas tardes' : 'Buenas noches';
+}
+
+window.bannerNext = () => {
+  if(!homeNotifs.length) return;
+  homeNotifIdx = (homeNotifIdx+1)%homeNotifs.length;
+  showBannerNotif(homeNotifIdx);
+  clearInterval(homeNotifTimer);
+  homeNotifTimer = setInterval(function(){ homeNotifIdx=(homeNotifIdx+1)%homeNotifs.length; showBannerNotif(homeNotifIdx); },4000);
+};
+window.bannerPrev = () => {
+  if(!homeNotifs.length) return;
+  homeNotifIdx = (homeNotifIdx-1+homeNotifs.length)%homeNotifs.length;
+  showBannerNotif(homeNotifIdx);
+  clearInterval(homeNotifTimer);
+  homeNotifTimer = setInterval(function(){ homeNotifIdx=(homeNotifIdx+1)%homeNotifs.length; showBannerNotif(homeNotifIdx); },4000);
+};
+
+// ─── HOME NOTIFICATIONS ───────────────────────────────────
+let homeNotifs = [];
+let homeNotifIdx = 0;
+let homeNotifTimer = null;
+
+function buildNotifications(){
+  var notifs = [];
+  var now = new Date();
+  // From viajes
+  (appData.viajes||[]).forEach(function(v){
+    if(v.fecha_ida){
+      var fi = parseDate(v.fecha_ida);
+      if(fi){
+        var diff = Math.ceil((fi - now) / 86400000);
+        if(diff > 0 && diff <= 90) notifs.push({id:'viaje_'+v.id, text:'Faltan '+diff+' d\u00EDas para '+v.name, icon:'✈️'});
+        else if(diff <= 0 && diff >= -parseInt(v.dias||3)) notifs.push({id:'activo_'+v.id, text:'Estáis de viaje en '+v.name+'!', icon:'🌍'});
+      }
+    }
+  });
+  // Placeholders for future sections
+  if(notifs.length === 0) notifs.push({id:'welcome', text:'Bienvenidos a vuestra app \uD83D\uDC3E', icon:'🏠'});
+  return notifs;
+}
+
+function renderHomeBanner(){
+  homeNotifs = buildNotifications();
+  if(!homeNotifs.length) return;
+  // Check unread
+  var seenRaw = localStorage.getItem('notifs_seen') || '[]';
+  var seen = JSON.parse(seenRaw);
+  var hasNew = homeNotifs.some(function(n){ return seen.indexOf(n.id) < 0; });
+  var dot = document.getElementById('home-notif-dot');
+  if(dot) dot.style.display = hasNew ? 'block' : 'none';
+  // Render dots
+  var dotsEl = document.getElementById('home-banner-dots');
+  if(dotsEl && homeNotifs.length > 1){
+    dotsEl.innerHTML = homeNotifs.map(function(_,i){
+      return '<div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,'+(i===homeNotifIdx?'0.9':'0.4')+');transition:all 0.3s;"></div>';
+    }).join('');
+  }
+  showBannerNotif(0);
+  clearInterval(homeNotifTimer);
+  if(homeNotifs.length > 1){
+    homeNotifTimer = setInterval(function(){
+      homeNotifIdx = (homeNotifIdx + 1) % homeNotifs.length;
+      showBannerNotif(homeNotifIdx);
+    }, 4000);
+  }
+}
+
+function showBannerNotif(idx){
+  var n = homeNotifs[idx];
+  if(!n) return;
+  var textEl = document.getElementById('home-banner-text');
+  if(textEl) textEl.textContent = n.icon + ' ' + n.text;
+  var dotsEl = document.getElementById('home-banner-dots');
+  if(dotsEl){
+    Array.from(dotsEl.children).forEach(function(d,i){
+      d.style.background = 'rgba(255,255,255,'+(i===idx?'0.9':'0.4')+')';
+    });
+  }
+}
+
+function markNotificationsRead(){
+  var seen = homeNotifs.map(function(n){ return n.id; });
+  localStorage.setItem('notifs_seen', JSON.stringify(seen));
+  var dot = document.getElementById('home-notif-dot');
+  if(dot) dot.style.display = 'none';
+}
+
+// ─── MALETA UTILS ─────────────────────────────────────────
+window.clearMaleta = () => {
+  appConfirm('&#191;Limpiar lista?', 'Se eliminar\u00E1n todos los items de la maleta de este viaje.', async function(){
+    const v = getViaje(); if(!v) return;
+    await updateDoc(doc(db,'viajes',currentViajeId), {maleta:[]});
+  }, true);
+};
+
+// ─── MANAGE CATEGORIES ────────────────────────────────────
+window.openManageCatsModal = () => {
+  renderManageCatsList();
+  document.getElementById('modal-manage-cats').classList.add('open');
+};
+
+function renderManageCatsList(){
+  var el = document.getElementById('manage-cats-list');
+  if(!el) return;
+  var v = getViaje();
+  var customCats = (v && v.maletaCats)||[];
+  var defaultCats = ['Ropa','Docs','Electr\u00F3nica','Higiene','Salud','Otro'];
+  var html = '';
+  defaultCats.forEach(function(c){
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">'
+      + '<span style="font-size:14px;color:var(--text);">'+esc(c)+'</span>'
+      + '<span style="font-size:11px;color:var(--text2);font-weight:600;">Predefinida</span>'
+      + '</div>';
+  });
+  customCats.forEach(function(c){
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">'
+      + '<span style="font-size:14px;color:var(--text);">'+esc(c)+'</span>'
+      + '<button onclick="delManageCat(\''+esc(c)+'\')" style="background:none;border:none;color:#e74c3c;font-size:18px;cursor:pointer;padding:0 4px;line-height:1;">&#xD7;</button>'
+      + '</div>';
+  });
+  el.innerHTML = html || '<div style="color:var(--text2);font-size:13px;padding:8px 0;">Sin categor\u00EDas personalizadas</div>';
+}
+
+window.addManageCat = async () => {
+  var inp = document.getElementById('new-cat-input');
+  var name = inp.value.trim(); if(!name) return;
+  var v = getViaje(); if(!v) return;
+  var cats = [...(v.maletaCats||[])];
+  if(cats.indexOf(name) >= 0) return;
+  cats.push(name);
+  await updateDoc(doc(db,'viajes',currentViajeId),{maletaCats:cats});
+  inp.value = '';
+  renderManageCatsList();
+  renderMaletaCatSelect(getViaje());
+};
+
+window.delManageCat = (cat) => {
+  appConfirm('&#191;Eliminar categor\u00EDa?', '"'+esc(cat)+'" ser\u00E1 eliminada. Los items creados con esta categor\u00EDa la conservan.', async function(){
+    var v = getViaje(); if(!v) return;
+    var cats = (v.maletaCats||[]).filter(function(c){return c!==cat;});
+    await updateDoc(doc(db,'viajes',currentViajeId),{maletaCats:cats});
+    renderManageCatsList();
+    renderMaletaCatSelect(getViaje());
+  }, true);
+};
+
 // ─── INIT ─────────────────────────────────────────────────
 applyPalette('cielo');
 applyFont('D');
+updateHomeDate();
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
