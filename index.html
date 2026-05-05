@@ -755,7 +755,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       </div>
 
       <!-- Add expense button -->
-      <button onclick="event.stopPropagation();openGastoModal()" style="width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">+ A&#241;adir gasto</button>
+      <button id="btn-add-gasto" style="width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">+ A&#241;adir gasto</button>
 
       <!-- Saldar deuda -->
       <button id="gastos-saldar-btn" onclick="saldaDeuda()" style="display:none;width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:#e74c3c;color:white;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">&#x2705; Saldar deuda</button>
@@ -765,6 +765,45 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
       <!-- Historial liquidaciones -->
       <div id="gastos-historial" style="margin-top:20px;"></div>
+
+<!-- GASTO MODAL -->
+<div class="modal-bg" id="modal-gasto" onclick="if(event.target===this)closeModal('modal-gasto')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">A&#241;adir gasto</div>
+    <label>Descripci&#243;n</label>
+    <input id="mg-desc" type="text" placeholder="Ej: Mercadona, Restaurante..." />
+    <label>Importe (&#8364;)</label>
+    <input id="mg-importe" type="number" min="0" step="0.01" placeholder="0.00" />
+    <label>Notas (opcional)</label>
+    <input id="mg-notas" type="text" placeholder="A&#241;ade m&#225;s detalle..." />
+
+
+    <label>&#191;C&#243;mo se dividi&#243;?</label>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px;" id="mg-division-btns">
+      <button id="mg-op-0" onclick="setGastoOpcion(0)" class="gasto-op-btn active-op">
+        <span class="gasto-op-title" id="mg-title-0">&#x1F435; Yo pagu&#233; &middot; a medias</span>
+        <span class="gasto-op-sub" id="mg-sub-0"></span>
+      </button>
+      <button id="mg-op-1" onclick="setGastoOpcion(1)" class="gasto-op-btn">
+        <span class="gasto-op-title" id="mg-title-1">&#x1F435; Yo pagu&#233; &middot; me debe el total</span>
+        <span class="gasto-op-sub" id="mg-sub-1"></span>
+      </button>
+      <button id="mg-op-2" onclick="setGastoOpcion(2)" class="gasto-op-btn">
+        <span class="gasto-op-title" id="mg-title-2">&#x1F437; El otro pag&#243; &middot; a medias</span>
+        <span class="gasto-op-sub" id="mg-sub-2"></span>
+      </button>
+      <button id="mg-op-3" onclick="setGastoOpcion(3)" class="gasto-op-btn">
+        <span class="gasto-op-title" id="mg-title-3">&#x1F437; El otro pag&#243; &middot; le debo el total</span>
+        <span class="gasto-op-sub" id="mg-sub-3"></span>
+      </button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-gasto')">Cancelar</button>
+      <button class="btn-save" onclick="saveGasto()">Guardar</button>
+    </div>
+  </div>
+</div>
     </div>
 
     <!-- DESEOS -->
@@ -832,7 +871,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       <span class="detail-state-badge" id="detail-state"></span>
       <span class="countdown-badge" id="detail-countdown"></span>
       <button onclick="openEditViaje()" style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,0.18);border:none;color:white;cursor:pointer;font-family:var(--font-body);font-weight:700;font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Editar</button>
-      <button onclick="openEditCover()" style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,0.18);border:none;color:white;cursor:pointer;font-family:var(--font-body);font-weight:700;font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+
     </div>
   </div>
   <nav class="detail-nav">
@@ -1168,45 +1207,6 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
   </div>
 </div>
 
-
-<!-- GASTO MODAL -->
-<div class="modal-bg" id="modal-gasto" onclick="if(event.target===this)closeModal('modal-gasto')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">A&#241;adir gasto</div>
-    <label>Descripci&#243;n</label>
-    <input id="mg-desc" type="text" placeholder="Ej: Mercadona, Restaurante..." />
-    <label>Importe (&#8364;)</label>
-    <input id="mg-importe" type="number" min="0" step="0.01" placeholder="0.00" />
-    <label>Notas (opcional)</label>
-    <input id="mg-notas" type="text" placeholder="A&#241;ade m&#225;s detalle..." />
-
-
-    <label>&#191;C&#243;mo se dividi&#243;?</label>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px;" id="mg-division-btns">
-      <button id="mg-op-0" onclick="setGastoOpcion(0)" class="gasto-op-btn active-op">
-        <span class="gasto-op-title" id="mg-title-0">Yo pagu&#233; &middot; a medias</span>
-        <span class="gasto-op-sub" id="mg-sub-0"></span>
-      </button>
-      <button id="mg-op-1" onclick="setGastoOpcion(1)" class="gasto-op-btn">
-        <span class="gasto-op-title" id="mg-title-1">Yo pagu&#233; &middot; me debe el total</span>
-        <span class="gasto-op-sub" id="mg-sub-1"></span>
-      </button>
-      <button id="mg-op-2" onclick="setGastoOpcion(2)" class="gasto-op-btn">
-        <span class="gasto-op-title" id="mg-title-2">El otro pag&#243; &middot; a medias</span>
-        <span class="gasto-op-sub" id="mg-sub-2"></span>
-      </button>
-      <button id="mg-op-3" onclick="setGastoOpcion(3)" class="gasto-op-btn">
-        <span class="gasto-op-title" id="mg-title-3">El otro pag&#243; &middot; me debe el total</span>
-        <span class="gasto-op-sub" id="mg-sub-3"></span>
-      </button>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-gasto')">Cancelar</button>
-      <button class="btn-save" onclick="saveGasto()">Guardar</button>
-    </div>
-  </div>
-</div>
 
 <!-- EDIT COVER MODAL -->
 <div class="modal-bg" id="modal-edit-cover" onclick="if(event.target===this)closeModal('modal-edit-cover')">
@@ -1677,7 +1677,7 @@ window.showTab = (t) => {
   document.querySelectorAll('.back-to-menu-bar').forEach(function(b){ b.style.display = t==='home'?'none':'flex'; });
   if(t==='home'){ markNotificationsRead(); updateHomeDate();
 setTimeout(initHomeGridSortable, 500); }
-  if(t==='gastos'){ _animPlayed=''; renderGastos(); }
+  if(t==='gastos'){ _gastosTabOpenedAt=Date.now(); _animPlayed=''; setTimeout(renderGastos,50); }
 };
 window.openSettings  = () => { renderSettingsPanel(); showScreen('screen-settings'); };
 window.closeSettings = () => showScreen('screen-app');
@@ -2693,6 +2693,7 @@ let routeMarkers  = [];
 let routeLines    = [];
 let _sortableInstances = [];
 let _editSiteData = null;
+let _gastosTabOpenedAt = 0;
 
 function getAllRouteSites(v){
   var fi = parseDate(v.fecha_ida); var fv = parseDate(v.fecha_vuelta);
@@ -3187,6 +3188,23 @@ window.appConfirm = (title, msg, callback, isDanger) => {
   if(bg) bg.classList.add('open');
 };
 document.addEventListener('DOMContentLoaded', function(){
+  // Gasto button - use touchend/click with explicit guard
+  var btnAddGasto = document.getElementById('btn-add-gasto');
+  if(btnAddGasto){
+    var _touched = false;
+    btnAddGasto.addEventListener('touchstart', function(e){
+      _touched = true;
+    }, {passive:true});
+    btnAddGasto.addEventListener('touchend', function(e){
+      e.preventDefault();
+      if(_touched){ _touched=false; openGastoModal(); }
+    });
+    btnAddGasto.addEventListener('click', function(e){
+      if(!_touched) openGastoModal();
+      _touched = false;
+    });
+  }
+
   var bg = document.getElementById('confirm-bg');
   var cancelBtn = document.getElementById('confirm-cancel-btn');
   var okBtn = document.getElementById('confirm-ok-btn');
@@ -3700,8 +3718,9 @@ function updateGastosNotif(){
 }
 
 window.openGastoModal = () => {
-  // Guard: only open if gastos tab is visible
   if(!document.getElementById('tab-gastos').classList.contains('active')) return;
+  // Block ghost taps for 600ms after tab switch
+  if(Date.now() - _gastosTabOpenedAt < 800) return;
   _gastoOpcion = 0;
   _editGastoId = null;
   document.getElementById('mg-desc').value='';
@@ -3731,9 +3750,9 @@ function updateGastoSubtexts(){
   var isDavid = (window._currentUserEmail||'').indexOf('david')>=0;
   var other = isDavid ? 'Mar\u00EDa' : 'David';
   var titles = [
-    'Yo pagu\u00E9 \u00B7 a medias',
-    'Yo pagu\u00E9 \u00B7 me debe el total',
-    other+' pag\u00F3 \u00B7 a medias',
+    '\uD83D\uDC35 Yo pagu\u00E9 \u00B7 a medias',
+    '\uD83D\uDC35 Yo pagu\u00E9 \u00B7 me debe el total',
+    '\uD83D\uDC37 '+other+' pag\u00F3 \u00B7 a medias',
     other+' pag\u00F3 \u00B7 me debe el total'
   ];
   var subs = [
