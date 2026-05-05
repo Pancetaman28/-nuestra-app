@@ -751,12 +751,14 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
         <div id="gastos-animation" style="position:absolute;inset:0;pointer-events:none;"></div>
         <div id="gastos-balance-label" style="font-size:13px;font-weight:700;opacity:0.85;margin-bottom:6px;position:relative;z-index:1;"></div>
         <div id="gastos-balance-amount" style="font-family:var(--font-title);font-size:42px;font-weight:700;position:relative;z-index:1;"></div>
-        <div id="gastos-balance-sub" style="font-size:13px;opacity:0.8;margin-top:4px;position:relative;z-index:1;"></div>
-        <button id="gastos-saldar-btn" onclick="saldaDeuda()" style="display:none;margin-top:14px;padding:10px 24px;border:2px solid white;border-radius:999px;background:none;color:white;font-family:var(--font-body);font-size:14px;font-weight:700;cursor:pointer;position:relative;z-index:1;">Saldar deuda</button>
+        <div id="gastos-balance-sub" style="font-size:13px;opacity:0.8;margin-top:4px;position:relative;z-index:1;color:white;"></div>
       </div>
 
       <!-- Add expense button -->
       <button onclick="openGastoModal()" style="width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">+ A&#241;adir gasto</button>
+
+      <!-- Saldar deuda -->
+      <button id="gastos-saldar-btn" onclick="saldaDeuda()" style="display:none;width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:#e74c3c;color:white;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">&#x2705; Saldar deuda</button>
 
       <!-- Gastos list -->
       <div id="gastos-list"></div>
@@ -3380,10 +3382,21 @@ let homeOrder = JSON.parse(localStorage.getItem(HOME_TAB_ORDER_KEY)||'null') || 
 function initHomeGridSortable(){
   var grid = document.querySelector('#tab-home .home-grid-sortable');
   if(!grid || !window.Sortable) return;
+
+  // Apply saved order
+  var savedOrder = JSON.parse(localStorage.getItem(HOME_TAB_ORDER_KEY)||'null');
+  if(savedOrder && savedOrder.length === 9){
+    var btns = {};
+    grid.querySelectorAll('.home-grid-btn').forEach(function(b){ btns[b.dataset.tab]=b; });
+    savedOrder.forEach(function(tab){
+      if(btns[tab]) grid.appendChild(btns[tab]);
+    });
+  }
+
   new Sortable(grid, {
     animation:200, ghostClass:'home-grid-ghost',
     delay:400, delayOnTouchOnly:true, touchStartThreshold:5,
-    onChoose: function(e){ if(navigator.vibrate) navigator.vibrate(50); },
+    onChoose: function(){ if(navigator.vibrate) navigator.vibrate(50); },
     onEnd: function(){
       var newOrder = [];
       grid.querySelectorAll('.home-grid-btn').forEach(function(btn){
@@ -3653,7 +3666,6 @@ window.openGastoModal = () => {
   document.getElementById('modal-gasto').classList.add('open');
 };
 
-let _gastoOpcion = 0; // 0-3
 
 window.setGastoOpcion = (idx) => {
   _gastoOpcion = idx;
@@ -3694,26 +3706,30 @@ setTimeout(function(){
   if(impEl) impEl.addEventListener('input', updateGastoSubtexts);
 },1000);
 
+let _gastoOpcion = 0;
+let _editGastoId = null;
+
 window.saveGasto = async () => {
   var desc = document.getElementById('mg-desc').value.trim(); if(!desc) return;
   var importe = parseFloat(document.getElementById('mg-importe').value); if(!importe||importe<=0) return;
   var notas = document.getElementById('mg-notas').value.trim();
-  var data = {desc:desc, importe:importe, notas:notas, opcion:_gastoOpcion, pagador:_gastoOpcion<2?'david':'maria', division:(_gastoOpcion%2===0)?'mitad':'otro', fecha:Date.now(), liquidacion:false, createdAt:new Date().toISOString()};
-  if(_editGastoId){
-    await updateDoc(doc(db,'gastos_compartidos',_editGastoId), data);
-    closeModal('modal-gasto'); _animPlayed=''; _editGastoId=null; return;
-  }
-  await addDoc(collection(db,'gastos_compartidos'),{
-    desc:desc, importe:importe, notas:notas, pagador:_gastoPagador, division:_gastoDivision,
+  var data = {
+    desc:desc, importe:importe, notas:notas,
+    opcion:_gastoOpcion,
+    pagador:_gastoOpcion<2?'david':'maria',
+    division:(_gastoOpcion%2===0)?'mitad':'otro',
     fecha:Date.now(), liquidacion:false,
     createdAt:new Date().toISOString()
-  });
+  };
+  if(_editGastoId){
+    await updateDoc(doc(db,'gastos_compartidos',_editGastoId), data);
+  } else {
+    await addDoc(collection(db,'gastos_compartidos'), data);
+  }
   closeModal('modal-gasto');
   _animPlayed = '';
   _editGastoId = null;
 };
-
-let _editGastoId = null;
 window.editGasto = (id) => {
   var g = gastosData.find(function(x){return x.id===id;}); if(!g) return;
   _editGastoId = id;
