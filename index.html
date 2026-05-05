@@ -755,7 +755,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       </div>
 
       <!-- Add expense button -->
-      <button onclick="openGastoModal()" style="width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">+ A&#241;adir gasto</button>
+      <button onclick="event.stopPropagation();openGastoModal()" style="width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">+ A&#241;adir gasto</button>
 
       <!-- Saldar deuda -->
       <button id="gastos-saldar-btn" onclick="saldaDeuda()" style="display:none;width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:#e74c3c;color:white;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">&#x2705; Saldar deuda</button>
@@ -831,6 +831,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
     <div class="detail-badge-row" style="position:relative;z-index:1;">
       <span class="detail-state-badge" id="detail-state"></span>
       <span class="countdown-badge" id="detail-countdown"></span>
+      <button onclick="openEditViaje()" style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,0.18);border:none;color:white;cursor:pointer;font-family:var(--font-body);font-weight:700;font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Editar</button>
       <button onclick="openEditCover()" style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,0.18);border:none;color:white;cursor:pointer;font-family:var(--font-body);font-weight:700;font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
     </div>
   </div>
@@ -1053,7 +1054,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
     <input id="mv-cover" type="url" placeholder="https://... (pega una URL de Google Im&#225;genes)" />
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-viaje')">Cancelar</button>
-      <button class="btn-save" onclick="saveViaje()">Crear viaje</button>
+      <button class="btn-save" id="mv-save-btn" onclick="saveViaje()">Crear viaje</button>
     </div>
   </div>
 </div>
@@ -1685,10 +1686,44 @@ window.closeSettings = () => showScreen('screen-app');
 window.closeModal  = (id) => document.getElementById(id).classList.remove('open');
 window.closeMBg    = (id) => (e) => { if(e.target===document.getElementById(id)) closeModal(id); };
 window.openViajeModal = () => {
-  const val = document.getElementById('v-input').value;
-  document.getElementById('mv-name').value = val || 'Madrid';
+  window._editViajeId = null;
+  var val = document.getElementById('v-input').value;
+  document.getElementById('mv-name').value = val || '';
+  document.getElementById('mv-estado').selectedIndex = 1;
+  document.getElementById('mv-fecha-ida').value='';
+  document.getElementById('mv-fecha-vuelta').value='';
+  document.getElementById('mv-budget').value='';
+  document.getElementById('mv-notes').value='';
+  document.getElementById('mv-cover').value='';
+  var t = document.getElementById('modal-viaje').querySelector('.modal-title');
+  if(t) t.textContent='Nuevo viaje';
+  var b = document.getElementById('mv-save-btn');
+  if(b) b.textContent='Crear viaje';
   document.getElementById('modal-viaje').classList.add('open');
-  setTimeout(()=>document.getElementById('mv-name').focus(),150);
+  setTimeout(function(){document.getElementById('mv-name').focus();},150);
+};
+
+window.openEditViaje = () => {
+  var v = getViaje(); if(!v) return;
+  window._editViajeId = currentViajeId;
+  document.getElementById('mv-name').value = v.name||'';
+  // Set estado select
+  var estadoSel = document.getElementById('mv-estado');
+  for(var i=0;i<estadoSel.options.length;i++){
+    if(estadoSel.options[i].value===v.estado || estadoSel.options[i].text===v.estado){ estadoSel.selectedIndex=i; break; }
+  }
+  document.getElementById('mv-budget').value = v.budget||'';
+  document.getElementById('mv-notes').value = v.notes||'';
+  document.getElementById('mv-cover').value = v.cover||'';
+  // Convert dd/mm/yyyy → yyyy-mm-dd for date input
+  var toIso = function(s){ if(!s)return''; var p=s.split('/'); return p.length===3?p[2]+'-'+p[1]+'-'+p[0]:''; };
+  document.getElementById('mv-fecha-ida').value = toIso(v.fecha_ida);
+  document.getElementById('mv-fecha-vuelta').value = toIso(v.fecha_vuelta);
+  var t = document.getElementById('modal-viaje').querySelector('.modal-title');
+  if(t) t.textContent='Editar viaje';
+  var b = document.getElementById('mv-save-btn');
+  if(b) b.textContent='Guardar cambios';
+  document.getElementById('modal-viaje').classList.add('open');
 };
 window.openRecetaModal = () => {
   document.getElementById('mr-name').value = document.getElementById('r-input').value;
@@ -1701,19 +1736,27 @@ window.openDocModal = () => document.getElementById('modal-doc').classList.add('
 const VIAJE_BADGES = ['badge-viaje-0','badge-viaje-1','badge-viaje-2','badge-viaje-3'];
 window.saveViaje = async () => {
   const name = document.getElementById('mv-name').value.trim(); if(!name) return;
-  function isoToDisplay(iso){ if(!iso)return''; const[y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
-  const fi = isoToDisplay(document.getElementById('mv-fecha-ida').value);
-  const fv = isoToDisplay(document.getElementById('mv-fecha-vuelta').value);
-  await addDoc(collection(db,'viajes'),{
-    name, estado: document.getElementById('mv-estado').value,
+  function isoToDisplay(iso){ if(!iso)return''; var p=iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+  var fi = isoToDisplay(document.getElementById('mv-fecha-ida').value);
+  var fv = isoToDisplay(document.getElementById('mv-fecha-vuelta').value);
+  var data = {
+    name: name,
+    estado: document.getElementById('mv-estado').value,
     fecha_ida: fi, fecha_vuelta: fv,
     budget: parseFloat(document.getElementById('mv-budget').value)||0,
     notes: document.getElementById('mv-notes').value.trim(),
-    cover: document.getElementById('mv-cover').value.trim(),
-    docs:[], maleta:[], gastos:[], notas:'', fotos:[], itinerario:[],
-    createdAt: new Date().toISOString()
-  });
-  document.getElementById('v-input').value = '';
+    cover: document.getElementById('mv-cover').value.trim()
+  };
+  if(window._editViajeId){
+    await updateDoc(doc(db,'viajes',window._editViajeId), data);
+    window._editViajeId = null;
+  } else {
+    await addDoc(collection(db,'viajes'), Object.assign(data,{
+      docs:[], maleta:[], gastos:[], notas:'', fotos:[], itinerario:[],
+      createdAt: new Date().toISOString()
+    }));
+    document.getElementById('v-input').value = '';
+  }
   closeModal('modal-viaje');
 };
 window.delViaje = async (id) => {
@@ -2679,16 +2722,16 @@ function getDaysList(v){
 
 window.openRoutePlanner = (dayKey) => {
   const v = getViaje(); if(!v) return;
-  routeViajeId  = currentViajeId;
-  routeView     = 'general';
-  routeActiveDay = dayKey || null;
+  routeViajeId   = currentViajeId;
+  routeView      = 'general';
+  routeActiveDay = null; // Always open showing ALL days
   document.getElementById('route-day-title').textContent = v.name+' \u2014 Ruta';
   document.getElementById('route-screen').classList.add('open');
   document.getElementById('rtb-general').classList.add('active');
   document.getElementById('rtb-dias').classList.remove('active');
   renderRouteDayFilters(v);
   renderRoutePills(v);
-  setTimeout(function(){ initLeafletMap(v); }, 100);
+  setTimeout(function(){ initLeafletMap(v); }, 150);
 };
 
 window.closeRoutePlanner = () => {
@@ -2730,7 +2773,9 @@ window.filterRouteDay = (dayKey) => {
   }
   const v = getViaje(); if(!v) return;
   renderRoutePills(v);
-  updateLeafletMap(v);
+  // Destroy and reinit map so it shows correct bounds
+  if(leafletMap){ leafletMap.remove(); leafletMap=null; }
+  setTimeout(function(){ initLeafletMap(v); }, 100);
 };
 
 function renderRoutePills(v){
@@ -3655,7 +3700,10 @@ function updateGastosNotif(){
 }
 
 window.openGastoModal = () => {
+  // Guard: only open if gastos tab is visible
+  if(!document.getElementById('tab-gastos').classList.contains('active')) return;
   _gastoOpcion = 0;
+  _editGastoId = null;
   document.getElementById('mg-desc').value='';
   document.getElementById('mg-importe').value='';
   document.getElementById('mg-notas').value='';
