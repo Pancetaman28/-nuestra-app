@@ -632,11 +632,6 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
           </div>
         </div>
       </div>
-
-      <!-- Organize button -->
-      <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
-        <button id="home-organize-btn" onclick="toggleHomeOrganize()" style="font-size:12px;font-weight:700;padding:6px 14px;border-radius:999px;border:1.5px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;font-family:var(--font-body);">&#x270E; Organizar</button>
-      </div>
       <!-- Grid iOS style — monochrome icons with app accent color -->
       <div class="home-grid-sortable" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
         <button class="home-grid-btn" onclick="showTab('viajes')" data-tab="viajes">
@@ -692,36 +687,6 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       </div>
       <div id="viajes-list"></div>
 
-<!-- MODALS -->
-<div class="modal-bg" id="modal-viaje" onclick="closeMBg('modal-viaje')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">✈️ Nuevo viaje</div>
-    <label>Destino</label>
-    <input id="mv-name" type="text" placeholder="Ej: Lisboa" />
-    <label>Estado</label>
-    <select id="mv-estado">
-      <option>💭 Pendiente / Sueño</option>
-      <option>📅 Planificando</option>
-      <option>✅ Reservado</option>
-      <option>📸 Visitado</option>
-    </select>
-    <label>Fecha de ida</label>
-    <input id="mv-fecha-ida" type="date" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
-    <label>Fecha de vuelta</label>
-    <input id="mv-fecha-vuelta" type="date" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
-    <label>Presupuesto previsto (€)</label>
-    <input id="mv-budget" type="number" placeholder="Ej: 1500" min="0" />
-    <label>Notas iniciales</label>
-    <textarea id="mv-notes" placeholder="Primera idea del viaje..."></textarea>
-    <label>Imagen de portada (URL)</label>
-    <input id="mv-cover" type="url" placeholder="https://... (pega una URL de Google Im&#225;genes)" />
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-viaje')">Cancelar</button>
-      <button class="btn-save" id="mv-save-btn" onclick="saveViaje()">Crear viaje</button>
-    </div>
-  </div>
-</div>
     </div>
 
     <!-- RECETAS -->
@@ -783,8 +748,8 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       <!-- Balance card -->
       <div id="gastos-balance-card" style="border-radius:var(--radius);padding:24px 20px;margin-bottom:16px;position:relative;overflow:hidden;text-align:center;">
         <div id="gastos-animation" style="position:absolute;inset:0;pointer-events:none;"></div>
-        <div id="gastos-balance-label" style="font-size:13px;font-weight:700;opacity:0.85;margin-bottom:6px;position:relative;z-index:1;"></div>
-        <div id="gastos-balance-amount" style="font-family:var(--font-title);font-size:42px;font-weight:700;position:relative;z-index:1;"></div>
+        <div id="gastos-balance-label" style="font-size:13px;font-weight:700;opacity:0.85;margin-bottom:6px;position:relative;z-index:1;color:white;"></div>
+        <div id="gastos-balance-amount" style="font-family:var(--font-title);font-size:42px;font-weight:700;position:relative;z-index:1;color:white;"></div>
         <div id="gastos-balance-sub" style="font-size:13px;opacity:0.8;margin-top:4px;position:relative;z-index:1;color:white;"></div>
       </div>
 
@@ -800,44 +765,6 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       <!-- Historial liquidaciones -->
       <div id="gastos-historial" style="margin-top:20px;"></div>
 
-<!-- GASTO MODAL -->
-<div class="modal-bg" id="modal-gasto" onclick="if(event.target===this)closeModal('modal-gasto')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">A&#241;adir gasto</div>
-    <label>Descripci&#243;n</label>
-    <input id="mg-desc" type="text" placeholder="Ej: Mercadona, Restaurante..." />
-    <label>Importe (&#8364;)</label>
-    <input id="mg-importe" type="number" min="0" step="0.01" placeholder="0.00" />
-    <label>Notas (opcional)</label>
-    <input id="mg-notas" type="text" placeholder="A&#241;ade m&#225;s detalle..." />
-
-
-    <label>&#191;C&#243;mo se dividi&#243;?</label>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px;" id="mg-division-btns">
-      <button id="mg-op-0" onclick="setGastoOpcion(0)" class="gasto-op-btn active-op">
-        <span class="gasto-op-title" id="mg-title-0">&#x1F435; Yo pagu&#233; &middot; a medias</span>
-        <span class="gasto-op-sub" id="mg-sub-0"></span>
-      </button>
-      <button id="mg-op-1" onclick="setGastoOpcion(1)" class="gasto-op-btn">
-        <span class="gasto-op-title" id="mg-title-1">&#x1F435; Yo pagu&#233; &middot; me debe el total</span>
-        <span class="gasto-op-sub" id="mg-sub-1"></span>
-      </button>
-      <button id="mg-op-2" onclick="setGastoOpcion(2)" class="gasto-op-btn">
-        <span class="gasto-op-title" id="mg-title-2">&#x1F437; El otro pag&#243; &middot; a medias</span>
-        <span class="gasto-op-sub" id="mg-sub-2"></span>
-      </button>
-      <button id="mg-op-3" onclick="setGastoOpcion(3)" class="gasto-op-btn">
-        <span class="gasto-op-title" id="mg-title-3">&#x1F437; El otro pag&#243; &middot; le debo el total</span>
-        <span class="gasto-op-sub" id="mg-sub-3"></span>
-      </button>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-gasto')">Cancelar</button>
-      <button class="btn-save" onclick="saveGasto()">Guardar</button>
-    </div>
-  </div>
-</div>
     </div>
 
     <!-- DESEOS -->
@@ -1671,6 +1598,7 @@ function showScreen(id){
   document.getElementById(id).classList.add('active');
 }
 window.showTab = (t) => {
+  _setNavTs();
   document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   var el = document.getElementById('tab-'+t);
@@ -1694,7 +1622,7 @@ window.closeSettings = () => showScreen('screen-app');
 window.closeModal  = (id) => document.getElementById(id).classList.remove('open');
 window.closeMBg    = (id) => (e) => { if(e.target===document.getElementById(id)) closeModal(id); };
 window.openViajeModal = () => {
-  if(currentTab()!=='viajes') return;
+  if(_sinceNav()<350) return;
   window._editViajeId = null;
   var val = document.getElementById('v-input').value;
   document.getElementById('mv-name').value = val || '';
@@ -1713,7 +1641,6 @@ window.openViajeModal = () => {
 };
 
 window.openEditViaje = () => {
-  if(currentScreen()!=='detail') return;
   var v = getViaje(); if(!v) return;
   window._editViajeId = currentViajeId;
   document.getElementById('mv-name').value = v.name||'';
@@ -1745,7 +1672,6 @@ window.openDocModal = () => document.getElementById('modal-doc').classList.add('
 // ─── VIAJES ───────────────────────────────────────────────
 const VIAJE_BADGES = ['badge-viaje-0','badge-viaje-1','badge-viaje-2','badge-viaje-3'];
 window.saveViaje = async () => {
-  if(currentTab()!=='viajes' && currentScreen()!=='detail') return;
   const name = document.getElementById('mv-name').value.trim(); if(!name) return;
   function isoToDisplay(iso){ if(!iso)return''; var p=iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
   var fi = isoToDisplay(document.getElementById('mv-fecha-ida').value);
@@ -1770,7 +1696,7 @@ window.saveViaje = async () => {
   }
   closeModal('modal-viaje');
 };
-window.delViaje = async (id) => { if(currentTab()!=='viajes') return;
+window.delViaje = async (id) => { if(_sinceNav()<350) return;
   appConfirm('&#191;Eliminar viaje?', 'Se eliminar\u00E1 el viaje y todos sus datos.', async function(){ await deleteDoc(doc(db,'viajes',id)); }, true);
 };
 
@@ -3449,50 +3375,7 @@ const HOME_TAB_ORDER_KEY = 'nuestra_home_order';
 const DEFAULT_HOME_ORDER = ['viajes','recetas','listas','casa','agenda','gastos','deseos','cine','perros'];
 let homeOrder = JSON.parse(localStorage.getItem(HOME_TAB_ORDER_KEY)||'null') || DEFAULT_HOME_ORDER;
 
-// Home grid organize mode (Opción B)
-let _homeOrganizeMode = false;
-let _homeSortableInst = null;
-
-window.toggleHomeOrganize = () => {
-  _homeOrganizeMode = !_homeOrganizeMode;
-  var grid = document.querySelector('#tab-home .home-grid-sortable');
-  var btn = document.getElementById('home-organize-btn');
-  if(!grid) return;
-  if(_homeOrganizeMode){
-    // Apply saved order first
-    var savedOrder = JSON.parse(localStorage.getItem(HOME_TAB_ORDER_KEY)||'null');
-    if(savedOrder && savedOrder.length === 9){
-      var btns = {}; grid.querySelectorAll('.home-grid-btn').forEach(function(b){ btns[b.dataset.tab]=b; });
-      savedOrder.forEach(function(tab){ if(btns[tab]) grid.appendChild(btns[tab]); });
-    }
-    // Enter organize mode
-    grid.querySelectorAll('.home-grid-btn').forEach(function(b){
-      b.style.cursor = 'grab';
-      b.style.opacity = '0.9';
-    });
-    if(btn){ btn.textContent = '✓ Listo'; btn.style.background = 'var(--accent1)'; btn.style.color = 'white'; }
-    if(window.Sortable && !_homeSortableInst){
-      _homeSortableInst = new Sortable(grid, {
-        animation: 200,
-        onEnd: function(){
-          var newOrder = [];
-          grid.querySelectorAll('.home-grid-btn').forEach(function(b){ newOrder.push(b.dataset.tab); });
-          homeOrder = newOrder;
-          localStorage.setItem(HOME_TAB_ORDER_KEY, JSON.stringify(newOrder));
-        }
-      });
-    }
-  } else {
-    // Exit organize mode
-    grid.querySelectorAll('.home-grid-btn').forEach(function(b){
-      b.style.cursor = '';
-      b.style.opacity = '';
-    });
-    if(btn){ btn.textContent = '✎ Organizar'; btn.style.background = ''; btn.style.color = ''; }
-    if(_homeSortableInst){ _homeSortableInst.destroy(); _homeSortableInst = null; }
-  }
-};
-
+// Home grid order restored from localStorage
 function applyHomeOrder(){
   var grid = document.querySelector('#tab-home .home-grid-sortable');
   if(!grid) return;
@@ -3748,7 +3631,7 @@ function updateGastosNotif(){
 }
 
 window.openGastoModal = () => {
-  if(currentTab()!=='gastos') return;
+  if(_sinceNav()<350) return;
   _gastoOpcion = 0;
   _editGastoId = null;
   document.getElementById('mg-desc').value='';
@@ -3787,7 +3670,7 @@ function updateGastoSubtexts(){
     imp>0 ? other+' te debe '+half+'\u20AC' : '',
     imp>0 ? other+' te debe '+full+'\u20AC' : '',
     imp>0 ? 'Debes '+half+'\u20AC a '+other : '',
-    imp>0 ? 'Debes '+full+'\u20AC a '+other : ''
+    imp>0 ? 'Le debo '+full+'\u20AC a '+other : ''
   ];
   for(var i=0;i<4;i++){
     var t=document.getElementById('mg-title-'+i); if(t) t.textContent=titles[i];
@@ -3805,7 +3688,6 @@ let _gastoOpcion = 0;
 let _editGastoId = null;
 
 window.saveGasto = async () => {
-  if(currentTab()!=='gastos') return;
   var desc = document.getElementById('mg-desc').value.trim(); if(!desc) return;
   var importe = parseFloat(document.getElementById('mg-importe').value); if(!importe||importe<=0) return;
   var notas = document.getElementById('mg-notas').value.trim();
@@ -3827,7 +3709,6 @@ window.saveGasto = async () => {
   _editGastoId = null;
 };
 window.editGasto = (id) => {
-  if(currentTab()!=='gastos') return;
   var g = gastosData.find(function(x){return x.id===id;}); if(!g) return;
   _editGastoId = id;
   document.getElementById('mg-desc').value = g.desc||'';
@@ -3842,7 +3723,7 @@ window.editGasto = (id) => {
 };
 
 window.delGasto = (id) => {
-  if(currentTab()!=='gastos') return;
+  if(_sinceNav()<350) return;
   appConfirm('&#191;Eliminar gasto?', 'Este gasto ser\u00E1 eliminado del historial.', async function(){
     await deleteDoc(doc(db,'gastos_compartidos',id));
     _animPlayed='';
@@ -3850,7 +3731,7 @@ window.delGasto = (id) => {
 };
 
 window.saldaDeuda = () => {
-  if(currentTab()!=='gastos') return;
+  if(_sinceNav()<350) return;
   var balance = calcBalance();
   var isDavid = (window._currentUserEmail||'').indexOf('david')>=0;
   var myBalance = isDavid ? balance : -balance;
@@ -3868,16 +3749,11 @@ window.saldaDeuda = () => {
 };
 
 
-// ─── SCREEN GUARD ─────────────────────────────────────────
-function currentScreen(){
-  if(document.getElementById('screen-detail') && document.getElementById('screen-detail').classList.contains('active')) return 'detail';
-  if(document.getElementById('screen-app') && document.getElementById('screen-app').classList.contains('active')) return 'app';
-  return 'other';
-}
-function currentTab(){
-  var active = document.querySelector('.tab-section.active');
-  return active ? active.id.replace('tab-','') : '';
-}
+
+// Nav timestamp — blocks ghost taps after tab switch (iOS 300ms delay)
+var _navTs = 0;
+function _setNavTs(){ _navTs = Date.now(); }
+function _sinceNav(){ return Date.now() - _navTs; }
 
 // ─── INIT ─────────────────────────────────────────────────
 applyPalette('cielo');
@@ -3886,5 +3762,78 @@ updateHomeDate();
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
+
+
+<!-- MODALS (root level - must be outside tab sections) -->
+<!-- MODALS -->
+<div class="modal-bg" id="modal-viaje" onclick="closeMBg('modal-viaje')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✈️ Nuevo viaje</div>
+    <label>Destino</label>
+    <input id="mv-name" type="text" placeholder="Ej: Lisboa" />
+    <label>Estado</label>
+    <select id="mv-estado">
+      <option>💭 Pendiente / Sueño</option>
+      <option>📅 Planificando</option>
+      <option>✅ Reservado</option>
+      <option>📸 Visitado</option>
+    </select>
+    <label>Fecha de ida</label>
+    <input id="mv-fecha-ida" type="date" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
+    <label>Fecha de vuelta</label>
+    <input id="mv-fecha-vuelta" type="date" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
+    <label>Presupuesto previsto (€)</label>
+    <input id="mv-budget" type="number" placeholder="Ej: 1500" min="0" />
+    <label>Notas iniciales</label>
+    <textarea id="mv-notes" placeholder="Primera idea del viaje..."></textarea>
+    <label>Imagen de portada (URL)</label>
+    <input id="mv-cover" type="url" placeholder="https://... (pega una URL de Google Im&#225;genes)" />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-viaje')">Cancelar</button>
+      <button class="btn-save" id="mv-save-btn" onclick="saveViaje()">Crear viaje</button>
+    </div>
+  </div>
+</div>
+
+<!-- GASTO MODAL -->
+<div class="modal-bg" id="modal-gasto" onclick="if(event.target===this)closeModal('modal-gasto')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">A&#241;adir gasto</div>
+    <label>Descripci&#243;n</label>
+    <input id="mg-desc" type="text" placeholder="Ej: Mercadona, Restaurante..." />
+    <label>Importe (&#8364;)</label>
+    <input id="mg-importe" type="number" min="0" step="0.01" placeholder="0.00" />
+    <label>Notas (opcional)</label>
+    <input id="mg-notas" type="text" placeholder="A&#241;ade m&#225;s detalle..." />
+
+
+    <label>&#191;C&#243;mo se dividi&#243;?</label>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px;" id="mg-division-btns">
+      <button id="mg-op-0" onclick="setGastoOpcion(0)" class="gasto-op-btn active-op">
+        <span class="gasto-op-title" id="mg-title-0">&#x1F435; Yo pagu&#233; &middot; a medias</span>
+        <span class="gasto-op-sub" id="mg-sub-0"></span>
+      </button>
+      <button id="mg-op-1" onclick="setGastoOpcion(1)" class="gasto-op-btn">
+        <span class="gasto-op-title" id="mg-title-1">&#x1F435; Yo pagu&#233; &middot; me debe el total</span>
+        <span class="gasto-op-sub" id="mg-sub-1"></span>
+      </button>
+      <button id="mg-op-2" onclick="setGastoOpcion(2)" class="gasto-op-btn">
+        <span class="gasto-op-title" id="mg-title-2">&#x1F437; El otro pag&#243; &middot; a medias</span>
+        <span class="gasto-op-sub" id="mg-sub-2"></span>
+      </button>
+      <button id="mg-op-3" onclick="setGastoOpcion(3)" class="gasto-op-btn">
+        <span class="gasto-op-title" id="mg-title-3">&#x1F437; El otro pag&#243; &middot; le debo el total</span>
+        <span class="gasto-op-sub" id="mg-sub-3"></span>
+      </button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-gasto')">Cancelar</button>
+      <button class="btn-save" onclick="saveGasto()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
