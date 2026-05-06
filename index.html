@@ -758,7 +758,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       </div>
 
       <!-- Add expense button -->
-      <button id="btn-add-gasto" style="width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">+ A&#241;adir gasto</button>
+      <button onclick="openGastoModal()" style="width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">+ A&#241;adir gasto</button>
 
       <!-- Saldar deuda -->
       <button id="gastos-saldar-btn" onclick="saldaDeuda()" style="display:none;width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:#e74c3c;color:white;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">&#x2705; Saldar deuda</button>
@@ -784,26 +784,26 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <label>&#191;C&#243;mo se dividi&#243;?</label>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px;" id="mg-division-btns">
-      <button id="mg-op-0" onclick="setGastoOpcion_comp(0)" class="gasto-op-btn active-op">
+      <button id="mg-op-0" onclick="setGastoOpcion(0)" class="gasto-op-btn active-op">
         <span class="gasto-op-title" id="mg-title-0">&#x1F435; Yo pagu&#233; &middot; a medias</span>
         <span class="gasto-op-sub" id="mg-sub-0"></span>
       </button>
-      <button id="mg-op-1" onclick="setGastoOpcion_comp(1)" class="gasto-op-btn">
+      <button id="mg-op-1" onclick="setGastoOpcion(1)" class="gasto-op-btn">
         <span class="gasto-op-title" id="mg-title-1">&#x1F435; Yo pagu&#233; &middot; me debe el total</span>
         <span class="gasto-op-sub" id="mg-sub-1"></span>
       </button>
-      <button id="mg-op-2" onclick="setGastoOpcion_comp(2)" class="gasto-op-btn">
+      <button id="mg-op-2" onclick="setGastoOpcion(2)" class="gasto-op-btn">
         <span class="gasto-op-title" id="mg-title-2">&#x1F437; El otro pag&#243; &middot; a medias</span>
         <span class="gasto-op-sub" id="mg-sub-2"></span>
       </button>
-      <button id="mg-op-3" onclick="setGastoOpcion_comp(3)" class="gasto-op-btn">
+      <button id="mg-op-3" onclick="setGastoOpcion(3)" class="gasto-op-btn">
         <span class="gasto-op-title" id="mg-title-3">&#x1F437; El otro pag&#243; &middot; le debo el total</span>
         <span class="gasto-op-sub" id="mg-sub-3"></span>
       </button>
     </div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-gasto')">Cancelar</button>
-      <button class="btn-save" onclick="saveGastoComp()">Guardar</button>
+      <button class="btn-save" onclick="saveGasto()">Guardar</button>
     </div>
   </div>
 </div>
@@ -1660,11 +1660,11 @@ function subscribeData(){
 }
 
 // ─── SCREENS ─────────────────────────────────────────────
-function showScreen(id){ _navHappened();
+function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-window.showTab = (t) => { _navHappened();
+window.showTab = (t) => {
   document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   var el = document.getElementById('tab-'+t);
@@ -1679,7 +1679,7 @@ window.showTab = (t) => { _navHappened();
   // Update back-to-menu bar visibility
   document.querySelectorAll('.back-to-menu-bar').forEach(function(b){ b.style.display = t==='home'?'none':'flex'; });
   if(t==='home'){ markNotificationsRead(); updateHomeDate(); }
-  if(t==='gastos'){ _gastosTabOpenedAt=Date.now(); _animPlayed=''; setTimeout(renderGastos,50); }
+  if(t==='gastos'){ _animPlayed=''; renderGastos(); }
 };
 window.openSettings  = () => { renderSettingsPanel(); showScreen('screen-settings'); };
 window.closeSettings = () => showScreen('screen-app');
@@ -1688,7 +1688,6 @@ window.closeSettings = () => showScreen('screen-app');
 window.closeModal  = (id) => document.getElementById(id).classList.remove('open');
 window.closeMBg    = (id) => (e) => { if(e.target===document.getElementById(id)) closeModal(id); };
 window.openViajeModal = () => {
-  if(!_tapOk()) return;
   window._editViajeId = null;
   var val = document.getElementById('v-input').value;
   document.getElementById('mv-name').value = val || '';
@@ -1707,7 +1706,6 @@ window.openViajeModal = () => {
 };
 
 window.openEditViaje = () => {
-  if(!_tapOk()) return;
   var v = getViaje(); if(!v) return;
   window._editViajeId = currentViajeId;
   document.getElementById('mv-name').value = v.name||'';
@@ -1739,7 +1737,6 @@ window.openDocModal = () => document.getElementById('modal-doc').classList.add('
 // ─── VIAJES ───────────────────────────────────────────────
 const VIAJE_BADGES = ['badge-viaje-0','badge-viaje-1','badge-viaje-2','badge-viaje-3'];
 window.saveViaje = async () => {
-  if(!_tapOk()) return;
   const name = document.getElementById('mv-name').value.trim(); if(!name) return;
   function isoToDisplay(iso){ if(!iso)return''; var p=iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
   var fi = isoToDisplay(document.getElementById('mv-fecha-ida').value);
@@ -1764,7 +1761,7 @@ window.saveViaje = async () => {
   }
   closeModal('modal-viaje');
 };
-window.delViaje = async (id) => { if(!_tapOk()) return;
+window.delViaje = async (id) => {
   appConfirm('&#191;Eliminar viaje?', 'Se eliminar\u00E1 el viaje y todos sus datos.', async function(){ await deleteDoc(doc(db,'viajes',id)); }, true);
 };
 
@@ -1796,7 +1793,7 @@ function renderViajes(){
 }
 
 // ─── DETAIL ───────────────────────────────────────────────
-window.openDetail = (id) => { _navHappened();
+window.openDetail = (id) => {
   currentViajeId = id; maletaFilters = ['todos'];
   showScreen('screen-detail');
   showDTab('dashboard');
@@ -1804,7 +1801,7 @@ window.openDetail = (id) => { _navHappened();
   if(!globalPlantillas) loadGlobalPlantillas();
   else renderPlantillasList();
 };
-window.closeDetail = () => { _navHappened(); showScreen('screen-app'); currentViajeId = null; };
+window.closeDetail = () => { showScreen('screen-app'); currentViajeId = null; };
 window.showDTab = (t) => {
   document.querySelectorAll('.dsec').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.dtab').forEach(b=>b.classList.remove('active'));
@@ -2233,7 +2230,7 @@ function renderBudget(v){
     return '<div class="budget-item">'
       + '<div><div class="bi-name">'+esc(g.name)+'</div><div class="bi-cat">'+esc(g.cat)+'</div></div>'
       + '<div class="bi-amt">'+parseFloat(g.amt).toFixed(2)+' \u20AC</div>'
-      + '<button class="bi-del" onclick="delGasto(\''+g.id+'\')">&#x00D7;</button>'
+      + '<button class="bi-del" onclick="delPresupuesto(\''+g.id+'\')">&#x00D7;</button>'
       + '</div>';
   }).join('');
 }
@@ -2245,7 +2242,7 @@ window.addGasto = async () => {
   await updateDoc(doc(db,'viajes',currentViajeId),{gastos});
   document.getElementById('ba-name').value=''; document.getElementById('ba-amt').value='';
 };
-window.delGasto = async (id) => {
+window.delPresupuesto = async (id) => {
   const v=getViaje(); if(!v)return;
   await updateDoc(doc(db,'viajes',currentViajeId),{gastos:(v.gastos||[]).filter(g=>g.id!==id)});
 };
@@ -2695,7 +2692,6 @@ let routeMarkers  = [];
 let routeLines    = [];
 let _sortableInstances = [];
 let _editSiteData = null;
-let _gastosTabOpenedAt = 0;
 
 function getAllRouteSites(v){
   var fi = parseDate(v.fecha_ida); var fv = parseDate(v.fecha_vuelta);
@@ -3199,10 +3195,10 @@ document.addEventListener('DOMContentLoaded', function(){
     }, {passive:true});
     btnAddGasto.addEventListener('touchend', function(e){
       e.preventDefault();
-      if(_touched){ _touched=false; openGastoModal_comp(); }
+      if(_touched){ _touched=false; openGastoModal(); }
     });
     btnAddGasto.addEventListener('click', function(e){
-      if(!_touched) openGastoModal_comp();
+      if(!_touched) openGastoModal();
       _touched = false;
     });
   }
@@ -3539,8 +3535,6 @@ function triggerBannerIcon(type){
 // ─── GASTOS COMPARTIDOS ───────────────────────────────────
 let gastosData = [];
 let gastosHistorial = [];
-let _gastoPagador = 'david';
-let _gastoDivision = 'mitad';
 
 const CAT_ICONS = {Comida:'🍽️', Transporte:'🚗', Ocio:'🎭', Casa:'🏠', Ropa:'👗', Salud:'💊', Otro:'💶'};
 
@@ -3647,7 +3641,7 @@ function renderGastos(){
         +notasHTML
         +'</div>'
         +'<div class="gasto-item-amount" style="color:var(--accent1);">'+parseFloat(g.importe).toFixed(2).replace('.',',')+' \u20AC</div>'
-        +'<button class="gasto-item-del" onclick="delGastoComp(\''+g.id+'\')">&#xD7;</button>'
+        +'<button class="gasto-item-del" onclick="delGasto(\''+g.id+'\')">>&#xD7;</button>'
         +'</div>';
     }).join('');
   }
@@ -3744,10 +3738,9 @@ function updateGastosNotif(){
   }
 }
 
-window.openGastoModal_comp = () => {
+window.openGastoModal = () => {
   if(!document.getElementById('tab-gastos').classList.contains('active')) return;
   // Block ghost taps for 600ms after tab switch
-  if(Date.now() - _gastosTabOpenedAt < 800) return;
   _gastoOpcion = 0;
   _editGastoId = null;
   document.getElementById('mg-desc').value='';
@@ -3761,7 +3754,7 @@ window.openGastoModal_comp = () => {
 };
 
 
-window.setGastoOpcion_comp = (idx) => {
+window.setGastoOpcion = (idx) => {
   _gastoOpcion = idx;
   for(var i=0;i<4;i++){
     var b=document.getElementById('mg-op-'+i);
@@ -3803,7 +3796,7 @@ setTimeout(function(){
 let _gastoOpcion = 0;
 let _editGastoId = null;
 
-window.saveGastoComp = async () => {
+window.saveGasto = async () => {
   var desc = document.getElementById('mg-desc').value.trim(); if(!desc) return;
   var importe = parseFloat(document.getElementById('mg-importe').value); if(!importe||importe<=0) return;
   var notas = document.getElementById('mg-notas').value.trim();
@@ -3824,8 +3817,7 @@ window.saveGastoComp = async () => {
   _animPlayed = '';
   _editGastoId = null;
 };
-window.editGastoComp = (id) => {
-  if(!_tapOk()) return;
+window.editGasto = (id) => {
   var g = gastosData.find(function(x){return x.id===id;}); if(!g) return;
   _editGastoId = id;
   document.getElementById('mg-desc').value = g.desc||'';
@@ -3839,8 +3831,7 @@ window.editGastoComp = (id) => {
   document.getElementById('modal-gasto').classList.add('open');
 };
 
-window.delGastoComp = (id) => {
-  if(!_tapOk()) return;
+window.delGasto = (id) => {
   appConfirm('&#191;Eliminar gasto?', 'Este gasto ser\u00E1 eliminado del historial.', async function(){
     await deleteDoc(doc(db,'gastos_compartidos',id));
     _animPlayed='';
@@ -3848,7 +3839,6 @@ window.delGastoComp = (id) => {
 };
 
 window.saldaDeuda = () => {
-  if(!_tapOk()) return;
   var balance = calcBalance();
   var isDavid = (window._currentUserEmail||'').indexOf('david')>=0;
   var myBalance = isDavid ? balance : -balance;
@@ -3864,19 +3854,6 @@ window.saldaDeuda = () => {
     _animPlayed='';
   }, false);
 };
-
-// ─── TAP GUARD (prevents iOS ghost taps after navigation) ──────────────────
-let _lastNavTime = 0;
-function _navHappened(){ _lastNavTime = Date.now(); }
-function _tapOk(){ return true; } // tap guard disabled - SortableJS delay was root cause
-
-// Wrap all action functions with tap guard
-function _guard(fn){
-  return function(){
-    if(!_tapOk()) return;
-    return fn.apply(this, arguments);
-  };
-}
 
 // ─── INIT ─────────────────────────────────────────────────
 applyPalette('cielo');
