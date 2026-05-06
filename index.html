@@ -46,7 +46,7 @@
 /* ============================================================
    RESET & BASE
    ============================================================ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 html, body { height: 100%; overflow: hidden; background: var(--bg); }
 body { font-family: var(--font-body); color: var(--text); display: flex; flex-direction: column; max-width: 430px; margin: 0 auto; position: relative; }
 
@@ -691,6 +691,37 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
         <button class="add-btn add-btn-viaje" onclick="openViajeModal()">+</button>
       </div>
       <div id="viajes-list"></div>
+
+<!-- MODALS -->
+<div class="modal-bg" id="modal-viaje" onclick="closeMBg('modal-viaje')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✈️ Nuevo viaje</div>
+    <label>Destino</label>
+    <input id="mv-name" type="text" placeholder="Ej: Lisboa" />
+    <label>Estado</label>
+    <select id="mv-estado">
+      <option>💭 Pendiente / Sueño</option>
+      <option>📅 Planificando</option>
+      <option>✅ Reservado</option>
+      <option>📸 Visitado</option>
+    </select>
+    <label>Fecha de ida</label>
+    <input id="mv-fecha-ida" type="date" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
+    <label>Fecha de vuelta</label>
+    <input id="mv-fecha-vuelta" type="date" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
+    <label>Presupuesto previsto (€)</label>
+    <input id="mv-budget" type="number" placeholder="Ej: 1500" min="0" />
+    <label>Notas iniciales</label>
+    <textarea id="mv-notes" placeholder="Primera idea del viaje..."></textarea>
+    <label>Imagen de portada (URL)</label>
+    <input id="mv-cover" type="url" placeholder="https://... (pega una URL de Google Im&#225;genes)" />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-viaje')">Cancelar</button>
+      <button class="btn-save" id="mv-save-btn" onclick="saveViaje()">Crear viaje</button>
+    </div>
+  </div>
+</div>
     </div>
 
     <!-- RECETAS -->
@@ -1070,36 +1101,6 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
   </div>
 </div>
 
-<!-- MODALS -->
-<div class="modal-bg" id="modal-viaje" onclick="closeMBg('modal-viaje')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">✈️ Nuevo viaje</div>
-    <label>Destino</label>
-    <input id="mv-name" type="text" placeholder="Ej: Lisboa" />
-    <label>Estado</label>
-    <select id="mv-estado">
-      <option>💭 Pendiente / Sueño</option>
-      <option>📅 Planificando</option>
-      <option>✅ Reservado</option>
-      <option>📸 Visitado</option>
-    </select>
-    <label>Fecha de ida</label>
-    <input id="mv-fecha-ida" type="date" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
-    <label>Fecha de vuelta</label>
-    <input id="mv-fecha-vuelta" type="date" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;background:var(--bg2);color:var(--text);outline:none;" />
-    <label>Presupuesto previsto (€)</label>
-    <input id="mv-budget" type="number" placeholder="Ej: 1500" min="0" />
-    <label>Notas iniciales</label>
-    <textarea id="mv-notes" placeholder="Primera idea del viaje..."></textarea>
-    <label>Imagen de portada (URL)</label>
-    <input id="mv-cover" type="url" placeholder="https://... (pega una URL de Google Im&#225;genes)" />
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-viaje')">Cancelar</button>
-      <button class="btn-save" id="mv-save-btn" onclick="saveViaje()">Crear viaje</button>
-    </div>
-  </div>
-</div>
 
 <div class="modal-bg" id="modal-receta" onclick="closeMBg('modal-receta')">
   <div class="modal">
@@ -1211,6 +1212,7 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 </div>
 
 
+
 <!-- EDIT COVER MODAL -->
 <div class="modal-bg" id="modal-edit-cover" onclick="if(event.target===this)closeModal('modal-edit-cover')">
   <div class="modal">
@@ -1225,12 +1227,6 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
       <button class="btn-save" onclick="saveEditCover()">Guardar</button>
     </div>
   </div>
-</div>
-
-<!-- PHOTO VIEWER -->
-<div id="photo-viewer" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:500;align-items:center;justify-content:center;">
-  <button style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;border-radius:50%;width:40px;height:40px;font-size:20px;color:white;cursor:pointer;" onclick="document.getElementById('photo-viewer').style.display='none'">×</button>
-  <img id="pv-img" src="" alt="" style="max-width:90%;max-height:90%;border-radius:var(--radius-sm);" />
 </div>
 
 <!-- SITE DOC MODAL -->
@@ -1331,6 +1327,16 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
     </div>
   </div>
 </div>
+
+<!-- PHOTO VIEWER -->
+<div id="photo-viewer" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:500;align-items:center;justify-content:center;">
+  <button style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);border:none;border-radius:50%;width:40px;height:40px;font-size:20px;color:white;cursor:pointer;" onclick="document.getElementById('photo-viewer').style.display='none'">×</button>
+  <img id="pv-img" src="" alt="" style="max-width:90%;max-height:90%;border-radius:var(--radius-sm);" />
+</div>
+
+
+
+
 
 <!-- PHOTO MENU -->
 <div class="photo-menu" id="photo-menu" onclick="closePhotoMenu(event)">
@@ -1688,6 +1694,7 @@ window.closeSettings = () => showScreen('screen-app');
 window.closeModal  = (id) => document.getElementById(id).classList.remove('open');
 window.closeMBg    = (id) => (e) => { if(e.target===document.getElementById(id)) closeModal(id); };
 window.openViajeModal = () => {
+  if(currentTab()!=='viajes') return;
   window._editViajeId = null;
   var val = document.getElementById('v-input').value;
   document.getElementById('mv-name').value = val || '';
@@ -1706,6 +1713,7 @@ window.openViajeModal = () => {
 };
 
 window.openEditViaje = () => {
+  if(currentScreen()!=='detail') return;
   var v = getViaje(); if(!v) return;
   window._editViajeId = currentViajeId;
   document.getElementById('mv-name').value = v.name||'';
@@ -1737,6 +1745,7 @@ window.openDocModal = () => document.getElementById('modal-doc').classList.add('
 // ─── VIAJES ───────────────────────────────────────────────
 const VIAJE_BADGES = ['badge-viaje-0','badge-viaje-1','badge-viaje-2','badge-viaje-3'];
 window.saveViaje = async () => {
+  if(currentTab()!=='viajes' && currentScreen()!=='detail') return;
   const name = document.getElementById('mv-name').value.trim(); if(!name) return;
   function isoToDisplay(iso){ if(!iso)return''; var p=iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
   var fi = isoToDisplay(document.getElementById('mv-fecha-ida').value);
@@ -1761,7 +1770,7 @@ window.saveViaje = async () => {
   }
   closeModal('modal-viaje');
 };
-window.delViaje = async (id) => {
+window.delViaje = async (id) => { if(currentTab()!=='viajes') return;
   appConfirm('&#191;Eliminar viaje?', 'Se eliminar\u00E1 el viaje y todos sus datos.', async function(){ await deleteDoc(doc(db,'viajes',id)); }, true);
 };
 
@@ -3739,8 +3748,7 @@ function updateGastosNotif(){
 }
 
 window.openGastoModal = () => {
-  if(!document.getElementById('tab-gastos').classList.contains('active')) return;
-  // Block ghost taps for 600ms after tab switch
+  if(currentTab()!=='gastos') return;
   _gastoOpcion = 0;
   _editGastoId = null;
   document.getElementById('mg-desc').value='';
@@ -3797,6 +3805,7 @@ let _gastoOpcion = 0;
 let _editGastoId = null;
 
 window.saveGasto = async () => {
+  if(currentTab()!=='gastos') return;
   var desc = document.getElementById('mg-desc').value.trim(); if(!desc) return;
   var importe = parseFloat(document.getElementById('mg-importe').value); if(!importe||importe<=0) return;
   var notas = document.getElementById('mg-notas').value.trim();
@@ -3818,6 +3827,7 @@ window.saveGasto = async () => {
   _editGastoId = null;
 };
 window.editGasto = (id) => {
+  if(currentTab()!=='gastos') return;
   var g = gastosData.find(function(x){return x.id===id;}); if(!g) return;
   _editGastoId = id;
   document.getElementById('mg-desc').value = g.desc||'';
@@ -3832,6 +3842,7 @@ window.editGasto = (id) => {
 };
 
 window.delGasto = (id) => {
+  if(currentTab()!=='gastos') return;
   appConfirm('&#191;Eliminar gasto?', 'Este gasto ser\u00E1 eliminado del historial.', async function(){
     await deleteDoc(doc(db,'gastos_compartidos',id));
     _animPlayed='';
@@ -3839,6 +3850,7 @@ window.delGasto = (id) => {
 };
 
 window.saldaDeuda = () => {
+  if(currentTab()!=='gastos') return;
   var balance = calcBalance();
   var isDavid = (window._currentUserEmail||'').indexOf('david')>=0;
   var myBalance = isDavid ? balance : -balance;
@@ -3854,6 +3866,18 @@ window.saldaDeuda = () => {
     _animPlayed='';
   }, false);
 };
+
+
+// ─── SCREEN GUARD ─────────────────────────────────────────
+function currentScreen(){
+  if(document.getElementById('screen-detail') && document.getElementById('screen-detail').classList.contains('active')) return 'detail';
+  if(document.getElementById('screen-app') && document.getElementById('screen-app').classList.contains('active')) return 'app';
+  return 'other';
+}
+function currentTab(){
+  var active = document.querySelector('.tab-section.active');
+  return active ? active.id.replace('tab-','') : '';
+}
 
 // ─── INIT ─────────────────────────────────────────────────
 applyPalette('cielo');
