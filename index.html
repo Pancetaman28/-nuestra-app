@@ -1598,7 +1598,6 @@ function showScreen(id){
   document.getElementById(id).classList.add('active');
 }
 window.showTab = (t) => {
-  _setNavTs();
   document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   var el = document.getElementById('tab-'+t);
@@ -1622,7 +1621,6 @@ window.closeSettings = () => showScreen('screen-app');
 window.closeModal  = (id) => document.getElementById(id).classList.remove('open');
 window.closeMBg    = (id) => (e) => { if(e.target===document.getElementById(id)) closeModal(id); };
 window.openViajeModal = () => {
-  if(_sinceNav()<350) return;
   window._editViajeId = null;
   var val = document.getElementById('v-input').value;
   document.getElementById('mv-name').value = val || '';
@@ -1696,7 +1694,7 @@ window.saveViaje = async () => {
   }
   closeModal('modal-viaje');
 };
-window.delViaje = async (id) => { if(_sinceNav()<350) return;
+window.delViaje = async (id) => {
   appConfirm('&#191;Eliminar viaje?', 'Se eliminar\u00E1 el viaje y todos sus datos.', async function(){ await deleteDoc(doc(db,'viajes',id)); }, true);
 };
 
@@ -3631,7 +3629,6 @@ function updateGastosNotif(){
 }
 
 window.openGastoModal = () => {
-  if(_sinceNav()<350) return;
   _gastoOpcion = 0;
   _editGastoId = null;
   document.getElementById('mg-desc').value='';
@@ -3723,7 +3720,6 @@ window.editGasto = (id) => {
 };
 
 window.delGasto = (id) => {
-  if(_sinceNav()<350) return;
   appConfirm('&#191;Eliminar gasto?', 'Este gasto ser\u00E1 eliminado del historial.', async function(){
     await deleteDoc(doc(db,'gastos_compartidos',id));
     _animPlayed='';
@@ -3731,7 +3727,6 @@ window.delGasto = (id) => {
 };
 
 window.saldaDeuda = () => {
-  if(_sinceNav()<350) return;
   var balance = calcBalance();
   var isDavid = (window._currentUserEmail||'').indexOf('david')>=0;
   var myBalance = isDavid ? balance : -balance;
@@ -3750,10 +3745,6 @@ window.saldaDeuda = () => {
 
 
 
-// Nav timestamp — blocks ghost taps after tab switch (iOS 300ms delay)
-var _navTs = 0;
-function _setNavTs(){ _navTs = Date.now(); }
-function _sinceNav(){ return Date.now() - _navTs; }
 
 // ─── INIT ─────────────────────────────────────────────────
 applyPalette('cielo');
@@ -3766,6 +3757,12 @@ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 
 <!-- MODALS (root level - must be outside tab sections) -->
 <!-- MODALS -->
+
+<!-- GASTO MODAL -->
+
+
+
+<!-- MODALS ROOT LEVEL -->
 <div class="modal-bg" id="modal-viaje" onclick="closeMBg('modal-viaje')">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -3796,7 +3793,6 @@ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
   </div>
 </div>
 
-<!-- GASTO MODAL -->
 <div class="modal-bg" id="modal-gasto" onclick="if(event.target===this)closeModal('modal-gasto')">
   <div class="modal">
     <div class="modal-handle"></div>
