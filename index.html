@@ -393,7 +393,6 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 /* HOME GRID */
 .home-grid-btn { background:var(--accent1); border:none; border-radius:var(--radius); padding:20px 8px 14px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer; box-shadow:var(--shadow); transition:transform 0.15s; width:100%; }
 .home-grid-btn:active { transform:scale(0.95); }
-.home-grid-ghost { opacity:0.4; }
 .home-grid-icon { width:100%; display:flex; align-items:center; justify-content:center; }
 .home-grid-btn span { font-family:var(--font-body); font-size:12px; font-weight:700; color:white; }
 
@@ -634,6 +633,10 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
         </div>
       </div>
 
+      <!-- Organize button -->
+      <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+        <button id="home-organize-btn" onclick="toggleHomeOrganize()" style="font-size:12px;font-weight:700;padding:6px 14px;border-radius:999px;border:1.5px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;font-family:var(--font-body);">&#x270E; Organizar</button>
+      </div>
       <!-- Grid iOS style — monochrome icons with app accent color -->
       <div class="home-grid-sortable" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
         <button class="home-grid-btn" onclick="showTab('viajes')" data-tab="viajes">
@@ -1657,11 +1660,11 @@ function subscribeData(){
 }
 
 // ─── SCREENS ─────────────────────────────────────────────
-function showScreen(id){
+function showScreen(id){ _navHappened();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-window.showTab = (t) => {
+window.showTab = (t) => { _navHappened();
   document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   var el = document.getElementById('tab-'+t);
@@ -1675,8 +1678,7 @@ window.showTab = (t) => {
   if(nav) nav.style.display = 'none';
   // Update back-to-menu bar visibility
   document.querySelectorAll('.back-to-menu-bar').forEach(function(b){ b.style.display = t==='home'?'none':'flex'; });
-  if(t==='home'){ markNotificationsRead(); updateHomeDate();
-setTimeout(initHomeGridSortable, 500); }
+  if(t==='home'){ markNotificationsRead(); updateHomeDate(); }
   if(t==='gastos'){ _gastosTabOpenedAt=Date.now(); _animPlayed=''; setTimeout(renderGastos,50); }
 };
 window.openSettings  = () => { renderSettingsPanel(); showScreen('screen-settings'); };
@@ -1686,6 +1688,7 @@ window.closeSettings = () => showScreen('screen-app');
 window.closeModal  = (id) => document.getElementById(id).classList.remove('open');
 window.closeMBg    = (id) => (e) => { if(e.target===document.getElementById(id)) closeModal(id); };
 window.openViajeModal = () => {
+  if(!_tapOk()) return;
   window._editViajeId = null;
   var val = document.getElementById('v-input').value;
   document.getElementById('mv-name').value = val || '';
@@ -1704,6 +1707,7 @@ window.openViajeModal = () => {
 };
 
 window.openEditViaje = () => {
+  if(!_tapOk()) return;
   var v = getViaje(); if(!v) return;
   window._editViajeId = currentViajeId;
   document.getElementById('mv-name').value = v.name||'';
@@ -1735,6 +1739,7 @@ window.openDocModal = () => document.getElementById('modal-doc').classList.add('
 // ─── VIAJES ───────────────────────────────────────────────
 const VIAJE_BADGES = ['badge-viaje-0','badge-viaje-1','badge-viaje-2','badge-viaje-3'];
 window.saveViaje = async () => {
+  if(!_tapOk()) return;
   const name = document.getElementById('mv-name').value.trim(); if(!name) return;
   function isoToDisplay(iso){ if(!iso)return''; var p=iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
   var fi = isoToDisplay(document.getElementById('mv-fecha-ida').value);
@@ -1759,7 +1764,7 @@ window.saveViaje = async () => {
   }
   closeModal('modal-viaje');
 };
-window.delViaje = async (id) => {
+window.delViaje = async (id) => { if(!_tapOk()) return;
   appConfirm('&#191;Eliminar viaje?', 'Se eliminar\u00E1 el viaje y todos sus datos.', async function(){ await deleteDoc(doc(db,'viajes',id)); }, true);
 };
 
@@ -1791,7 +1796,7 @@ function renderViajes(){
 }
 
 // ─── DETAIL ───────────────────────────────────────────────
-window.openDetail = (id) => {
+window.openDetail = (id) => { _navHappened();
   currentViajeId = id; maletaFilters = ['todos'];
   showScreen('screen-detail');
   showDTab('dashboard');
@@ -1799,7 +1804,7 @@ window.openDetail = (id) => {
   if(!globalPlantillas) loadGlobalPlantillas();
   else renderPlantillasList();
 };
-window.closeDetail = () => { showScreen('screen-app'); currentViajeId = null; };
+window.closeDetail = () => { _navHappened(); showScreen('screen-app'); currentViajeId = null; };
 window.showDTab = (t) => {
   document.querySelectorAll('.dsec').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.dtab').forEach(b=>b.classList.remove('active'));
@@ -2257,10 +2262,7 @@ function buildSiteHTML(s, dayKey, vname){
     ? '<img src="'+esc(s.photo)+'" onclick="event.stopPropagation();viewSitePhoto(this.src)" style="width:52px;height:52px;border-radius:var(--radius-xs);object-fit:cover;display:block;" />'
     : '<div onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" style="width:52px;height:52px;border-radius:var(--radius-xs);background:var(--bg);border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;">&#x1F4F7;</div>';
   var photoIcons = s.photo
-    ? '<div style="display:flex;gap:6px;margin-top:3px;justify-content:center;">'
-      + '<button onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" title="Cambiar" style="background:none;border:none;font-size:14px;cursor:pointer;padding:2px;opacity:0.6;">&#x21BA;</button>'
-      + '<button onclick="confirmDelPhoto(\''+dayKey+'\',\''+s.id+'\')" title="Borrar" style="background:none;border:none;font-size:13px;cursor:pointer;padding:2px;opacity:0.6;">&#x1F5D1;</button>'
-      + '</div>'
+    ? '<div style="margin-top:3px;text-align:center;"><button onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" style="font-size:10px;color:var(--text2);background:none;border:none;cursor:pointer;">&#x21BA; cambiar</button></div>'
     : '<div style="margin-top:3px;text-align:center;"><button onclick="openPhotoMenu(\''+dayKey+'\',\''+s.id+'\')" style="font-size:10px;color:var(--text2);background:none;border:none;cursor:pointer;">+ foto</button></div>';
 
   var siteDocs = (s.docs||[]);
@@ -3442,33 +3444,58 @@ const HOME_TAB_ORDER_KEY = 'nuestra_home_order';
 const DEFAULT_HOME_ORDER = ['viajes','recetas','listas','casa','agenda','gastos','deseos','cine','perros'];
 let homeOrder = JSON.parse(localStorage.getItem(HOME_TAB_ORDER_KEY)||'null') || DEFAULT_HOME_ORDER;
 
-function initHomeGridSortable(){
-  var grid = document.querySelector('#tab-home .home-grid-sortable');
-  if(!grid || !window.Sortable) return;
+// Home grid organize mode (Opción B)
+let _homeOrganizeMode = false;
+let _homeSortableInst = null;
 
-  // Apply saved order
+window.toggleHomeOrganize = () => {
+  _homeOrganizeMode = !_homeOrganizeMode;
+  var grid = document.querySelector('#tab-home .home-grid-sortable');
+  var btn = document.getElementById('home-organize-btn');
+  if(!grid) return;
+  if(_homeOrganizeMode){
+    // Apply saved order first
+    var savedOrder = JSON.parse(localStorage.getItem(HOME_TAB_ORDER_KEY)||'null');
+    if(savedOrder && savedOrder.length === 9){
+      var btns = {}; grid.querySelectorAll('.home-grid-btn').forEach(function(b){ btns[b.dataset.tab]=b; });
+      savedOrder.forEach(function(tab){ if(btns[tab]) grid.appendChild(btns[tab]); });
+    }
+    // Enter organize mode
+    grid.querySelectorAll('.home-grid-btn').forEach(function(b){
+      b.style.cursor = 'grab';
+      b.style.opacity = '0.9';
+    });
+    if(btn){ btn.textContent = '✓ Listo'; btn.style.background = 'var(--accent1)'; btn.style.color = 'white'; }
+    if(window.Sortable && !_homeSortableInst){
+      _homeSortableInst = new Sortable(grid, {
+        animation: 200,
+        onEnd: function(){
+          var newOrder = [];
+          grid.querySelectorAll('.home-grid-btn').forEach(function(b){ newOrder.push(b.dataset.tab); });
+          homeOrder = newOrder;
+          localStorage.setItem(HOME_TAB_ORDER_KEY, JSON.stringify(newOrder));
+        }
+      });
+    }
+  } else {
+    // Exit organize mode
+    grid.querySelectorAll('.home-grid-btn').forEach(function(b){
+      b.style.cursor = '';
+      b.style.opacity = '';
+    });
+    if(btn){ btn.textContent = '✎ Organizar'; btn.style.background = ''; btn.style.color = ''; }
+    if(_homeSortableInst){ _homeSortableInst.destroy(); _homeSortableInst = null; }
+  }
+};
+
+function applyHomeOrder(){
+  var grid = document.querySelector('#tab-home .home-grid-sortable');
+  if(!grid) return;
   var savedOrder = JSON.parse(localStorage.getItem(HOME_TAB_ORDER_KEY)||'null');
   if(savedOrder && savedOrder.length === 9){
-    var btns = {};
-    grid.querySelectorAll('.home-grid-btn').forEach(function(b){ btns[b.dataset.tab]=b; });
-    savedOrder.forEach(function(tab){
-      if(btns[tab]) grid.appendChild(btns[tab]);
-    });
+    var btns = {}; grid.querySelectorAll('.home-grid-btn').forEach(function(b){ btns[b.dataset.tab]=b; });
+    savedOrder.forEach(function(tab){ if(btns[tab]) grid.appendChild(btns[tab]); });
   }
-
-  new Sortable(grid, {
-    animation:200, ghostClass:'home-grid-ghost',
-    delay:400, delayOnTouchOnly:true, touchStartThreshold:5,
-    onChoose: function(){ if(navigator.vibrate) navigator.vibrate(50); },
-    onEnd: function(){
-      var newOrder = [];
-      grid.querySelectorAll('.home-grid-btn').forEach(function(btn){
-        newOrder.push(btn.dataset.tab);
-      });
-      homeOrder = newOrder;
-      localStorage.setItem(HOME_TAB_ORDER_KEY, JSON.stringify(newOrder));
-    }
-  });
 }
 
 // ─── BANNER SLIDE ─────────────────────────────────────────
@@ -3798,6 +3825,7 @@ window.saveGastoComp = async () => {
   _editGastoId = null;
 };
 window.editGastoComp = (id) => {
+  if(!_tapOk()) return;
   var g = gastosData.find(function(x){return x.id===id;}); if(!g) return;
   _editGastoId = id;
   document.getElementById('mg-desc').value = g.desc||'';
@@ -3812,6 +3840,7 @@ window.editGastoComp = (id) => {
 };
 
 window.delGastoComp = (id) => {
+  if(!_tapOk()) return;
   appConfirm('&#191;Eliminar gasto?', 'Este gasto ser\u00E1 eliminado del historial.', async function(){
     await deleteDoc(doc(db,'gastos_compartidos',id));
     _animPlayed='';
@@ -3819,6 +3848,7 @@ window.delGastoComp = (id) => {
 };
 
 window.saldaDeuda = () => {
+  if(!_tapOk()) return;
   var balance = calcBalance();
   var isDavid = (window._currentUserEmail||'').indexOf('david')>=0;
   var myBalance = isDavid ? balance : -balance;
@@ -3835,11 +3865,23 @@ window.saldaDeuda = () => {
   }, false);
 };
 
+// ─── TAP GUARD (prevents iOS ghost taps after navigation) ──────────────────
+let _lastNavTime = 0;
+function _navHappened(){ _lastNavTime = Date.now(); }
+function _tapOk(){ return true; } // tap guard disabled - SortableJS delay was root cause
+
+// Wrap all action functions with tap guard
+function _guard(fn){
+  return function(){
+    if(!_tapOk()) return;
+    return fn.apply(this, arguments);
+  };
+}
+
 // ─── INIT ─────────────────────────────────────────────────
 applyPalette('cielo');
 applyFont('D');
 updateHomeDate();
-setTimeout(initHomeGridSortable, 500);
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
