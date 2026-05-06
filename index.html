@@ -781,26 +781,26 @@ body { font-family: var(--font-body); color: var(--text); display: flex; flex-di
 
     <label>&#191;C&#243;mo se dividi&#243;?</label>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px;" id="mg-division-btns">
-      <button id="mg-op-0" onclick="setGastoOpcion(0)" class="gasto-op-btn active-op">
+      <button id="mg-op-0" onclick="setGastoOpcion_comp(0)" class="gasto-op-btn active-op">
         <span class="gasto-op-title" id="mg-title-0">&#x1F435; Yo pagu&#233; &middot; a medias</span>
         <span class="gasto-op-sub" id="mg-sub-0"></span>
       </button>
-      <button id="mg-op-1" onclick="setGastoOpcion(1)" class="gasto-op-btn">
+      <button id="mg-op-1" onclick="setGastoOpcion_comp(1)" class="gasto-op-btn">
         <span class="gasto-op-title" id="mg-title-1">&#x1F435; Yo pagu&#233; &middot; me debe el total</span>
         <span class="gasto-op-sub" id="mg-sub-1"></span>
       </button>
-      <button id="mg-op-2" onclick="setGastoOpcion(2)" class="gasto-op-btn">
+      <button id="mg-op-2" onclick="setGastoOpcion_comp(2)" class="gasto-op-btn">
         <span class="gasto-op-title" id="mg-title-2">&#x1F437; El otro pag&#243; &middot; a medias</span>
         <span class="gasto-op-sub" id="mg-sub-2"></span>
       </button>
-      <button id="mg-op-3" onclick="setGastoOpcion(3)" class="gasto-op-btn">
+      <button id="mg-op-3" onclick="setGastoOpcion_comp(3)" class="gasto-op-btn">
         <span class="gasto-op-title" id="mg-title-3">&#x1F437; El otro pag&#243; &middot; le debo el total</span>
         <span class="gasto-op-sub" id="mg-sub-3"></span>
       </button>
     </div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-gasto')">Cancelar</button>
-      <button class="btn-save" onclick="saveGasto()">Guardar</button>
+      <button class="btn-save" onclick="saveGastoComp()">Guardar</button>
     </div>
   </div>
 </div>
@@ -3197,10 +3197,10 @@ document.addEventListener('DOMContentLoaded', function(){
     }, {passive:true});
     btnAddGasto.addEventListener('touchend', function(e){
       e.preventDefault();
-      if(_touched){ _touched=false; openGastoModal(); }
+      if(_touched){ _touched=false; openGastoModal_comp(); }
     });
     btnAddGasto.addEventListener('click', function(e){
-      if(!_touched) openGastoModal();
+      if(!_touched) openGastoModal_comp();
       _touched = false;
     });
   }
@@ -3620,7 +3620,7 @@ function renderGastos(){
         +notasHTML
         +'</div>'
         +'<div class="gasto-item-amount" style="color:var(--accent1);">'+parseFloat(g.importe).toFixed(2).replace('.',',')+' \u20AC</div>'
-        +'<button class="gasto-item-del" onclick="delGasto(\''+g.id+'\')">&#xD7;</button>'
+        +'<button class="gasto-item-del" onclick="delGastoComp(\''+g.id+'\')">&#xD7;</button>'
         +'</div>';
     }).join('');
   }
@@ -3717,7 +3717,7 @@ function updateGastosNotif(){
   }
 }
 
-window.openGastoModal = () => {
+window.openGastoModal_comp = () => {
   if(!document.getElementById('tab-gastos').classList.contains('active')) return;
   // Block ghost taps for 600ms after tab switch
   if(Date.now() - _gastosTabOpenedAt < 800) return;
@@ -3734,7 +3734,7 @@ window.openGastoModal = () => {
 };
 
 
-window.setGastoOpcion = (idx) => {
+window.setGastoOpcion_comp = (idx) => {
   _gastoOpcion = idx;
   for(var i=0;i<4;i++){
     var b=document.getElementById('mg-op-'+i);
@@ -3776,7 +3776,7 @@ setTimeout(function(){
 let _gastoOpcion = 0;
 let _editGastoId = null;
 
-window.saveGasto = async () => {
+window.saveGastoComp = async () => {
   var desc = document.getElementById('mg-desc').value.trim(); if(!desc) return;
   var importe = parseFloat(document.getElementById('mg-importe').value); if(!importe||importe<=0) return;
   var notas = document.getElementById('mg-notas').value.trim();
@@ -3797,7 +3797,7 @@ window.saveGasto = async () => {
   _animPlayed = '';
   _editGastoId = null;
 };
-window.editGasto = (id) => {
+window.editGastoComp = (id) => {
   var g = gastosData.find(function(x){return x.id===id;}); if(!g) return;
   _editGastoId = id;
   document.getElementById('mg-desc').value = g.desc||'';
@@ -3811,7 +3811,7 @@ window.editGasto = (id) => {
   document.getElementById('modal-gasto').classList.add('open');
 };
 
-window.delGasto = (id) => {
+window.delGastoComp = (id) => {
   appConfirm('&#191;Eliminar gasto?', 'Este gasto ser\u00E1 eliminado del historial.', async function(){
     await deleteDoc(doc(db,'gastos_compartidos',id));
     _animPlayed='';
