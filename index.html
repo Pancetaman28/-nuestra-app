@@ -3119,23 +3119,6 @@ window.appConfirm = (title, msg, callback, isDanger) => {
   if(bg) bg.classList.add('open');
 };
 document.addEventListener('DOMContentLoaded', function(){
-  // Gasto button - use touchend/click with explicit guard
-  var btnAddGasto = document.getElementById('btn-add-gasto');
-  if(btnAddGasto){
-    var _touched = false;
-    btnAddGasto.addEventListener('touchstart', function(e){
-      _touched = true;
-    }, {passive:true});
-    btnAddGasto.addEventListener('touchend', function(e){
-      e.preventDefault();
-      if(_touched){ _touched=false; openGastoModal(); }
-    });
-    btnAddGasto.addEventListener('click', function(e){
-      if(!_touched) openGastoModal();
-      _touched = false;
-    });
-  }
-
   var bg = document.getElementById('confirm-bg');
   var cancelBtn = document.getElementById('confirm-cancel-btn');
   var okBtn = document.getElementById('confirm-ok-btn');
