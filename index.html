@@ -162,14 +162,14 @@ button{cursor:pointer;}
 .maleta-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
 .filter-pill{padding:5px 12px;border-radius:999px;border:1.5px solid var(--border);background:var(--card);font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);}
 .filter-pill.fa{background:var(--accent1);border-color:var(--accent1);color:white;}
-.maleta-item{background:var(--card);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:7px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;}
-.maleta-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;font-size:12px;color:transparent;}
+.maleta-item{background:var(--card);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;}
+.maleta-check{width:20px;height:20px;border-radius:4px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;font-size:11px;color:transparent;}
 .maleta-check.done{background:var(--accent1);border-color:var(--accent1);color:white;}
-.maleta-text{flex:1;font-size:14px;color:var(--text);}
+.maleta-text{flex:1;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .maleta-text.done{text-decoration:line-through;color:var(--text2);}
-.maleta-cat{font-size:11px;color:var(--text2);}
-.maleta-persons{font-size:11px;color:var(--text2);margin-top:1px;}
-.maleta-del{background:none;border:1.5px solid var(--border);border-radius:50%;width:24px;height:24px;font-size:12px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
+.maleta-cat{display:none;}
+.maleta-persons{display:none;}
+.maleta-del{background:none;border:none;font-size:16px;color:var(--text2);opacity:0.4;padding:0;width:20px;height:20px;display:flex;align-items:center;justify-content:center;}
 .maleta-add-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
 .maleta-add-row input{flex:1;min-width:120px;padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg2);color:var(--text);outline:none;}
 .maleta-add-row select{padding:9px 8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:12px;background:var(--bg2);color:var(--text);outline:none;}
@@ -234,15 +234,15 @@ button{cursor:pointer;}
 .gastos-balance-sub{font-size:13px;color:white;opacity:0.85;margin-top:4px;position:relative;z-index:1;}
 .gastos-btn-add{width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:15px;font-weight:700;margin-bottom:10px;}
 .gastos-btn-saldar{width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:#e74c3c;color:white;font-family:var(--font-body);font-size:15px;font-weight:700;margin-bottom:16px;display:none;}
-.gasto-item{background:var(--card);border-radius:var(--radius-sm);padding:13px 14px;margin-bottom:8px;box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:10px;}
+.gasto-item{background:var(--card);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:6px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;}
 .gasto-item-info{flex:1;min-width:0;}
-.gasto-item-desc{font-size:14px;font-weight:700;color:var(--text);}
-.gasto-item-meta{font-size:12px;color:var(--text2);margin-top:2px;}
-.gasto-item-notas{font-size:11px;color:var(--text2);margin-top:2px;font-style:italic;}
-.gasto-item-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
-.gasto-item-amt{font-size:15px;font-weight:700;color:var(--accent1);}
-.gasto-item-del{background:none;border:1.5px solid var(--border);border-radius:50%;width:24px;height:24px;font-size:12px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
-.gasto-item-edit{background:none;border:1.5px solid var(--border);border-radius:50%;width:24px;height:24px;font-size:12px;color:var(--accent1);display:flex;align-items:center;justify-content:center;}
+.gasto-item-desc{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gasto-item-meta{font-size:11px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gasto-item-notas{display:none;}
+.gasto-item-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.gasto-item-amt{font-size:13px;font-weight:700;color:var(--accent1);}
+.gasto-item-del{background:none;border:none;width:22px;height:22px;font-size:14px;color:var(--text2);opacity:0.5;display:flex;align-items:center;justify-content:center;padding:0;}
+.gasto-item-edit{background:none;border:none;width:22px;height:22px;font-size:13px;color:var(--accent1);opacity:0.7;display:flex;align-items:center;justify-content:center;padding:0;}
 .historial-item{background:var(--card);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);opacity:0.65;}
 .gasto-op-btn{width:100%;padding:11px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--bg2);font-family:var(--font-body);text-align:left;display:flex;flex-direction:column;gap:2px;margin-bottom:7px;}
 .gasto-op-btn.sel{background:var(--accent1);border-color:var(--accent1);}
@@ -308,7 +308,7 @@ button{cursor:pointer;}
 .cb-confirm{flex:2;padding:11px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:14px;font-weight:700;}
 
 /* ── ROUTE SCREEN ── */
-.route-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:10;flex-direction:column;max-width:430px;margin:0 auto;}
+.route-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:10;flex-direction:column;max-width:430px;margin:0 auto;overflow:hidden;}
 .route-screen.open{display:flex;}
 .route-header{background:linear-gradient(135deg,var(--accent1),var(--btn));padding:44px 20px 12px;flex-shrink:0;}
 .route-title{font-family:var(--font-title);font-size:18px;color:white;font-weight:700;}
@@ -316,7 +316,7 @@ button{cursor:pointer;}
 .route-tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;}
 .rtab{flex:1;padding:10px;border:none;background:none;font-family:var(--font-body);font-size:13px;font-weight:700;color:var(--text2);border-bottom:2px solid transparent;}
 .rtab.active{color:var(--accent1);border-bottom-color:var(--accent1);}
-.route-map{height:240px;flex-shrink:0;}
+.route-map{height:220px;flex-shrink:0;min-height:220px;background:var(--bg2);}
 .route-day-filters{display:flex;gap:6px;padding:10px 12px;overflow-x:auto;flex-shrink:0;background:var(--card);border-bottom:1px solid var(--border);}
 .route-day-filters::-webkit-scrollbar{display:none;}
 .rdf-pill{padding:5px 12px;border-radius:999px;border:1.5px solid var(--border);background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);flex-shrink:0;}
@@ -548,7 +548,7 @@ button{cursor:pointer;}
     <button class="dtab active" onclick="showDTab('dashboard')" id="dtb-dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>Resumen</span></button>
     <button class="dtab" onclick="showDTab('docs')" id="dtb-docs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>Docs</span></button>
     <button class="dtab" onclick="showDTab('maleta')" id="dtb-maleta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg><span>Maleta</span></button>
-    <button class="dtab" onclick="showDTab('presupuesto')" id="dtb-presupuesto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Gasto</span></button>
+    <button class="dtab" onclick="showDTab('presupuesto')" id="dtb-presupuesto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9.5a5 5 0 1 0 0 5M9 11h6M9 13h6"/></svg><span>Presu</span></button>
     <button class="dtab" onclick="showDTab('itinerario')" id="dtb-itinerario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg><span>Ruta</span></button>
     <button class="dtab" onclick="showDTab('clima')" id="dtb-clima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg><span>Clima</span></button>
     <button class="dtab" onclick="showDTab('fotos')" id="dtb-fotos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Fotos</span></button>
@@ -569,7 +569,7 @@ button{cursor:pointer;}
     <div id="ds-maleta" class="dsec">
       <div class="sec-title">Maleta</div>
       <div class="plantillas-section">
-        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Plantillas guardadas</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;">Plantillas</div><button onclick="openNewPlantillaModal()" style="font-size:11px;font-weight:700;color:var(--accent1);background:none;border:none;padding:0;">+ Nueva</button></div>
         <div id="plantillas-list"></div>
 
       </div>
@@ -647,7 +647,7 @@ button{cursor:pointer;}
       <!-- Acciones descarga -->
       <div style="display:flex;gap:6px;margin-bottom:14px;">
         <button onclick="downloadFotos('selected')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);">&#x2193; Descargar selección</button>
-        <button onclick="downloadFotos('all')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);">&#x2193; Todas (ZIP)</button>
+        <button onclick="downloadFotos('all')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);">&#x2193; Descargar todas</button>
       </div>
       <div id="fotos-list"></div>
     </div>
@@ -703,6 +703,9 @@ button{cursor:pointer;}
   </div>
   <div id="route-day-filters" class="route-day-filters" style="display:none;"></div>
   <div id="route-list" class="route-list"></div>
+  <!-- Day color picker -->
+  <div id="day-color-picker-bg" onclick="closeDayColorPicker()" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.3);z-index:10;"></div>
+  <div id="day-color-picker" style="display:none;position:absolute;bottom:0;left:0;right:0;background:var(--card);border-radius:var(--radius) var(--radius) 0 0;padding:20px;z-index:11;box-shadow:0 -4px 20px rgba(0,0,0,0.15);"></div>
 </div>
 
 <!-- ══════════════ MODALS ══════════════ -->
@@ -776,10 +779,9 @@ button{cursor:pointer;}
     <div class="modal-title">A&#241;adir documento</div>
     <label>Nombre</label><input id="md-name" type="text" placeholder="Vuelo Madrid-Roma">
     <label>Tipo</label>
-    <select id="md-tipo">
-      <option value="Vuelo">Vuelo</option><option value="Hotel">Hotel</option>
-      <option value="Transporte">Transporte</option><option value="Entrada">Entrada / Actividad</option><option value="Otro">Otro</option>
-    </select>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <select id="md-tipo" onchange="handleDocCatSelect()" style="flex:1;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg2);color:var(--text);outline:none;font-family:var(--font-body);"></select>
+    </div>
     <label>Enlace (Google Drive, email...)</label><input id="md-url" type="url" placeholder="https://drive.google.com/...">
     <label>O sube un archivo</label>
     <label class="file-label"><span id="md-file-text">&#x1F4C2; Seleccionar archivo...</span><input id="md-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="document.getElementById('md-file-text').textContent=this.files[0]?this.files[0].name:'&#x1F4C2; Seleccionar archivo...'"></label>
@@ -847,7 +849,9 @@ button{cursor:pointer;}
     <div class="modal-title">Doc de la parada</div>
     <label>Nombre</label><input id="sd-name" type="text" placeholder="Entrada, reserva...">
     <label>Tipo</label>
-    <select id="sd-tipo"><option value="Entrada">Entrada</option><option value="Reserva">Reserva</option><option value="Otro">Otro</option></select>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <select id="sd-tipo" onchange="handleSiteDocCatSelect()" style="flex:1;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg2);color:var(--text);outline:none;font-family:var(--font-body);"></select>
+    </div>
     <label>Enlace</label><input id="sd-url" type="url" placeholder="https://...">
     <label>O sube archivo</label>
     <label class="file-label"><span id="sd-file-text">&#x1F4C2; Seleccionar...</span><input id="sd-file" type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="document.getElementById('sd-file-text').textContent=this.files[0]?this.files[0].name:'&#x1F4C2; Seleccionar...'"></label>
@@ -893,7 +897,6 @@ button{cursor:pointer;}
     <label>Subir desde m&#243;vil / ordenador</label>
     <label class="file-label"><span id="mf-file-text">&#x1F4F7; Seleccionar im&#225;genes...</span><input id="mf-file" type="file" accept="image/*" multiple onchange="onFotoFileChange(this)"></label>
     <div id="mf-progress" style="display:none;margin-top:8px;"><div style="font-size:12px;color:var(--text2);margin-bottom:4px;" id="mf-progress-text">Subiendo...</div><div style="height:4px;background:var(--bg2);border-radius:999px;overflow:hidden;"><div id="mf-progress-bar" style="height:100%;background:var(--accent1);border-radius:999px;width:0%;transition:width 0.3s;"></div></div></div>
-    <label style="margin-top:10px;">O pegar URL</label><input id="mf-url" type="url" placeholder="https://...">
 
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-foto')">Cancelar</button>
@@ -957,11 +960,11 @@ button{cursor:pointer;}
 <div class="photo-menu" id="photo-menu">
   <div class="photo-menu-box">
     <div class="photo-menu-title">Foto de la parada</div>
-    <button class="photo-menu-btn" onclick="photoMenuAction('gallery')">&#x1F4F7; Galer&#237;a / C&#225;mara</button>
-    <button class="photo-menu-btn" onclick="photoMenuAction('link')">&#x1F517; Enlace</button>
-    <button class="photo-menu-btn" onclick="photoMenuAction('wiki')">&#x1F340; Voy a tener suerte</button>
-    <button class="photo-menu-btn" onclick="photoMenuAction('google')">&#x1F5BC; Imágenes web</button>
-    <button class="photo-menu-btn" onclick="photoMenuAction('delete')" style="color:#e74c3c;" id="photo-menu-del">&#x1F5D1; Eliminar foto</button>
+    <button class="photo-menu-btn" onclick="photoMenuAction('gallery')">Galer&#237;a / C&#225;mara</button>
+    <button class="photo-menu-btn" onclick="photoMenuAction('link')">Enlace</button>
+    <button class="photo-menu-btn" onclick="photoMenuAction('wiki')">Voy a tener suerte</button>
+    <button class="photo-menu-btn" onclick="photoMenuAction('google')">Imágenes web</button>
+    <button class="photo-menu-btn" onclick="photoMenuAction('delete')" style="color:#e74c3c;" id="photo-menu-del">Eliminar foto</button>
     <button class="photo-menu-btn" onclick="closePhotoMenu()" style="color:var(--text2);">Cancelar</button>
   </div>
 </div>
@@ -1517,17 +1520,47 @@ function renderDocs(v) {
   }).join('');
 }
 
-window.openDocModal = function() { openModal('modal-doc'); };
+var _DEFAULT_DOC_CATS = ['Vuelo','Hotel','Transporte','Entrada','Otro'];
+function getDocCats(){ try{return JSON.parse(localStorage.getItem('doc_cats')||'null')||_DEFAULT_DOC_CATS.slice();}catch(e){return _DEFAULT_DOC_CATS.slice();} }
+function saveDocCats(c){ localStorage.setItem('doc_cats',JSON.stringify(c)); }
+function rebuildDocCatSelect(){
+  var sel=safe('md-tipo'); if(!sel) return;
+  var curr=sel.value; var cats=getDocCats();
+  sel.innerHTML=cats.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('')
+    +'<option value="__new__">+ Nueva...</option><option value="__del__">✕ Borrar...</option>';
+  if(cats.indexOf(curr)>=0) sel.value=curr;
+}
+window.handleDocCatSelect=function(){
+  var sel=safe('md-tipo'); if(!sel) return;
+  if(sel.value==='__new__'){sel.value=getDocCats()[0];openCatModal('doc');}
+  else if(sel.value==='__del__'){sel.value=getDocCats()[0];openDelCatModal('doc');}
+};
+window.openDocModal = function() { rebuildDocCatSelect(); openModal('modal-doc'); };
 
 window.saveDoc = async function() {
   var name = (safe('md-name')||{}).value; if(!name||!name.trim()) return;
   var v = getViaje(); if(!v) return;
+  var url = ((safe('md-url')||{}).value||'').trim();
+  var fileInp = safe('md-file');
+  // Upload file if selected
+  if(fileInp && fileInp.files && fileInp.files[0]) {
+    try {
+      var storRef = ref(storage, 'viaje-docs/'+currentViajeId+'/'+Date.now()+'_'+fileInp.files[0].name);
+      await uploadBytes(storRef, fileInp.files[0]);
+      url = await getDownloadURL(storRef);
+    } catch(e) {
+      console.error('Upload error:', e);
+      appConfirm('Error al subir', 'No se pudo subir. Error: '+(e.message||e.code||'desconocido'), function(){}, false);
+      return;
+    }
+  }
   var docs = JSON.parse(JSON.stringify(v.docs||[]));
-  docs.push({ id: Date.now()+'', name: name.trim(), tipo: (safe('md-tipo')||{}).value||'Otro', url: ((safe('md-url')||{}).value||'').trim() });
+  docs.push({ id: Date.now()+'', name: name.trim(), tipo: (safe('md-tipo')||{}).value||'Otro', url: url });
   await updateDoc(doc(db,'viajes',currentViajeId), {docs:docs});
   closeModal('modal-doc');
   if(safe('md-name')) safe('md-name').value = '';
   if(safe('md-url')) safe('md-url').value = '';
+  if(fileInp) fileInp.value = '';
 };
 
 window.delDoc = function(id) {
@@ -1601,6 +1634,7 @@ window.handleBudgetCatSelect=function(){
 var _catModalType='',_catModalAction='';
 window.openCatModal=function(type){
   _catModalType=type;_catModalAction='new';
+  if(type==='sitedoc'){ /* handled same as others */ }
   if(safe('cat-modal-title')) safe('cat-modal-title').textContent='Nueva categoría';
   if(safe('cat-modal-body')) safe('cat-modal-body').innerHTML='<label style="display:block;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">Nombre</label><input id="cat-modal-input" type="text" placeholder="Nombre..." style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg2);color:var(--text);outline:none;font-family:var(--font-body);">';
   if(safe('cat-modal-ok')) safe('cat-modal-ok').textContent='Crear';
@@ -1629,6 +1663,8 @@ window.saveCatModal=function(){
     if(_catModalType==='maleta'){saveMaletaCats(getMaletaCats().filter(function(c){return c!==val;}));rebuildMaletaCatSelect();}
     else{saveBudgetCats(getBudgetCats().filter(function(c){return c!==val;}));rebuildBudgetCatSelect();}
   }
+  if(_catModalType==='sitedoc') rebuildSiteDocCatSelect();
+  if(_catModalType==='doc') rebuildDocCatSelect();
   closeModal('modal-cat');
 };
 
@@ -1805,7 +1841,7 @@ function renderItinerario(v) {
       + '<div class="day-title">' + dayLabel + '</div>'
       + '<div style="display:flex;align-items:center;gap:8px;">'
       + (totalMin > 0 ? '<div class="day-time">⏱ ' + minutesToStr(totalMin) + '</div>' : '')
-      + '<button onclick="openRoutePlanner(\'' + dayKey + '\')" style="padding:4px 10px;border:1.5px solid var(--accent1);border-radius:999px;background:none;color:var(--accent1);font-size:11px;font-weight:700;font-family:var(--font-body);">🗺 Ruta</button>'
+      + '<button onclick="openRoutePlanner(\'' + dayKey + '\')" style="padding:4px 10px;border:1.5px solid var(--accent1);border-radius:999px;background:none;color:var(--accent1);font-size:11px;font-weight:700;font-family:var(--font-body);">Ruta</button>'
       + '</div></div>'
       + '<div class="day-note"><input type="text" value="' + esc(dayData.note||'') + '" placeholder="Nota del día..." onblur="saveDayNote(\'' + dayKey + '\',this.value)"></div>'
       + sitesHTML
@@ -2050,22 +2086,52 @@ window.saveEditSite = async function() {
 // Site doc
 window.openSiteDocModal = function(dayKey, siteId) {
   _currentDayKey = dayKey; _currentSiteKey = siteId;
+  rebuildSiteDocCatSelect();
   if(safe('sd-name')) safe('sd-name').value = '';
   if(safe('sd-url')) safe('sd-url').value = '';
   if(safe('sd-file-text')) safe('sd-file-text').textContent = '📂 Seleccionar...';
   openModal('modal-site-doc');
 };
 
+var _DEFAULT_SITEDOC_CATS = ['Entrada','Reserva','Vuelo','Hotel','Transporte','Otro'];
+function getSiteDocCats(){ try{return JSON.parse(localStorage.getItem('sitedoc_cats')||'null')||_DEFAULT_SITEDOC_CATS.slice();}catch(e){return _DEFAULT_SITEDOC_CATS.slice();} }
+function saveSiteDocCats(c){ localStorage.setItem('sitedoc_cats',JSON.stringify(c)); }
+function rebuildSiteDocCatSelect(){
+  var sel=safe('sd-tipo'); if(!sel) return;
+  var curr=sel.value; var cats=getSiteDocCats();
+  sel.innerHTML=cats.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('')
+    +'<option value="__new__">+ Nueva...</option><option value="__del__">✕ Borrar...</option>';
+  if(cats.indexOf(curr)>=0) sel.value=curr;
+}
+window.handleSiteDocCatSelect=function(){
+  var sel=safe('sd-tipo'); if(!sel) return;
+  if(sel.value==='__new__'){sel.value=getSiteDocCats()[0];openCatModal('sitedoc');}
+  else if(sel.value==='__del__'){sel.value=getSiteDocCats()[0];openDelCatModal('sitedoc');}
+};
+
 window.saveSiteDoc = async function() {
   var name = (safe('sd-name')||{}).value; if(!name||!name.trim()) return;
   var v = getViaje(); if(!v) return;
+  var url = ((safe('sd-url')||{}).value||'').trim();
+  var fileInp = safe('sd-file');
+  if(fileInp && fileInp.files && fileInp.files[0]) {
+    try {
+      var storRef = ref(storage, 'site-docs/'+currentViajeId+'/'+Date.now()+'_'+fileInp.files[0].name);
+      await uploadBytes(storRef, fileInp.files[0]);
+      url = await getDownloadURL(storRef);
+    } catch(e) {
+      appConfirm('Error al subir', 'No se pudo subir el archivo.', function(){}, false);
+      return;
+    }
+  }
   var itinerario = JSON.parse(JSON.stringify(v.itinerario||[]));
   var day = itinerario.find(function(d){ return d.dayKey===_currentDayKey; }); if(!day) return;
   var site = (day.sites||[]).find(function(s){ return s.id===_currentSiteKey; }); if(!site) return;
   if(!site.docs) site.docs = [];
-  site.docs.push({ id:Date.now()+'', name:name.trim(), tipo:(safe('sd-tipo')||{}).value||'Otro', url:((safe('sd-url')||{}).value||'').trim() });
+  site.docs.push({ id:Date.now()+'', name:name.trim(), tipo:(safe('sd-tipo')||{}).value||'Otro', url:url });
   await updateDoc(doc(db,'viajes',currentViajeId), {itinerario:itinerario});
   closeModal('modal-site-doc');
+  if(fileInp) fileInp.value = '';
 };
 
 // ── PHOTOS ────────────────────────────────────────────────
@@ -2293,13 +2359,17 @@ window.saveCover = async function(){
 window.openRoutePlanner = function(dayKey) {
   var v = getViaje(); if(!v) return;
   routeView = 'general'; routeActiveDay = null;
-  if(safe('route-day-title')) safe('route-day-title').textContent = v.name + ' — Ruta';
+  if(safe('route-day-title')) safe('route-day-title').textContent = v.name + ' \u2014 Ruta';
+  // Show screen FIRST, then render (map needs visible container)
   safe('route-screen').classList.add('open');
-  if(safe('rtb-general')) safe('rtb-general').classList.add('active');
-  if(safe('rtb-dias')) safe('rtb-dias').classList.remove('active');
+  var genBtn=safe('rtb-general'); var diasBtn=safe('rtb-dias');
+  if(genBtn){ genBtn.style.background='var(--accent1)'; genBtn.style.color='white'; genBtn.style.borderColor='var(--accent1)'; }
+  if(diasBtn){ diasBtn.style.background='none'; diasBtn.style.color='var(--text2)'; diasBtn.style.borderColor='var(--border)'; }
+  if(safe('route-day-filters')) safe('route-day-filters').style.display='none';
   renderRouteDayFilters(v);
   renderRoutePills(v);
-  setTimeout(function(){ initLeafletMap(v); }, 200);
+  // Init map after screen is visible and has layout
+  setTimeout(function(){ initLeafletMap(v); }, 400);
 };
 
 window.closeRoutePlanner = function() {
@@ -2317,19 +2387,63 @@ window.setRouteView = function(view) {
 };
 
 var _DAY_COLORS=['#E8543A','#E8A23A','#4A90D9','#7BAE8C','#9B59B6','#E91E63','#00BCD4'];
-function getDayColor(vid,dk,idx){ try{var s=JSON.parse(localStorage.getItem('dc_'+vid)||'{}');return s[dk]||_DAY_COLORS[idx%_DAY_COLORS.length];}catch(e){return _DAY_COLORS[idx%_DAY_COLORS.length];} }
-function setDayColor(vid,dk,col){ try{var s=JSON.parse(localStorage.getItem('dc_'+vid)||'{}');s[dk]=col;localStorage.setItem('dc_'+vid,JSON.stringify(s));}catch(e){} }
-window.changeDayColor=function(e,dk,idx){ e.preventDefault(); var c=['#E8543A','#E8A23A','#4A90D9','#7BAE8C','#9B59B6','#E91E63','#00BCD4','#FF8C00','#20B2AA']; var curr=getDayColor(currentViajeId,dk,idx); setDayColor(currentViajeId,dk,c[(c.indexOf(curr)+1)%c.length]); var v=getViaje(); if(v){renderRouteDayFilters(v);renderRoutePills(v);if(leafletMap){leafletMap.remove();leafletMap=null;}setTimeout(function(){initLeafletMap(v);},150);} };
+function getDayColor(vid,dk,idx){
+  try{var s=JSON.parse(localStorage.getItem('dc_'+vid)||'{}'); return s[dk]||_DAY_COLORS[idx%_DAY_COLORS.length];}
+  catch(e){return _DAY_COLORS[idx%_DAY_COLORS.length];}
+}
+function setDayColor(vid,dk,col){
+  try{var s=JSON.parse(localStorage.getItem('dc_'+vid)||'{}');s[dk]=col;localStorage.setItem('dc_'+vid,JSON.stringify(s));}catch(e){}
+}
+var _colorPickerDayKey = null;
+var _colorPickerDayIdx = 0;
+
+window.cycleDayColor = window.openDayColorPicker = function(dk, idx) {
+  _colorPickerDayKey = dk; _colorPickerDayIdx = idx;
+  var picker = safe('day-color-picker');
+  if(!picker) return;
+  var curr = getDayColor(currentViajeId, dk, idx);
+  var colors = _DAY_COLORS.concat(['#FF8C00','#20B2AA','#8B4513','#C0392B','#1ABC9C','#7F8C8D']);
+  picker.innerHTML = '<div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;">Color del día</div>'
+    + '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">'
+    + colors.map(function(c) {
+        return '<div onclick="selectDayColor(\''+c+'\')" style="width:32px;height:32px;border-radius:50%;background:'+c+';cursor:pointer;border:3px solid '+(c===curr?'var(--text)':'transparent')+';box-shadow:0 2px 4px rgba(0,0,0,0.2);"></div>';
+      }).join('')
+    + '</div><button onclick="closeDayColorPicker()" style="margin-top:12px;width:100%;padding:9px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:13px;font-weight:700;color:var(--text2);">Cancelar</button>';
+  picker.style.display = 'block';
+  var bg = safe('day-color-picker-bg');
+  if(bg) bg.style.display = 'block';
+};
+
+window.selectDayColor = function(color) {
+  setDayColor(currentViajeId, _colorPickerDayKey, color);
+  closeDayColorPicker();
+  var v = getViaje(); if(!v) return;
+  renderRouteDayFilters(v);
+  renderRoutePills(v);
+  if(leafletMap){leafletMap.remove();leafletMap=null;}
+  setTimeout(function(){initLeafletMap(v);},200);
+};
+
+window.closeDayColorPicker = function() {
+  var picker = safe('day-color-picker');
+  var bg = safe('day-color-picker-bg');
+  if(picker) picker.style.display = 'none';
+  if(bg) bg.style.display = 'none';
+};
+
 function renderRouteDayFilters(v) {
   var el = safe('route-day-filters'); if(!el) return;
   var fi = parseDate(v.fecha_ida); var fv = parseDate(v.fecha_vuelta);
   if(!fi||!fv){ el.innerHTML=''; return; }
   var days=[]; for(var d=new Date(fi),i=0;d<=fv;d.setDate(d.getDate()+1),i++) days.push({date:new Date(d),key:d.toISOString().split('T')[0],idx:i});
-  el.innerHTML = '<button class="rdf-pill' + (!routeActiveDay?' active':'') + '" onclick="setRouteDay(null)" style="'+ (!routeActiveDay?'background:var(--accent1);border-color:var(--accent1);color:white;':'')+'">Todos</button>'
+  el.innerHTML = '<button class="rdf-pill'+ (!routeActiveDay?' active':'') +'" onclick="setRouteDay(null)" style="'+(!routeActiveDay?'background:var(--accent1);border-color:var(--accent1);color:white;':'')+'">Todos</button>'
     + days.map(function(d) {
         var col = getDayColor(currentViajeId, d.key, d.idx);
         var isActive = routeActiveDay === d.key;
-        return '<button class="rdf-pill'+(isActive?' active':'')+'" onclick="setRouteDay(\''+d.key+'\')" oncontextmenu="changeDayColor(event,\''+d.key+'\','+d.idx+');return false;" style="'+(isActive?'background:'+col+';border-color:'+col+';color:white;':'')+'" title="Mantén para cambiar color">D&#237;a '+(d.idx+1)+'</button>';
+        return '<button class="rdf-pill'+(isActive?' active':'')+'" onclick="setRouteDay(\''+d.key+'\')" style="'+(isActive?'background:'+col+';border-color:'+col+';color:white;':'')+'">'
+          +'D\u00eda '+(d.idx+1)
+          +'<span onclick="event.stopPropagation();cycleDayColor(\''+d.key+'\','+d.idx+')" style="margin-left:4px;font-size:10px;opacity:0.7;" title="Cambiar color">\u25CF</span>'
+          +'</button>';
       }).join('');
 }
 
@@ -2339,31 +2453,32 @@ window.setRouteDay = function(dayKey) {
   renderRouteDayFilters(v);
   renderRoutePills(v);
   if(leafletMap){ leafletMap.remove(); leafletMap = null; }
-  setTimeout(function(){ initLeafletMap(v); }, 150);
+  setTimeout(function(){ initLeafletMap(v); }, 200);
 };
 
 function renderRoutePills(v) {
   var el = safe('route-list'); if(!el) return;
   var fi = parseDate(v.fecha_ida); var fv = parseDate(v.fecha_vuelta);
-  if(!fi||!fv){ el.innerHTML='<div class="empty"><p>Añade fechas al viaje</p></div>'; return; }
+  if(!fi||!fv){ el.innerHTML='<div class="empty"><p>A\u00f1ade fechas al viaje</p></div>'; return; }
   var days=[]; for(var d=new Date(fi),i=0;d<=fv;d.setDate(d.getDate()+1),i++) days.push({date:new Date(d),key:d.toISOString().split('T')[0],idx:i});
   var itinerario = v.itinerario||[];
 
   if(routeView === 'general') {
+    // ── GENERAL VIEW ──
     var allSites = [];
     days.forEach(function(day) {
       var dayData = itinerario.find(function(x){ return x.dayKey===day.key; })||{sites:[]};
       (dayData.sites||[]).forEach(function(s){ allSites.push({site:s, day:day}); });
     });
-    if(!allSites.length){ el.innerHTML='<div class="empty"><span class="empty-icon">🗺️</span><p>Añade sitios al itinerario</p></div>'; return; }
+    if(!allSites.length){ el.innerHTML='<div class="empty"><p>A\u00f1ade sitios al itinerario</p></div>'; return; }
     var html = '<div id="route-sortable-general">';
     allSites.forEach(function(item, i) {
-      var col = COLORS[item.day.idx % COLORS.length];
+      var col = getDayColor(currentViajeId, item.day.key, item.day.idx);
       html += '<div class="route-pill" data-daykey="'+item.day.key+'" data-siteid="'+item.site.id+'">'
         + '<div class="route-pill-num" style="background:'+col+';">'+(i+1)+'</div>'
         + '<div class="route-pill-info"><div class="route-pill-name">'+esc(item.site.name)+'</div>'
-        + '<div class="route-pill-meta">Día '+(item.day.idx+1)+(item.site.hora?' · '+item.site.hora:'')+'</div></div>'
-        + '<button onclick="openEditSite(\''+item.day.key+'\',\''+item.site.id+'\')" style="background:none;border:none;font-size:12px;color:var(--text2);">✎</button>'
+        + '<div class="route-pill-meta">D\u00eda '+(item.day.idx+1)+(item.site.hora?' \u00b7 '+item.site.hora:'')+'</div></div>'
+        + '<button onclick="openEditSite(\''+item.day.key+'\',\''+item.site.id+'\')" style="background:none;border:none;font-size:12px;color:var(--text2);">\u270E</button>'
         + '</div>';
     });
     html += '</div>';
@@ -2371,145 +2486,177 @@ function renderRoutePills(v) {
     setTimeout(function(){
       var sortEl = document.getElementById('route-sortable-general');
       if(sortEl && window.Sortable) {
-        new Sortable(sortEl, { animation:150, handle:'.route-pill', onEnd: async function(evt) {
-          var v2 = getViaje(); if(!v2) return;
-          var itinCopy = JSON.parse(JSON.stringify(v2.itinerario||[]));
-          var items = Array.from(sortEl.querySelectorAll('.route-pill'));
-          // Rebuild order
-          items.forEach(function(pill, newIdx) {
-            var dk = pill.dataset.daykey; var sid = pill.dataset.siteid;
-            var day = itinCopy.find(function(d){ return d.dayKey===dk; });
-            if(day) {
-              var siteIdx = (day.sites||[]).findIndex(function(s){ return s.id===sid; });
-              if(siteIdx >= 0) {
-                var site = day.sites.splice(siteIdx, 1)[0];
-                day.sites.splice(newIdx, 0, site);
-              }
-            }
-          });
-          await updateDoc(doc(db,'viajes',currentViajeId), {itinerario:itinCopy});
-        }});
+        new Sortable(sortEl, {
+          animation: 150,
+          onEnd: async function() {
+            var v2=getViaje(); if(!v2) return;
+            // Renumber
+            var pills=Array.from(sortEl.querySelectorAll('.route-pill'));
+            pills.forEach(function(p,i){ var n=p.querySelector('.route-pill-num'); if(n)n.textContent=i+1; });
+            // Build new order: group by day preserving original day assignment
+            var itinCopy=JSON.parse(JSON.stringify(v2.itinerario||[]));
+            // Clear sites per day then re-add in new order
+            var dayMap={};
+            pills.forEach(function(p){
+              var dk=p.dataset.daykey; var sid=p.dataset.siteid;
+              if(!dayMap[dk]) dayMap[dk]=[];
+              dayMap[dk].push(sid);
+            });
+            Object.keys(dayMap).forEach(function(dk){
+              var day=itinCopy.find(function(d){return d.dayKey===dk;});
+              if(!day) return;
+              var newSites=[];
+              dayMap[dk].forEach(function(sid){ var s=(day.sites||[]).find(function(x){return x.id===sid;}); if(s) newSites.push(s); });
+              day.sites=newSites;
+            });
+            await updateDoc(doc(db,'viajes',currentViajeId),{itinerario:itinCopy});
+          }
+        });
       }
     }, 100);
+
   } else {
-    // By day view
+    // ── BY DAY VIEW ──
     var filterDays = routeActiveDay ? days.filter(function(d){ return d.key===routeActiveDay; }) : days;
     var html2 = '';
     filterDays.forEach(function(day) {
       var col = getDayColor(currentViajeId, day.key, day.idx);
       var dayData = itinerario.find(function(x){ return x.dayKey===day.key; })||{sites:[]};
+      var sites = dayData.sites||[];
       html2 += '<div class="route-day-section">'
-        + '<div class="route-day-label"><div style="width:10px;height:10px;border-radius:50%;background:'+col+';"></div>Día '+(day.idx+1)+' — '+day.date.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})+'</div>';
-      if(!(dayData.sites||[]).length) {
-        html2 += '<div class="route-empty-day" id="drop-'+day.key+'">Sin paradas</div>';
+        + '<div class="route-day-label" style="display:flex;align-items:center;gap:8px;">'
+        + '<div style="width:10px;height:10px;border-radius:50%;background:'+col+';flex-shrink:0;cursor:pointer;" onclick="cycleDayColor(\''+day.key+'\','+day.idx+')" title="Cambiar color"></div>'
+        + 'D\u00eda '+(day.idx+1)+' \u2014 '+day.date.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})
+        + '</div>';
+      // Always a sortable container — empty ones accept drops
+      html2 += '<div class="route-sortable-day" id="rsd-'+day.key+'" data-daykey="'+day.key+'" data-dayidx="'+day.idx+'" style="min-height:48px;';
+      if(!sites.length) html2 += 'border:2px dashed var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;padding:10px;margin-bottom:2px;';
+      html2 += '">';
+      if(!sites.length) {
+        html2 += '<div class="rsd-empty-ph" style="font-size:12px;color:var(--text2);pointer-events:none;">Sin paradas \u00b7 arrastra aqu\u00ed</div>';
       } else {
-        html2 += '<div class="route-sortable-day" id="rsd-'+day.key+'">';
-        (dayData.sites||[]).forEach(function(s,i) {
+        sites.forEach(function(s,i) {
           html2 += '<div class="route-pill" data-siteid="'+s.id+'">'
             + '<div class="route-pill-num" style="background:'+col+';">'+(i+1)+'</div>'
             + '<div class="route-pill-info"><div class="route-pill-name">'+esc(s.name)+'</div>'
-            + '<div class="route-pill-meta">'+esc(s.cat||'')+(s.hora?' · '+s.hora:'')+'</div></div>'
-            + '<button onclick="openEditSite(\''+day.key+'\',\''+s.id+'\')" style="background:none;border:none;font-size:12px;color:var(--text2);">✎</button>'
+            + '<div class="route-pill-meta">'+esc(s.cat||'')+(s.hora?' \u00b7 '+s.hora:'')+'</div></div>'
+            + '<button onclick="openEditSite(\''+day.key+'\',\''+s.id+'\')" style="background:none;border:none;font-size:12px;color:var(--text2);">\u270E</button>'
             + '</div>';
         });
-        html2 += '</div>';
       }
-      html2 += '</div>';
+      html2 += '</div></div>';
     });
     el.innerHTML = html2;
-    // Init sortable for all day containers (including empty)
+
+    // Init Sortable on ALL day containers with shared group
     setTimeout(function(){
       filterDays.forEach(function(day) {
         var sortEl = document.getElementById('rsd-'+day.key);
-        if(sortEl && window.Sortable) {
-          new Sortable(sortEl, {
-            animation: 150,
-            group: 'route-days',
-            fallbackOnBody: true,
-            swapThreshold: 0.65,
-            onEnd: async function(evt) {
-              // Update colors immediately
-              filterDays.forEach(function(d2) {
-                var dEl = document.getElementById('rsd-'+d2.key); if(!dEl) return;
-                var col2 = dEl.dataset.color || '#4A90D9';
-                var pills2 = dEl.querySelectorAll('.route-pill');
-                // Remove empty placeholder if pills present
-                var emptyMsg = dEl.querySelector('div[style*="pointer-events:none"]');
-                if(pills2.length > 0 && emptyMsg) emptyMsg.remove();
-                if(pills2.length === 0 && !emptyMsg) {
-                  dEl.style.border = '2px dashed var(--border)';
-                  dEl.style.display = 'flex';
-                  dEl.style.alignItems = 'center';
-                  dEl.style.justifyContent = 'center';
-                  var ph = document.createElement('div');
-                  ph.style.cssText = 'font-size:12px;color:var(--text2);pointer-events:none;';
-                  ph.textContent = 'Sin paradas';
-                  dEl.appendChild(ph);
-                } else if(pills2.length > 0) {
-                  dEl.style.border = '';
-                  dEl.style.display = '';
-                }
-                Array.from(pills2).forEach(function(pill, idx) {
+        if(!sortEl || !window.Sortable) return;
+        new Sortable(sortEl, {
+          animation: 150,
+          group: 'route-days',   // shared group = cross-day drag
+          fallbackOnBody: true,
+          swapThreshold: 0.5,
+          onEnd: async function() {
+            // 1. Update visual state (colors, numbers, empty placeholders) immediately
+            filterDays.forEach(function(d2) {
+              var dEl = document.getElementById('rsd-'+d2.key); if(!dEl) return;
+              var col2 = getDayColor(currentViajeId, d2.key, d2.idx);
+              var pills2 = Array.from(dEl.querySelectorAll('.route-pill'));
+              var ph2 = dEl.querySelector('.rsd-empty-ph');
+              if(pills2.length > 0) {
+                // Has pills: remove empty placeholder, reset border
+                if(ph2) ph2.remove();
+                dEl.style.border = '';
+                dEl.style.display = '';
+                dEl.style.alignItems = '';
+                dEl.style.justifyContent = '';
+                dEl.style.padding = '';
+                // Update colors and numbers
+                pills2.forEach(function(pill,idx) {
                   var numEl = pill.querySelector('.route-pill-num');
                   if(numEl){ numEl.style.background = col2; numEl.textContent = idx+1; }
                 });
+              } else {
+                // Empty: add placeholder if missing
+                if(!ph2) {
+                  dEl.style.cssText = 'min-height:48px;border:2px dashed var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;padding:10px;margin-bottom:2px;';
+                  var newPh = document.createElement('div');
+                  newPh.className = 'rsd-empty-ph';
+                  newPh.style.cssText = 'font-size:12px;color:var(--text2);pointer-events:none;';
+                  newPh.textContent = 'Sin paradas \u00b7 arrastra aqu\u00ed';
+                  dEl.appendChild(newPh);
+                }
+              }
+            });
+            // 2. Save to Firebase
+            var v3 = getViaje(); if(!v3) return;
+            var itinCopy = JSON.parse(JSON.stringify(v3.itinerario||[]));
+            filterDays.forEach(function(d2) {
+              var dEl = document.getElementById('rsd-'+d2.key); if(!dEl) return;
+              var dayObj = itinCopy.find(function(x){ return x.dayKey===d2.key; });
+              if(!dayObj){ dayObj={dayKey:d2.key,sites:[],note:''}; itinCopy.push(dayObj); }
+              var pills = Array.from(dEl.querySelectorAll('.route-pill'));
+              var newSites = [];
+              pills.forEach(function(pill) {
+                var sid = pill.dataset.siteid;
+                var found = null;
+                (v3.itinerario||[]).forEach(function(dd){ (dd.sites||[]).forEach(function(s){ if(s.id===sid) found=s; }); });
+                if(found) newSites.push(found);
               });
-              // Save to Firebase
-              var v3 = getViaje(); if(!v3) return;
-              var itinCopy = JSON.parse(JSON.stringify(v3.itinerario||[]));
-              filterDays.forEach(function(d2) {
-                var dEl = document.getElementById('rsd-'+d2.key); if(!dEl) return;
-                var dayObj = itinCopy.find(function(x){ return x.dayKey===d2.key; });
-                if(!dayObj){ dayObj={dayKey:d2.key,sites:[],note:''}; itinCopy.push(dayObj); }
-                var pills = Array.from(dEl.querySelectorAll('.route-pill'));
-                var newSiteOrder = [];
-                pills.forEach(function(pill) {
-                  var sid = pill.dataset.siteid;
-                  var foundSite = null;
-                  (v3.itinerario||[]).forEach(function(d3){ (d3.sites||[]).forEach(function(s){ if(s.id===sid) foundSite=s; }); });
-                  if(foundSite) newSiteOrder.push(foundSite);
-                });
-                dayObj.sites = newSiteOrder;
-              });
-              await updateDoc(doc(db,'viajes',currentViajeId), {itinerario:itinCopy});
-            }
-          });
-        }
+              dayObj.sites = newSites;
+            });
+            await updateDoc(doc(db,'viajes',currentViajeId), {itinerario:itinCopy});
+          }
+        });
       });
-    }, 100);
+    }, 150);
   }
 }
 
 function initLeafletMap(v) {
   var mapEl = safe('route-map'); if(!mapEl) return;
   if(leafletMap){ leafletMap.remove(); leafletMap = null; }
+  if(!window.L) return;
   try {
-    leafletMap = L.map('route-map', {zoomControl:true, attributionControl:false});
+    leafletMap = L.map('route-map', {zoomControl:false, attributionControl:false});
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd'}).addTo(leafletMap);
+    leafletMap.invalidateSize();
     var fi = parseDate(v.fecha_ida); var fv = parseDate(v.fecha_vuelta);
     if(!fi||!fv){ leafletMap.setView([40.4168,-3.7038],5); return; }
     var days=[]; for(var d=new Date(fi),i=0;d<=fv;d.setDate(d.getDate()+1),i++) days.push({key:d.toISOString().split('T')[0],idx:i});
-    var markers = []; var layerPoints = [];
+    var markers = [];
     (v.itinerario||[]).forEach(function(dayData) {
       var day = days.find(function(x){ return x.key===dayData.dayKey; }); if(!day) return;
       if(routeActiveDay && day.key !== routeActiveDay) return;
       var col = getDayColor(currentViajeId, day.key, day.idx);
+      var layerPoints = [];
       (dayData.sites||[]).forEach(function(s, si) {
         if(!s.lat || !s.lng) return;
         var lat = parseFloat(s.lat); var lng = parseFloat(s.lng);
-        var icon = L.divIcon({ html:'<div style="background:'+col+';color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3);">'+(si+1)+'</div>', className:'', iconSize:[24,24] });
-        L.marker([lat,lng],{icon:icon}).addTo(leafletMap).bindPopup(esc(s.name));
-        markers.push([lat,lng]); layerPoints.push([lat,lng]);
+        var icon = L.divIcon({
+          html:'<div style="background:'+col+';color:white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.35);">'+(si+1)+'</div>',
+          className:'', iconSize:[26,26], iconAnchor:[13,13]
+        });
+        L.marker([lat,lng],{icon:icon}).addTo(leafletMap).bindPopup('<strong>'+esc(s.name)+'</strong>');
+        markers.push([lat,lng]);
+        layerPoints.push([lat,lng]);
       });
       if(layerPoints.length > 1) {
-        L.polyline(layerPoints, {color:col, weight:2, opacity:0.6, dashArray:'5,5'}).addTo(leafletMap);
+        L.polyline(layerPoints, {color:col, weight:2.5, opacity:0.7, dashArray:'6,4'}).addTo(leafletMap);
       }
-      layerPoints = [];
     });
-    if(markers.length > 0) leafletMap.fitBounds(markers, {padding:[20,20]});
-    else leafletMap.setView([40.4168,-3.7038],5);
+    if(markers.length > 0) {
+      leafletMap.fitBounds(markers, {padding:[30,30]});
+    } else {
+      leafletMap.setView([40.4168,-3.7038],5);
+    }
+    // Force re-render after fitBounds
+    setTimeout(function(){ if(leafletMap) leafletMap.invalidateSize(); }, 200);
   } catch(e) { console.log('Map error:', e); }
 }
+
 
 // ── GASTOS COMPARTIDOS ────────────────────────────────────
 function calcBalance() {
@@ -2606,6 +2753,7 @@ function renderGastos() {
             + '<div style="display:flex;align-items:center;gap:8px;">'
             + '<div style="font-size:14px;font-weight:700;color:var(--text2);">' + parseFloat(g.importe||0).toFixed(2).replace('.',',') + ' €</div>'
             + (hasSnap?'<span style="font-size:16px;color:var(--text2);">›</span>':'')
+            + '<button onclick="event.stopPropagation();delLiquidacion(\'' + g.id + '\')" style="background:none;border:none;font-size:14px;color:var(--text2);opacity:0.5;padding:2px;">&#xD7;</button>'
             + '</div></div>';
         }).join('');
     } else {
@@ -2763,6 +2911,11 @@ window.delGasto = function(id) {
   },true);
 };
 
+window.delLiquidacion = function(id) {
+  appConfirm('¿Eliminar liquidación?','',async function(){
+    await deleteDoc(doc(db,'gastos_compartidos',id));
+  },true);
+};
 window.borrarHistorial = function() {
   appConfirm('Borrar historial','Se eliminarán todas las liquidaciones.',async function(){
     var td=(appData.gastosHist||[]).slice(); for(var i=0;i<td.length;i++){ await deleteDoc(doc(db,'gastos_compartidos',td[i].id)); }
