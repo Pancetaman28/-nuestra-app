@@ -605,6 +605,7 @@ button{cursor:pointer;}
         <button onclick="openSavePlantillaModal()" style="flex:1;padding:10px;border:1.5px dashed var(--border);border-radius:var(--radius-sm);background:none;color:var(--accent1);font-family:var(--font-body);font-size:13px;font-weight:700;">Guardar como plantilla</button>
         <button onclick="confirmClearMaleta()" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;color:#e74c3c;font-family:var(--font-body);font-size:12px;font-weight:700;">&#x1F5D1;</button>
       </div>
+      <button id="maleta-del-selected" onclick="delSelectedMaleta()" style="display:none;width:100%;margin-top:8px;padding:10px;border:none;border-radius:var(--radius-sm);background:#e74c3c;color:white;font-family:var(--font-body);font-size:13px;font-weight:700;">&#xD7; Eliminar seleccionados</button>
     </div>
     <div id="ds-presupuesto" class="dsec">
       <div class="budget-hero">
@@ -725,7 +726,6 @@ button{cursor:pointer;}
     </select>
     <label>Fecha de ida</label><input id="mv-fecha-ida" type="date">
     <label>Fecha de vuelta</label><input id="mv-fecha-vuelta" type="date">
-    <label>Presupuesto (&#8364;)</label><input id="mv-budget" type="number" placeholder="500" min="0">
     <label>Notas</label><input id="mv-notes" type="text" placeholder="Añadir notas...">
     <label>URL imagen de portada</label><input id="mv-cover" type="url" placeholder="https://...">
     <div class="modal-btns">
@@ -1496,7 +1496,7 @@ function renderDashboard(v) {
   if(safe('dash-grid')) safe('dash-grid').innerHTML =
     '<div class="dash-card"><div class="dash-label">Duración</div><div class="dash-value">' + dias + '</div><div class="dash-sub">días</div></div>'
     + '<div class="dash-card"><div class="dash-label">Sitios</div><div class="dash-value">' + sites + '</div><div class="dash-sub">' + visited + ' visitados</div></div>'
-    + '<div class="dash-card"><div class="dash-label">Gastado</div><div class="dash-value" style="font-size:18px;">' + gastado.toFixed(0) + '€</div><div class="dash-sub">de ' + (v.budget||'—') + '€</div></div>'
+    + '<div class="dash-card"><div class="dash-label">Presupuesto</div><div class="dash-value" style="font-size:18px;">' + gastado.toFixed(0) + '€</div><div class="dash-sub">de ' + (v.budget||'—') + '€</div></div>'
     + '<div class="dash-card"><div class="dash-label">Maleta</div><div class="dash-value">' + mHecho + '/' + mTot + '</div><div class="dash-sub">listos</div></div>';
 }
 
@@ -1534,6 +1534,20 @@ window.handleDocCatSelect=function(){
   var sel=safe('md-tipo'); if(!sel) return;
   if(sel.value==='__new__'){sel.value=getDocCats()[0];openCatModal('doc');}
   else if(sel.value==='__del__'){sel.value=getDocCats()[0];openDelCatModal('doc');}
+};
+window.addManualDay = async function() {
+  var v = getViaje(); if(!v) return;
+  var days = JSON.parse(JSON.stringify(v.manualDays||[]));
+  days.push({ id: Date.now()+'' });
+  await updateDoc(doc(db,'viajes',currentViajeId), {manualDays:days});
+};
+window.delManualDay = function(id) {
+  appConfirm('¿Eliminar día?','',async function(){
+    var v=getViaje(); if(!v) return;
+    var days=(v.manualDays||[]).filter(function(d){return d.id!==id;});
+    var itin=(v.itinerario||[]).filter(function(d){return d.dayKey!=='manual_'+id;});
+    await updateDoc(doc(db,'viajes',currentViajeId),{manualDays:days,itinerario:itin});
+  },true);
 };
 window.openDocModal = function() { rebuildDocCatSelect(); openModal('modal-doc'); };
 
@@ -1579,7 +1593,8 @@ function renderMaleta(v) {
   if(!items.length) { el.innerHTML = '<div class="empty" style="padding:12px 0"><p>Sin items</p></div>'; return; }
   el.innerHTML = items.map(function(i) {
     var persons = (i.persons||[i.person||'todos']).join(', ');
-    return '<div class="maleta-item">'
+    var isSel=_maletaSelected.indexOf(i.id)>=0;
+    return '<div class="maleta-item" style="'+(isSel?'outline:2px solid var(--accent1);outline-offset:-2px;':'')+'">'
       + '<div class="maleta-check' + (i.done?' done':'') + '" onclick="toggleMaleta(\'' + i.id + '\')">' + (i.done?'✓':'') + '</div>'
       + '<div style="flex:1"><div class="maleta-text' + (i.done?' done':'') + '">' + esc(i.text) + '</div>'
       + '<div class="maleta-cat">' + esc(i.cat||'') + '</div>'
@@ -1589,6 +1604,25 @@ function renderMaleta(v) {
   }).join('');
 }
 
+var _maletaSelected = [];
+window.toggleMaletaSelect = function(id) {
+  var idx=_maletaSelected.indexOf(id);
+  if(idx>=0)_maletaSelected.splice(idx,1);else _maletaSelected.push(id);
+  var v=getViaje(); if(v) renderMaleta(v);
+  var b=safe('maleta-del-selected'); if(b) b.style.display=_maletaSelected.length?'block':'none';
+};
+window.delSelectedMaleta = function() {
+  if(!_maletaSelected.length) return;
+  appConfirm('¿Eliminar '+_maletaSelected.length+' items?','',async function(){
+    var v=getViaje(); if(!v) return;
+    var maleta=(v.maleta||[]).filter(function(i){return _maletaSelected.indexOf(i.id)<0;});
+    _maletaSelected=[];
+    var vi=appData.viajes.findIndex(function(x){return x.id===currentViajeId;});if(vi>=0)appData.viajes[vi].maleta=maleta;
+    renderMaleta(getViaje());
+    var b=safe('maleta-del-selected');if(b)b.style.display='none';
+    await updateDoc(doc(db,'viajes',currentViajeId),{maleta:maleta});
+  },true);
+};
 window.setMFilter = function(f) {
   _mFilter = f;
   ['todos','david','maria','perdigon','tolly'].forEach(function(x) {
@@ -1826,7 +1860,32 @@ window.delPresupuesto = function(id) {
 function renderItinerario(v) {
   var el = safe('itinerario-days'); if(!el) return;
   var fi = parseDate(v.fecha_ida); var fv = parseDate(v.fecha_vuelta);
-  if(!fi || !fv) { el.innerHTML = '<div class="empty"><span class="empty-icon">🗺️</span><p>Añade fechas al viaje para ver los días</p></div>'; return; }
+  if(!fi || !fv) {
+    var manualDays = v.manualDays || [];
+    var manualHtml = manualDays.map(function(md, mi) {
+      var dayKey = 'manual_' + md.id;
+      var dayData = (v.itinerario||[]).find(function(x){ return x.dayKey===dayKey; }) || {dayKey:dayKey,sites:[],note:''};
+      var totalMin = (dayData.sites||[]).reduce(function(s,x){ return s+(parseInt(x.tiempo)||0); },0);
+      var sitesHTML = (dayData.sites||[]).map(function(s){ return buildSiteHTML(s, dayKey, v.name); }).join('');
+      return '<div class="day-block">'
+        + '<div class="day-header">'
+        + '<div class="day-title">Día '+(mi+1)+'</div>'
+        + '<div style="display:flex;align-items:center;gap:8px;">'
+        + (totalMin>0?'<div class="day-time">'+minutesToStr(totalMin)+'</div>':'')
+        + '<button onclick="openRoutePlanner(\''+dayKey+'\')" style="padding:4px 10px;border:1.5px solid var(--accent1);border-radius:999px;background:none;color:var(--accent1);font-size:11px;font-weight:700;font-family:var(--font-body);">Ruta</button>'
+        + '<button onclick="delManualDay(\''+md.id+'\')" style="font-size:13px;color:var(--text2);background:none;border:none;opacity:0.5;">&#xD7;</button>'
+        + '</div></div>'
+        + '<div class="day-note"><input type="text" value="'+esc(dayData.note||'')+'" placeholder="Nota del día..." onblur="saveDayNote(\''+dayKey+'\',this.value)"></div>'
+        + sitesHTML
+        + '<div class="day-add-site">'
+        + '<input type="text" id="sinp-'+dayKey+'" placeholder="Añadir sitio..." onkeydown="if(event.key===\'Enter\'){openSiteModalFromInput(\''+dayKey+'\')}">'
+        + '<button onclick="openSiteModalFromInput(\''+dayKey+'\')" style="width:38px;height:38px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-size:20px;flex-shrink:0;">+</button>'
+        + '</div></div>';
+    }).join('');
+    el.innerHTML = manualHtml
+      + '<button onclick="addManualDay()" style="width:100%;padding:11px;border:1.5px dashed var(--border);border-radius:var(--radius-sm);background:none;color:var(--accent1);font-family:var(--font-body);font-size:13px;font-weight:700;margin-top:8px;">+ Añadir día</button>';
+    return;
+  }
   var days = [];
   for(var d = new Date(fi); d <= fv; d.setDate(d.getDate()+1)) days.push(new Date(d));
   var itinerario = v.itinerario || [];
@@ -1938,11 +1997,12 @@ window.searchPlace = function(q) {
   if(q.length < 3){ if(safe('ms-search-results')) safe('ms-search-results').innerHTML=''; return; }
   _searchTimeout = setTimeout(async function() {
     try {
-      var url = 'https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(q) + '&limit=5&accept-language=es';
-      var res = await fetch(url, {headers:{'Accept':'application/json'}});
-      var data = await res.json();
+            var url='https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(q)+'&limit=5&accept-language=es';
+      var res=await fetch(url,{headers:{'Accept':'application/json'}});
+      var data=await res.json();
+      if(!data.length){try{var r2=await fetch('https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&limit=5');var pd=await r2.json();if(pd.features&&pd.features.length){data=pd.features.map(function(f){return{display_name:[f.properties.name,f.properties.city,f.properties.country].filter(Boolean).join(', '),lat:f.geometry.coordinates[1],lon:f.geometry.coordinates[0]};});}}catch(e2){}}
       var el = safe('ms-search-results'); if(!el) return;
-      if(!data.length){ el.innerHTML='<div style="padding:8px;font-size:12px;color:var(--text2);">Sin resultados</div>'; return; }
+      if(!data.length){ el.innerHTML='<div style="padding:8px;font-size:12px;color:var(--text2);">Sin resultados.</div>'; return; }
       el.innerHTML = data.map(function(r) {
         var name = r.display_name.split(',')[0];
         var safeName = name.replace(/'/g,'');
@@ -2191,7 +2251,7 @@ async function searchWikiPhoto(name) {
     var res = await fetch(url);
     var data = await res.json();
     if(data.thumbnail && data.thumbnail.source) { await updateSitePhoto(data.thumbnail.source); }
-    else { appConfirm('Sin resultado','No encontramos imagen en Wikipedia. Prueba con Google o pega un enlace.',function(){},false); }
+    else { appConfirm('Vaya, no hubo suerte...','No encontramos imagen. Prueba con "Imágenes web" o pega un enlace.',function(){},false); }
   } catch(e) { appConfirm('Error','No se pudo buscar la imagen.',function(){},false); }
 }
 
@@ -2332,9 +2392,13 @@ async function loadClima() {
     el.innerHTML = '<div class="sec-title">Clima — '+esc(v.name)+'</div>'
       + dateLabel
       + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">'
+      var tripSet={};
+      if(fi&&fv){for(var _td=new Date(fi);_td<=fv;_td.setDate(_td.getDate()+1)){tripSet[_td.toISOString().split('T')[0]]=true;}}
       + filtered.map(function(x){
           var d=new Date(x.t+'T12:00:00'); var code=codes[daily.weathercode[x.i]]||'🌡';
-          return '<div style="background:var(--card);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;box-shadow:var(--shadow);">'
+          var isTrip=tripSet[x.t];
+          return '<div style="background:var(--card);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;box-shadow:var(--shadow);'+(isTrip?'border:2px solid var(--accent1);':'')+'">'
+            +(isTrip?'<div style="font-size:9px;color:var(--accent1);font-weight:700;">viaje</div>':'')
             +'<div style="font-size:11px;color:var(--text2);">'+d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric'})+'</div>'
             +'<div style="font-size:24px;margin:4px 0;">'+code+'</div>'
             +'<div style="font-size:13px;font-weight:700;color:var(--text);">'+Math.round(daily.temperature_2m_max[x.i])+'°</div>'
