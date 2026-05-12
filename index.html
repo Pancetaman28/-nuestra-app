@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 /* ── RESET & BASE ── */
@@ -168,7 +169,7 @@ button{cursor:pointer;}
 .maleta-text{flex:1;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .maleta-text.done{text-decoration:line-through;color:var(--text2);}
 .maleta-cat{display:none;}
-.maleta-persons{display:none;}
+.maleta-persons{font-size:11px;color:var(--text2);}
 .maleta-del{background:none;border:none;font-size:16px;color:var(--text2);opacity:0.4;padding:0;width:20px;height:20px;display:flex;align-items:center;justify-content:center;}
 .maleta-add-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
 .maleta-add-row input{flex:1;min-width:120px;padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg2);color:var(--text);outline:none;}
@@ -998,6 +999,11 @@ const storage = getStorage(app);
 
 // ── GLOBALS ───────────────────────────────────────────────
 let currentUser = null;
+let _driveAccessToken = null;
+let _driveTokenExpiry = 0;
+const DRIVE_CLIENT_ID = '53107031853-g5t7qtca5017mf2umvf8it2alt9lqfpn.apps.googleusercontent.com';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_FOLDER_NAME = 'Nuestra App';
 let currentViajeId = null;
 let appData = { viajes: [], recetas: [], listas: [], gastos: [], plantillas: [] };
 let _mFilter = 'todos';
@@ -1158,6 +1164,73 @@ onAuthStateChanged(auth, function(user) {
     showScreen('screen-splash');
   }
 });
+
+// ── GOOGLE DRIVE ─────────────────────────────────────────
+function getDriveToken() {
+  return new Promise(function(resolve, reject) {
+    if(_driveAccessToken && Date.now() < _driveTokenExpiry) { resolve(_driveAccessToken); return; }
+    if(!window.google || !window.google.accounts) { reject(new Error('GIS no cargado')); return; }
+    var client = google.accounts.oauth2.initTokenClient({
+      client_id: DRIVE_CLIENT_ID,
+      scope: DRIVE_SCOPE,
+      callback: function(resp) {
+        if(resp.error){ reject(new Error(resp.error)); return; }
+        _driveAccessToken = resp.access_token;
+        _driveTokenExpiry = Date.now() + (resp.expires_in - 60) * 1000;
+        resolve(_driveAccessToken);
+      }
+    });
+    client.requestAccessToken({prompt:''});
+  });
+}
+
+async function getDriveFolderId(token, parentId, name) {
+  var q = encodeURIComponent("name='"+name+"' and mimeType='application/vnd.google-apps.folder' and trashed=false"+(parentId?" and '"+parentId+"' in parents":""));
+  var res = await fetch('https://www.googleapis.com/drive/v3/files?q='+q+'&fields=files(id,name)',{headers:{Authorization:'Bearer '+token}});
+  var data = await res.json();
+  if(data.files && data.files.length) return data.files[0].id;
+  // Create
+  var body = {name:name,mimeType:'application/vnd.google-apps.folder'};
+  if(parentId) body.parents = [parentId];
+  var cr = await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  var cd = await cr.json();
+  return cd.id;
+}
+
+async function uploadToDrive(file, viajeName, title) {
+  var token = await getDriveToken();
+  // Get/create folder: Nuestra App / viajeName / Fotos
+  var rootId = await getDriveFolderId(token, null, DRIVE_FOLDER_NAME);
+  var viajeId2 = await getDriveFolderId(token, rootId, viajeName);
+  var fotosId = await getDriveFolderId(token, viajeId2, 'Fotos');
+  // Upload file
+  var meta = {name: title || file.name, parents:[fotosId]};
+  var form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(meta)],{type:'application/json'}));
+  form.append('file', file);
+  var res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink,webContentLink',{method:'POST',headers:{Authorization:'Bearer '+token},body:form});
+  var data = await res.json();
+  // Make file readable by link
+  await fetch('https://www.googleapis.com/drive/v3/files/'+data.id+'/permissions',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({role:'reader',type:'anyone'})});
+  // Get direct image URL
+  var dlUrl = 'https://drive.google.com/uc?export=view&id='+data.id;
+  return {fileId:data.id, url:dlUrl, viewUrl:data.webViewLink};
+}
+
+async function uploadDocToDrive(file, viajeName, docName) {
+  var token = await getDriveToken();
+  var rootId = await getDriveFolderId(token, null, DRIVE_FOLDER_NAME);
+  var viajeId2 = await getDriveFolderId(token, rootId, viajeName);
+  var docsId = await getDriveFolderId(token, viajeId2, 'Documentos');
+  var meta = {name: docName || file.name, parents:[docsId]};
+  var form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(meta)],{type:'application/json'}));
+  form.append('file', file);
+  var res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink',{method:'POST',headers:{Authorization:'Bearer '+token},body:form});
+  var data = await res.json();
+  await fetch('https://www.googleapis.com/drive/v3/files/'+data.id+'/permissions',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({role:'reader',type:'anyone'})});
+  return {fileId:data.id, url:data.webViewLink};
+}
 
 // ── SUBSCRIBE ALL ─────────────────────────────────────────
 var _unsubs = [];
@@ -1556,15 +1629,13 @@ window.saveDoc = async function() {
   var v = getViaje(); if(!v) return;
   var url = ((safe('md-url')||{}).value||'').trim();
   var fileInp = safe('md-file');
-  // Upload file if selected
   if(fileInp && fileInp.files && fileInp.files[0]) {
     try {
-      var storRef = ref(storage, 'viaje-docs/'+currentViajeId+'/'+Date.now()+'_'+fileInp.files[0].name);
-      await uploadBytes(storRef, fileInp.files[0]);
-      url = await getDownloadURL(storRef);
+      var driveResult = await uploadDocToDrive(fileInp.files[0], v.name, name.trim());
+      url = driveResult.url;
     } catch(e) {
-      console.error('Upload error:', e);
-      appConfirm('Error al subir', 'No se pudo subir. Error: '+(e.message||e.code||'desconocido'), function(){}, false);
+      console.error('Drive doc upload error:', e);
+      appConfirm('Error al subir', 'No se pudo subir a Drive. ¿Autorizaste el acceso?', function(){}, false);
       return;
     }
   }
@@ -2176,11 +2247,10 @@ window.saveSiteDoc = async function() {
   var fileInp = safe('sd-file');
   if(fileInp && fileInp.files && fileInp.files[0]) {
     try {
-      var storRef = ref(storage, 'site-docs/'+currentViajeId+'/'+Date.now()+'_'+fileInp.files[0].name);
-      await uploadBytes(storRef, fileInp.files[0]);
-      url = await getDownloadURL(storRef);
+      var driveResult = await uploadDocToDrive(fileInp.files[0], v.name, name.trim());
+      url = driveResult.url;
     } catch(e) {
-      appConfirm('Error al subir', 'No se pudo subir el archivo.', function(){}, false);
+      appConfirm('Error al subir', 'No se pudo subir a Drive.', function(){}, false);
       return;
     }
   }
