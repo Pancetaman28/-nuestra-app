@@ -648,7 +648,7 @@ button{cursor:pointer;}
       </div>
       <!-- Acciones descarga -->
       <div style="display:flex;gap:6px;margin-bottom:14px;">
-        <button onclick="downloadFotos('selected')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);">&#x2193; Descargar selección</button>
+        <button onclick="downloadFotos('selected')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);" title="Filtra por David o María primero">&#x2193; Filtro activo</button>
         <button onclick="downloadFotos('all')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);">&#x2193; Descargar todas</button>
       </div>
       <div id="fotos-list"></div>
@@ -897,6 +897,7 @@ button{cursor:pointer;}
     <label>T&#237;tulo</label><input id="mf-title" type="text" placeholder="Llegada a Roma...">
     <label>Subir desde m&#243;vil / ordenador</label>
     <label class="file-label"><span id="mf-file-text">&#x1F4F7; Seleccionar im&#225;genes...</span><input id="mf-file" type="file" accept="image/*" multiple onchange="onFotoFileChange(this)"></label>
+    <img id="mf-preview" style="display:none;" alt="preview">
     <div id="mf-progress" style="display:none;margin-top:8px;"><div style="font-size:12px;color:var(--text2);margin-bottom:4px;" id="mf-progress-text">Subiendo...</div><div style="height:4px;background:var(--bg2);border-radius:999px;overflow:hidden;"><div id="mf-progress-bar" style="height:100%;background:var(--accent1);border-radius:999px;width:0%;transition:width 0.3s;"></div></div></div>
 
     <div class="modal-btns">
@@ -1663,11 +1664,17 @@ function renderMaleta(v) {
   if(_mFilter !== 'todos') items = items.filter(function(i){ return (i.persons||[i.person||'todos']).indexOf(_mFilter) >= 0; });
   if(!items.length) { el.innerHTML = '<div class="empty" style="padding:12px 0"><p>Sin items</p></div>'; return; }
   el.innerHTML = items.map(function(i) {
-    var persons = (i.persons||[i.person||'todos']).join(', ');
-        var isSel=_maletaSelected.indexOf(i.id)>=0;
+    var persons = (i.persons||[]).length ? i.persons : [i.person||'todos'];
+    var PERSON_COLORS2 = {david:'#4A90D9',maria:'#D98FA0',perdigon:'#7BAE8C',tolly:'#D9A44A'};
+    var labels2 = {david:'&#x1F435;',maria:'&#x1F437;',perdigon:'&#x1F43E;',tolly:'&#x1F43E;'};
+    var personPills = (persons[0]==='todos'||!persons.length) ? '' : persons.map(function(p){
+      var col = PERSON_COLORS2[p]||'var(--accent1)';
+      return '<span style="font-size:12px;background:'+col+'22;color:'+col+';border-radius:999px;padding:2px 8px;font-weight:700;flex-shrink:0;white-space:nowrap;">'+(labels2[p]||p)+'</span>';
+    }).join('');
+    var isSel = _maletaSelected.indexOf(i.id) >= 0;
     var pill = personPills ? '<span style="flex-shrink:0;margin-left:4px;">'+personPills+'</span>' : '';
     return '<div class="maleta-item" style="'+(isSel?'outline:2px solid var(--accent1);outline-offset:-2px;':'')+'">'
-      + '<div class="maleta-check' + (i.done?' done':'') + '" onclick="toggleMaleta(\'' + i.id + '\')">\u2713</div>'
+      + '<div class="maleta-check' + (i.done?' done':'') + '" onclick="toggleMaleta(\'' + i.id + '\')">\u200B' + (i.done?'&#x2713;':'') + '</div>'
       + '<div class="maleta-text' + (i.done?' done':'') + '" style="flex:1;min-width:0;cursor:pointer;" onclick="toggleMaletaSelect(\'' + i.id + '\')">\u200B' + esc(i.text) + '</div>'
       + pill
       + '<button class="maleta-del" onclick="delMaleta(\'' + i.id + '\')">&#xD7;</button>'
@@ -2422,14 +2429,23 @@ window.delFoto=function(id){
 window.downloadFotos=async function(mode){
   var v=getViaje(); if(!v) return;
   var fotos=(v.fotos||[]);
-  if(mode==='selected'&&_fotoFilter!=='todos')fotos=fotos.filter(function(f){return (f.author||'david')===_fotoFilter;});
-  if(!fotos.length){appConfirm('Sin fotos','No hay fotos.',function(){},false);return;}
-  if(fotos.length===1){var a=document.createElement('a');a.href=fotos[0].url;a.download=(fotos[0].title||'foto')+'.jpg';a.target='_blank';a.click();return;}
+  // 'selected' = filter by active person filter; 'all' = all photos
+  if(mode==='selected' && _fotoFilter!=='todos') {
+    fotos=fotos.filter(function(f){return (f.author||'david')===_fotoFilter;});
+    if(!fotos.length){appConfirm('Sin fotos','No hay fotos con este filtro. Selecciona David o María primero.',function(){},false);return;}
+  }
+  if(!fotos.length){appConfirm('Sin fotos','No hay fotos en este viaje.',function(){},false);return;}
+  if(fotos.length===1){
+    var a=document.createElement('a');a.href=fotos[0].url;a.download=(fotos[0].title||'foto')+'.jpg';a.target='_blank';a.click();return;
+  }
   if(!window.JSZip){appConfirm('Error','JSZip no disponible.',function(){},false);return;}
-  appConfirm('Descargar '+fotos.length+' fotos','Se generará un ZIP.',async function(){
+  appConfirm('Descargar '+fotos.length+' foto(s)','Se generará un ZIP.',async function(){
     var zip=new JSZip();var folder=zip.folder(v.name||'fotos');
-    await Promise.all(fotos.map(async function(f,i){try{var r=await fetch(f.url);var b=await r.blob();folder.file((f.title||'foto_'+(i+1))+'.'+( b.type.split('/')[1]||'jpg'),b);}catch(e){}}));
-    var zb=await zip.generateAsync({type:'blob'});var a=document.createElement('a');a.href=URL.createObjectURL(zb);a.download=(v.name||'fotos')+'_fotos.zip';a.click();
+    await Promise.all(fotos.map(async function(f,i){
+      try{var r=await fetch(f.url);var b=await r.blob();folder.file((f.title||'foto_'+(i+1))+'.'+( b.type.split('/')[1]||'jpg'),b);}catch(e){}
+    }));
+    var zb=await zip.generateAsync({type:'blob'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(zb);a.download=(v.name||'fotos')+'_fotos.zip';a.click();
   },false);
 };
 
@@ -2461,14 +2477,15 @@ async function loadClima() {
       if(diff>7) dateLabel='<div style="font-size:12px;color:var(--text2);margin-bottom:8px;">El viaje es en '+diff+' días — previsión actual</div>';
       else if(diff>0) dateLabel='<div style="font-size:12px;color:var(--accent1);font-weight:700;margin-bottom:8px;">Días del viaje marcados —</div>';
     }
+    var climaSymbols={0:'&#9728;',1:'&#9728;',2:'&#9729;',3:'&#9729;',45:'&#9729;',48:'&#9729;',51:'&#9730;',53:'&#9730;',55:'&#9730;',61:'&#9730;',63:'&#9730;',65:'&#9730;',71:'&#10052;',73:'&#10052;',75:'&#10052;',80:'&#9730;',81:'&#9730;',82:'&#9730;',95:'&#9928;',96:'&#9928;',99:'&#9928;'};
     var cards=daily.time.map(function(t,i){
       var d=new Date(t+'T12:00:00');
-      var code=codes[daily.weathercode[i]]||'&#x1F321;';
+      var sym=climaSymbols[daily.weathercode[i]]||'&#9728;';
       var isTrip=!!tripSet[t];
-      return '<div style="background:var(--card);border-radius:var(--radius-sm);padding:10px 6px;text-align:center;box-shadow:var(--shadow);border:2px solid '+(isTrip?'var(--accent1)':'transparent')+';">'
-        +(isTrip?'<div style="font-size:8px;color:var(--accent1);font-weight:700;">viaje</div>':'<div style="font-size:8px;">&nbsp;</div>')
+      return '<div style="background:'+(isTrip?'var(--accent1)22':'var(--card)')+';border-radius:var(--radius-sm);padding:10px 6px;text-align:center;box-shadow:var(--shadow);border:1.5px solid '+(isTrip?'var(--accent1)':'var(--border)')+';">'
+        +'<div style="font-size:10px;color:'+(isTrip?'var(--accent1)':'var(--text2)')+';font-weight:'+(isTrip?'700':'400')+';">'+(isTrip?'viaje':'&nbsp;')+'</div>'
         +'<div style="font-size:11px;color:var(--text2);">'+d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric'})+'</div>'
-        +'<div style="font-size:22px;margin:3px 0;">'+code+'</div>'
+        +'<div style="font-size:22px;margin:3px 0;color:var(--text2);">'+sym+'</div>'
         +'<div style="font-size:13px;font-weight:700;color:var(--text);">'+Math.round(daily.temperature_2m_max[i])+'°</div>'
         +'<div style="font-size:11px;color:var(--text2);">'+Math.round(daily.temperature_2m_min[i])+'°</div>'
         +'</div>';
