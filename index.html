@@ -1664,12 +1664,12 @@ function renderMaleta(v) {
   if(!items.length) { el.innerHTML = '<div class="empty" style="padding:12px 0"><p>Sin items</p></div>'; return; }
   el.innerHTML = items.map(function(i) {
     var persons = (i.persons||[i.person||'todos']).join(', ');
-    var isSel=_maletaSelected.indexOf(i.id)>=0;
+        var isSel=_maletaSelected.indexOf(i.id)>=0;
+    var pill = personPills ? '<span style="flex-shrink:0;margin-left:4px;">'+personPills+'</span>' : '';
     return '<div class="maleta-item" style="'+(isSel?'outline:2px solid var(--accent1);outline-offset:-2px;':'')+'">'
-      + '<div class="maleta-check' + (i.done?' done':'') + '" onclick="toggleMaleta(\'' + i.id + '\')">' + (i.done?'✓':'') + '</div>'
-      + '<div style="flex:1"><div class="maleta-text' + (i.done?' done':'') + '">' + esc(i.text) + '</div>'
-      + '<div class="maleta-cat">' + esc(i.cat||'') + '</div>'
-      + '<div class="maleta-persons">' + esc(persons) + '</div></div>'
+      + '<div class="maleta-check' + (i.done?' done':'') + '" onclick="toggleMaleta(\'' + i.id + '\')">\u2713</div>'
+      + '<div class="maleta-text' + (i.done?' done':'') + '" style="flex:1;min-width:0;cursor:pointer;" onclick="toggleMaletaSelect(\'' + i.id + '\')">\u200B' + esc(i.text) + '</div>'
+      + pill
       + '<button class="maleta-del" onclick="delMaleta(\'' + i.id + '\')">&#xD7;</button>'
       + '</div>';
   }).join('');
@@ -2357,40 +2357,61 @@ window.openFotoModal=function(){
   var v=getViaje(); var ti=safe('mf-title');
   if(ti){ti.value='';ti.placeholder=v?v.name:'Título';}
   if(safe('mf-file'))safe('mf-file').value='';
-  if(safe('mf-file-text'))safe('mf-file-text').textContent='&#x1F4F7; Seleccionar imágenes...';
+  if(safe('mf-file-text'))safe('mf-file-text').textContent='Seleccionar imágenes...';
   if(safe('mf-progress'))safe('mf-progress').style.display='none';
   openModal('modal-foto');
 };
 window.onFotoFileChange=function(input){
   if(!input.files||!input.files.length) return;
   var count=input.files.length;
-  if(safe('mf-file-text'))safe('mf-file-text').textContent=count===1?'&#x1F4F7; '+input.files[0].name:'&#x1F4F7; '+count+' fotos seleccionadas';
+  if(safe('mf-file-text'))safe('mf-file-text').textContent=count===1?input.files[0].name:count+' fotos seleccionadas';
 };
 window.saveFoto=async function(){
   var tb=((safe('mf-title')||{}).value||'').trim();
-  var fi=safe('mf-file'); var v=getViaje(); if(!v) return;
+  var fileInp=safe('mf-file'); var v=getViaje(); if(!v) return;
   var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
   var author=isDavid?'david':'maria';
-  if(!fi||!fi.files||!fi.files.length) return;
-  var files=Array.from(fi.files); var total=files.length;
+  if(!fileInp||!fileInp.files||!fileInp.files.length) return;
+  var files=Array.from(fileInp.files); var total=files.length;
   var pe=safe('mf-progress'),pb=safe('mf-progress-bar'),pt=safe('mf-progress-text');
-  if(pe)pe.style.display='block';
+  // Request Drive token first (must be in direct user gesture)
+  var token;
+  try {
+    if(pt) pt.textContent='Conectando con Drive...';
+    if(pe) pe.style.display='block';
+    token = await getDriveToken();
+  } catch(e) {
+    if(pe) pe.style.display='none';
+    appConfirm('Error de acceso','No se pudo conectar con Google Drive. Inténtalo de nuevo.',function(){},false);
+    return;
+  }
+  // Get/create folders once
+  var rootId = await getDriveFolderId(token, null, DRIVE_FOLDER_NAME);
+  var viajeFolder = await getDriveFolderId(token, rootId, v.name);
+  var fotosFolder = await getDriveFolderId(token, viajeFolder, 'Fotos');
   var fotos=JSON.parse(JSON.stringify(v.fotos||[])); var errors=0;
   for(var i=0;i<files.length;i++){
-    if(pt)pt.textContent='Subiendo '+(i+1)+' de '+total+'...';
-    if(pb)pb.style.width=Math.round((i/total)*100)+'%';
+    if(pt) pt.textContent='Subiendo '+(i+1)+' de '+total+'...';
+    if(pb) pb.style.width=Math.round((i/total)*100)+'%';
     try{
-      var sr=ref(storage,'trip-photos/'+currentViajeId+'/'+Date.now()+'_'+files[i].name);
-      await uploadBytes(sr,files[i]); var url=await getDownloadURL(sr);
       var title=total===1?(tb||v.name):(tb?tb+' '+(i+1):v.name+' '+(i+1));
-      fotos.push({id:Date.now()+'_'+i,title:title,url:url,author:author});
-    }catch(e){errors++;}
+      var meta={name:title,parents:[fotosFolder]};
+      var form=new FormData();
+      form.append('metadata',new Blob([JSON.stringify(meta)],{type:'application/json'}));
+      form.append('file',files[i]);
+      var res=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{Authorization:'Bearer '+token},body:form});
+      var data=await res.json();
+      if(data.id){
+        await fetch('https://www.googleapis.com/drive/v3/files/'+data.id+'/permissions',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({role:'reader',type:'anyone'})});
+        fotos.push({id:Date.now()+'_'+i,title:title,url:'https://drive.google.com/uc?export=view&id='+data.id,driveId:data.id,author:author});
+      } else { errors++; }
+    }catch(e){ console.error('Photo upload error:',e); errors++; }
   }
-  if(pb)pb.style.width='100%';
+  if(pb) pb.style.width='100%';
   await updateDoc(doc(db,'viajes',currentViajeId),{fotos:fotos});
-  if(pe)pe.style.display='none';
+  if(pe) pe.style.display='none';
   closeModal('modal-foto');
-  if(errors)appConfirm(errors+' foto(s) fallaron','Las demás se subieron.',function(){},false);
+  if(errors) appConfirm(errors+' foto(s) fallaron','Comprueba tu conexión.',function(){},false);
 };
 window.delFoto=function(id){
   appConfirm('¿Eliminar foto?','',async function(){
@@ -2416,66 +2437,47 @@ window.downloadFotos=async function(mode){
 async function loadClima() {
   var el = safe('clima-content'); if(!el) return;
   var v = getViaje(); if(!v||!v.name) { el.innerHTML='<div class="empty"><p>Sin viaje</p></div>'; return; }
-  el.innerHTML='<div class="empty"><span class="empty-icon">⏳</span><p>Cargando clima...</p></div>';
+  el.innerHTML='<div class="empty"><p>Cargando...</p></div>';
   try {
     var geo = await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(v.name)+'&limit=1',{headers:{'Accept':'application/json'}});
     var gdata = await geo.json();
-    if(!gdata.length) throw new Error('No location');
-    var lat = gdata[0].lat; var lon = gdata[0].lon;
-
-    // Calculate date range from trip dates, clamped to Open-Meteo 16-day forecast
-    var now = new Date(); now.setHours(0,0,0,0);
-    var fi = parseDate(v.fecha_ida); var fv = parseDate(v.fecha_vuelta);
-    var startDate = fi && fi >= now ? fi : now;
-    var endDate = fv && fv >= startDate ? fv : new Date(startDate.getTime() + 6*86400000);
-    // Clamp to max 7 days shown, max 16 days from today for open-meteo
-    var maxEnd = new Date(now.getTime() + 15*86400000);
-    if(endDate > maxEnd) endDate = maxEnd;
-    var diffDays = Math.ceil((endDate - now) / 86400000) + 1;
-    var forecastDays = Math.min(16, Math.max(7, diffDays));
-
-    var wxUrl = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon
-      +'&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days='+forecastDays;
-    var wx = await fetch(wxUrl);
-    var wdata = await wx.json();
-    var daily = wdata.daily;
-    var codes = {0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'❄️',73:'❄️',75:'❄️',80:'🌧',81:'🌧',82:'🌧',95:'⛈',96:'⛈',99:'⛈'};
-
-    // Filter to trip dates range
-    var startStr = startDate.toISOString().split('T')[0];
-    var endStr = endDate.toISOString().split('T')[0];
-    var filtered = daily.time.map(function(t,i){ return {t:t,i:i}; })
-      .filter(function(x){ return x.t >= startStr && x.t <= endStr; })
-      .slice(0,7);
-
-    var dateLabel = '';
-    if(fi) {
-      var diffToTrip = Math.ceil((fi - now) / 86400000);
-      if(diffToTrip > 16) {
-        dateLabel = '<div style="font-size:12px;color:var(--text2);margin-bottom:10px;">⚠️ El viaje es en '+diffToTrip+' días — mostrando previsión actual</div>';
-        filtered = daily.time.map(function(t,i){ return {t:t,i:i}; }).slice(0,7);
-      } else if(diffToTrip > 0) {
-        dateLabel = '<div style="font-size:12px;color:var(--accent1);font-weight:700;margin-bottom:10px;">✈️ Previsión para las fechas del viaje</div>';
-      }
+    if(!gdata||!gdata.length) { el.innerHTML='<div class="empty"><p>No encontramos ubicación para "'+esc(v.name)+'"</p></div>'; return; }
+    var lat=gdata[0].lat; var lon=gdata[0].lon;
+    var now=new Date(); now.setHours(0,0,0,0);
+    var fi=parseDate(v.fecha_ida); var fv=parseDate(v.fecha_vuelta);
+    var wx=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&forecast_days=7');
+    if(!wx.ok) throw new Error('wx error');
+    var wdata=await wx.json();
+    if(!wdata.daily) throw new Error('no daily');
+    var daily=wdata.daily;
+    var codes={0:'&#x2600;',1:'&#x1F324;',2:'&#x26C5;',3:'&#x2601;',45:'&#x1F32B;',48:'&#x1F32B;',51:'&#x1F326;',53:'&#x1F326;',55:'&#x1F327;',61:'&#x1F327;',63:'&#x1F327;',65:'&#x1F327;',71:'&#x2744;',73:'&#x2744;',75:'&#x2744;',80:'&#x1F327;',81:'&#x1F327;',82:'&#x1F327;',95:'&#x26C8;',96:'&#x26C8;',99:'&#x26C8;'};
+    // Build trip day set
+    var tripSet={};
+    if(fi&&fv){for(var td=new Date(fi);td<=fv;td.setDate(td.getDate()+1)){tripSet[td.toISOString().split('T')[0]]=true;}}
+    // Note if trip is far away
+    var dateLabel='';
+    if(fi){
+      var diff=Math.ceil((fi-now)/86400000);
+      if(diff>7) dateLabel='<div style="font-size:12px;color:var(--text2);margin-bottom:8px;">El viaje es en '+diff+' días — previsión actual</div>';
+      else if(diff>0) dateLabel='<div style="font-size:12px;color:var(--accent1);font-weight:700;margin-bottom:8px;">Días del viaje marcados —</div>';
     }
-
-    el.innerHTML = '<div class="sec-title">Clima — '+esc(v.name)+'</div>'
-      + dateLabel
-      + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">'
-      var tripSet={};
-      if(fi&&fv){for(var _td=new Date(fi);_td<=fv;_td.setDate(_td.getDate()+1)){tripSet[_td.toISOString().split('T')[0]]=true;}}
-      + filtered.map(function(x){
-          var d=new Date(x.t+'T12:00:00'); var code=codes[daily.weathercode[x.i]]||'🌡';
-          var isTrip=tripSet[x.t];
-          return '<div style="background:var(--card);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;box-shadow:var(--shadow);'+(isTrip?'border:2px solid var(--accent1);':'')+'">'
-            +(isTrip?'<div style="font-size:9px;color:var(--accent1);font-weight:700;">viaje</div>':'')
-            +'<div style="font-size:11px;color:var(--text2);">'+d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric'})+'</div>'
-            +'<div style="font-size:24px;margin:4px 0;">'+code+'</div>'
-            +'<div style="font-size:13px;font-weight:700;color:var(--text);">'+Math.round(daily.temperature_2m_max[x.i])+'°</div>'
-            +'<div style="font-size:11px;color:var(--text2);">'+Math.round(daily.temperature_2m_min[x.i])+'°</div>'
-            +'</div>';
-        }).join('')+'</div>';
-  } catch(e) { el.innerHTML='<div class="empty"><span class="empty-icon">🌡️</span><p>No se pudo cargar el clima para '+esc(v.name)+'</p></div>'; }
+    var cards=daily.time.map(function(t,i){
+      var d=new Date(t+'T12:00:00');
+      var code=codes[daily.weathercode[i]]||'&#x1F321;';
+      var isTrip=!!tripSet[t];
+      return '<div style="background:var(--card);border-radius:var(--radius-sm);padding:10px 6px;text-align:center;box-shadow:var(--shadow);border:2px solid '+(isTrip?'var(--accent1)':'transparent')+';">'
+        +(isTrip?'<div style="font-size:8px;color:var(--accent1);font-weight:700;">viaje</div>':'<div style="font-size:8px;">&nbsp;</div>')
+        +'<div style="font-size:11px;color:var(--text2);">'+d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric'})+'</div>'
+        +'<div style="font-size:22px;margin:3px 0;">'+code+'</div>'
+        +'<div style="font-size:13px;font-weight:700;color:var(--text);">'+Math.round(daily.temperature_2m_max[i])+'°</div>'
+        +'<div style="font-size:11px;color:var(--text2);">'+Math.round(daily.temperature_2m_min[i])+'°</div>'
+        +'</div>';
+    }).join('');
+    el.innerHTML='<div class="sec-title">Clima — '+esc(v.name)+'</div>'+dateLabel+'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">'+cards+'</div>';
+  } catch(e) {
+    console.error('Clima error:',e);
+    el.innerHTML='<div class="empty"><p>No se pudo cargar el clima</p></div>';
+  }
 }
 
 // ── COVER ─────────────────────────────────────────────────
