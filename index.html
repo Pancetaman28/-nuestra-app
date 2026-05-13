@@ -648,8 +648,8 @@ button{cursor:pointer;}
       </div>
       <!-- Acciones descarga -->
       <div style="display:flex;gap:6px;margin-bottom:14px;">
-        <button onclick="downloadFotos('selected')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);" title="Filtra por David o María primero">&#x2193; Filtro activo</button>
-        <button onclick="downloadFotos('all')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);">&#x2193; Descargar todas</button>
+        <button onclick="downloadFotos('selected')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);" title="Filtra por David o María primero">&#x2193; Descargar filtro</button>
+        <button onclick="downloadFotos('all')" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);">&#x2193; Todas (Drive)</button>
       </div>
       <div id="fotos-list"></div>
     </div>
@@ -2396,6 +2396,7 @@ window.saveFoto=async function(){
   var rootId = await getDriveFolderId(token, null, DRIVE_FOLDER_NAME);
   var viajeFolder = await getDriveFolderId(token, rootId, v.name);
   var fotosFolder = await getDriveFolderId(token, viajeFolder, 'Fotos');
+  var fotosFolderUrl = 'https://drive.google.com/drive/folders/'+fotosFolder;
   var fotos=JSON.parse(JSON.stringify(v.fotos||[])); var errors=0;
   for(var i=0;i<files.length;i++){
     if(pt) pt.textContent='Subiendo '+(i+1)+' de '+total+'...';
@@ -2410,12 +2411,14 @@ window.saveFoto=async function(){
       var data=await res.json();
       if(data.id){
         await fetch('https://www.googleapis.com/drive/v3/files/'+data.id+'/permissions',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({role:'reader',type:'anyone'})});
-        fotos.push({id:Date.now()+'_'+i,title:title,url:'https://drive.google.com/uc?export=view&id='+data.id,driveId:data.id,author:author});
+        var thumbUrl='https://lh3.googleusercontent.com/d/'+data.id;
+        var dlUrl='https://drive.google.com/uc?export=download&id='+data.id;
+        fotos.push({id:Date.now()+'_'+i,title:title,url:thumbUrl,dlUrl:dlUrl,driveId:data.id,author:author});
       } else { errors++; }
     }catch(e){ console.error('Photo upload error:',e); errors++; }
   }
   if(pb) pb.style.width='100%';
-  await updateDoc(doc(db,'viajes',currentViajeId),{fotos:fotos});
+  await updateDoc(doc(db,'viajes',currentViajeId),{fotos:fotos,drivePhotosFolder:fotosFolderUrl});
   if(pe) pe.style.display='none';
   closeModal('modal-foto');
   if(errors) appConfirm(errors+' foto(s) fallaron','Comprueba tu conexión.',function(){},false);
@@ -2429,24 +2432,21 @@ window.delFoto=function(id){
 window.downloadFotos=async function(mode){
   var v=getViaje(); if(!v) return;
   var fotos=(v.fotos||[]);
-  // 'selected' = filter by active person filter; 'all' = all photos
-  if(mode==='selected' && _fotoFilter!=='todos') {
+  if(mode==='selected'&&_fotoFilter!=='todos'){
     fotos=fotos.filter(function(f){return (f.author||'david')===_fotoFilter;});
-    if(!fotos.length){appConfirm('Sin fotos','No hay fotos con este filtro. Selecciona David o María primero.',function(){},false);return;}
+    if(!fotos.length){appConfirm('Sin fotos','Selecciona David o María primero.',function(){},false);return;}
   }
-  if(!fotos.length){appConfirm('Sin fotos','No hay fotos en este viaje.',function(){},false);return;}
+  if(!fotos.length){appConfirm('Sin fotos','No hay fotos.',function(){},false);return;}
   if(fotos.length===1){
-    var a=document.createElement('a');a.href=fotos[0].url;a.download=(fotos[0].title||'foto')+'.jpg';a.target='_blank';a.click();return;
+    var dlUrl=fotos[0].dlUrl||(fotos[0].driveId?'https://drive.google.com/uc?export=download&id='+fotos[0].driveId:fotos[0].url);
+    var a=document.createElement('a');a.href=dlUrl;a.target='_blank';a.click();return;
   }
-  if(!window.JSZip){appConfirm('Error','JSZip no disponible.',function(){},false);return;}
-  appConfirm('Descargar '+fotos.length+' foto(s)','Se generará un ZIP.',async function(){
-    var zip=new JSZip();var folder=zip.folder(v.name||'fotos');
-    await Promise.all(fotos.map(async function(f,i){
-      try{var r=await fetch(f.url);var b=await r.blob();folder.file((f.title||'foto_'+(i+1))+'.'+( b.type.split('/')[1]||'jpg'),b);}catch(e){}
-    }));
-    var zb=await zip.generateAsync({type:'blob'});
-    var a=document.createElement('a');a.href=URL.createObjectURL(zb);a.download=(v.name||'fotos')+'_fotos.zip';a.click();
-  },false);
+  var folderUrl=v.drivePhotosFolder;
+  if(folderUrl){
+    appConfirm('Abrir en Google Drive','Se abrirá la carpeta de fotos en Drive. Desde ahí puedes guardar al carrete.',function(){window.open(folderUrl,'_blank');},false);
+  } else {
+    appConfirm('Sin carpeta Drive','Sube alguna foto primero para crear la carpeta.',function(){},false);
+  }
 };
 
 // ── CLIMA ─────────────────────────────────────────────────
