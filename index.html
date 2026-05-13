@@ -2340,6 +2340,26 @@ window.viewPhoto = function(src) {
 
 // ── FOTOS VIAJE ───────────────────────────────────────────
 var _fotoFilter = 'todos';
+var _fotosSelected = [];
+window.toggleFotoSelect = function(id) {
+  var idx = _fotosSelected.indexOf(id);
+  if(idx >= 0) _fotosSelected.splice(idx,1); else _fotosSelected.push(id);
+  var v = getViaje(); if(v) renderFotos(v);
+  updateFotoDownloadBtn();
+};
+
+window.updateFotoDownloadBtn = function() {
+  var btn = safe('fotos-dl-btn');
+  if(!btn) return;
+  if(_fotosSelected.length === 0) {
+    btn.textContent = '↓ Todas (Drive)';
+  } else if(_fotosSelected.length === 1) {
+    btn.textContent = '↓ Descargar (1)';
+  } else {
+    btn.textContent = '↓ Drive ('+_fotosSelected.length+')';
+  }
+};
+
 window.setFotoFilter = function(f) {
   _fotoFilter=f; ['todos','david','maria'].forEach(function(x){var el=safe('ff-'+x);if(el)el.className='filter-pill'+(x===f?' fa':'');});
   var v=getViaje(); if(v) renderFotos(v);
@@ -2429,23 +2449,37 @@ window.delFoto=function(id){
     await updateDoc(doc(db,'viajes',currentViajeId),{fotos:(v.fotos||[]).filter(function(f){return f.id!==id;})});
   },true);
 };
-window.downloadFotos=async function(mode){
+window.downloadFotos=async function(){
   var v=getViaje(); if(!v) return;
   var fotos=(v.fotos||[]);
-  if(mode==='selected'&&_fotoFilter!=='todos'){
-    fotos=fotos.filter(function(f){return (f.author||'david')===_fotoFilter;});
-    if(!fotos.length){appConfirm('Sin fotos','Selecciona David o María primero.',function(){},false);return;}
+  if(_fotoFilter!=='todos') fotos=fotos.filter(function(f){return (f.author||'david')===_fotoFilter;});
+  if(!fotos.length){appConfirm('Sin fotos','No hay fotos en este viaje.',function(){},false);return;}
+
+  if(_fotosSelected.length===1){
+    // Single selected: direct download
+    var sel=fotos.find(function(f){return f.id===_fotosSelected[0];})||fotos[0];
+    var dlUrl=sel.dlUrl||(sel.driveId?'https://drive.google.com/uc?export=download&id='+sel.driveId:sel.url);
+    var a=document.createElement('a');a.href=dlUrl;a.target='_blank';a.click();
+    return;
   }
-  if(!fotos.length){appConfirm('Sin fotos','No hay fotos.',function(){},false);return;}
-  if(fotos.length===1){
-    var dlUrl=fotos[0].dlUrl||(fotos[0].driveId?'https://drive.google.com/uc?export=download&id='+fotos[0].driveId:fotos[0].url);
-    var a=document.createElement('a');a.href=dlUrl;a.target='_blank';a.click();return;
+
+  if(_fotosSelected.length>1){
+    // Multiple selected: open Drive folder
+    var folderUrl=v.drivePhotosFolder;
+    if(folderUrl){
+      appConfirm('Abrir en Google Drive',_fotosSelected.length+' fotos seleccionadas. Se abrirá la carpeta en Drive para que puedas guardarlas al carrete.',function(){window.open(folderUrl,'_blank');},false);
+    } else {
+      appConfirm('Sin carpeta Drive','Sube alguna foto primero.',function(){},false);
+    }
+    return;
   }
+
+  // Nothing selected: open Drive folder with all
   var folderUrl=v.drivePhotosFolder;
   if(folderUrl){
-    appConfirm('Abrir en Google Drive','Se abrirá la carpeta de fotos en Drive. Desde ahí puedes guardar al carrete.',function(){window.open(folderUrl,'_blank');},false);
+    appConfirm('Abrir en Google Drive','Se abrirá la carpeta de fotos en Drive.',function(){window.open(folderUrl,'_blank');},false);
   } else {
-    appConfirm('Sin carpeta Drive','Sube alguna foto primero para crear la carpeta.',function(){},false);
+    appConfirm('Sin carpeta Drive','Sube alguna foto primero.',function(){},false);
   }
 };
 
