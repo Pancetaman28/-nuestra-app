@@ -1407,6 +1407,19 @@ function subscribeAll() {
     appData.plantillas = snap.exists() ? (snap.data().items || []) : [];
     renderPlantillasList();
   }));
+  // Cine
+  _unsubs.push(onSnapshot(doc(db,'app_data','cine'), function(snap) {
+    var data = snap.exists() ? snap.data() : {};
+    appData.cine = (data && data.items) ? data.items : [];
+    renderCineList();
+    var yearSel=safe('ranking-year');
+    if(yearSel){
+      var years=[...new Set((appData.cine||[]).filter(function(x){return x.estado==='visto'&&x.watchedYear;}).map(function(x){return x.watchedYear;}))].sort().reverse();
+      var cur=yearSel.value;
+      yearSel.innerHTML='<option value="all">Siempre</option>'+years.map(function(y){return '<option value="'+y+'">'+y+'</option>';}).join('');
+      yearSel.value=cur;
+    }
+  }));
 }
 
 // ── SETTINGS ─────────────────────────────────────────────
@@ -3458,7 +3471,7 @@ window.openAddCineModal = function() {
   if(safe('cine-title-inp')) safe('cine-title-inp').value='';
   if(safe('cine-link-inp')) safe('cine-link-inp').value='';
   if(safe('cine-platform')) safe('cine-platform').value='';
-  setCineType('pelicula'); setCineState('proximo');
+  setCineType('pelicula'); setCineState(_cineTab==='visto'?'proximo':_cineTab);
   openModal('modal-add-cine');
 };
 
@@ -3470,6 +3483,8 @@ window.saveCineItem = async function() {
   var items = JSON.parse(JSON.stringify(appData.cine||[]));
   if(_cineEditId) { var idx = items.findIndex(function(x){return x.id===_cineEditId;}); if(idx>=0) items[idx] = Object.assign(items[idx], item); } else { items.push(item); }
   await setDoc(doc(db,'app_data','cine'),{items:items});
+  appData.cine = items;
+  renderCineList();
   closeModal('modal-add-cine');
 };
 
