@@ -291,8 +291,8 @@ button{cursor:pointer;}
 .cine-reaction-btn.active{border-color:var(--accent1);background:var(--accent1)22;}
 .platform-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1.5px solid var(--border);color:var(--text2);margin-right:4px;}
 .rating-screen{position:fixed;inset:0;background:#0a0a0a;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
-.duck-btn{font-size:32px;border:none;background:none;cursor:pointer;transition:transform 0.15s;}
-.duck-btn.selected{transform:scale(1.3);}
+.duck-btn{border:none;background:none;cursor:pointer;transition:opacity 0.15s;opacity:0.25;}
+.duck-btn.selected{opacity:1;}
 .cs-icon{font-size:48px;margin-bottom:16px;}
 .cs-title{font-family:var(--font-title);font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px;}
 .cs-desc{font-size:14px;color:var(--text2);line-height:1.6;max-width:280px;margin:0 auto;}
@@ -3392,8 +3392,16 @@ var _tmdbSelected = null;
 
 if(!appData.cine) appData.cine = [];
 
-const PLATFORM_COLORS = {netflix:'#E50914',hbo:'#B92FFF',disney:'#113CCF',prime:'#00A8E1',apple:'#555',movistar:'#019DF4',skyshowtime:'#FF6600',otro:'#888'};
-const PLATFORM_LABELS = {netflix:'N',hbo:'H',disney:'D+',prime:'P',apple:'A',movistar:'M+',skyshowtime:'SS',otro:'?'};
+const PLATFORM_BADGES = {
+  netflix: '<span style="display:inline-flex;align-items:center;background:#E50914;color:white;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:900;font-family:Arial,sans-serif;letter-spacing:-0.5px;">NETFLIX</span>',
+  hbo: '<span style="display:inline-flex;align-items:center;background:#B92FFF;color:white;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:900;font-family:Arial,sans-serif;">HBO</span>',
+  disney: '<span style="display:inline-flex;align-items:center;background:#113CCF;color:white;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:900;font-family:Arial,sans-serif;letter-spacing:-0.5px;">Disney+</span>',
+  prime: '<span style="display:inline-flex;align-items:center;background:#00A8E1;color:white;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;font-family:Arial,sans-serif;">prime</span>',
+  apple: '<span style="display:inline-flex;align-items:center;background:#000;color:white;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;font-family:Arial,sans-serif;">’ TV+</span>',
+  movistar: '<span style="display:inline-flex;align-items:center;background:#019DF4;color:white;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:900;font-family:Arial,sans-serif;">M+</span>',
+  skyshowtime: '<span style="display:inline-flex;align-items:center;background:#FF6600;color:white;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;font-family:Arial,sans-serif;">Sky</span>',
+  otro: '<span style="display:inline-flex;align-items:center;background:#888;color:white;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;font-family:Arial,sans-serif;">?</span>'
+};
 
 window.setCineTab = function(tab) {
   if(!appData.cine) appData.cine = [];
@@ -3488,6 +3496,25 @@ window.saveCineItem = async function() {
   closeModal('modal-add-cine');
 };
 
+window.openEditCine = function(id) {
+  var item = (appData.cine||[]).find(function(x){return x.id===id;}); if(!item) return;
+  _cineEditId = id;
+  _tmdbSelected = item.poster ? {poster:item.poster,overview:item.overview,genres:item.genres} : null;
+  if(safe('cine-title-inp')) safe('cine-title-inp').value = item.title||'';
+  if(safe('cine-link-inp')) safe('cine-link-inp').value = item.link||'';
+  if(safe('cine-platform')) safe('cine-platform').value = item.platform||'';
+  if(safe('cine-search-inp')) safe('cine-search-inp').value = '';
+  if(safe('cine-search-results')) safe('cine-search-results').innerHTML = '';
+  var prev = safe('cine-selected-preview');
+  if(prev && item.poster) {
+    prev.style.display = 'flex';
+    prev.innerHTML = '<img src="'+esc(item.poster)+'" style="width:50px;height:75px;object-fit:cover;border-radius:4px;flex-shrink:0;"><div><div style="font-size:13px;font-weight:700;color:var(--text);">'+esc(item.title)+'</div><div style="font-size:11px;color:var(--text2);">'+esc(item.genres||'')+'</div></div>';
+  } else if(prev) { prev.style.display='none'; }
+  setCineType(item.tipo||'pelicula');
+  setCineState(item.estado||'proximo');
+  openModal('modal-add-cine');
+};
+
 window.delCineItem = function(id) {
   appConfirm('Eliminar?','',async function(){
     var items=(appData.cine||[]).filter(function(x){return x.id!==id;});
@@ -3523,13 +3550,11 @@ function renderCineList() {
   var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
   var who=isDavid?'david':'maria';
   el.innerHTML = items.map(function(item){
-    var pCol = PLATFORM_COLORS[item.platform]||'#888';
-    var pLbl = PLATFORM_LABELS[item.platform]||'?';
-    var platformBadge = item.platform ? '<span class="platform-badge" style="border-color:'+pCol+';color:'+pCol+';">'+pLbl+'</span>' : '';
+    var platformBadge = item.platform ? (PLATFORM_BADGES[item.platform]||PLATFORM_BADGES.otro) : '';
     var typeEmoji = item.tipo==='pelicula'?'&#127871;':'&#128250;';
     var proposerEmoji = item.proposedBy==='david'?'&#x1F435;':'&#x1F437;';
     var myReaction = (item.reactions||{})[who];
-    var reactions = [{key:'love',emoji:'&#128079;'},{key:'great',emoji:'&#128079;&#128079;'},{key:'meh',emoji:'&#128530;'}];
+    var reactions = [{key:'like',emoji:'&#128077;'},{key:'love',emoji:'&#128079;&#128079;'},{key:'meh',emoji:'&#128530;'}];
     var reactionBtns = reactions.map(function(r){
       return '<button class="cine-reaction-btn'+(myReaction===r.key?' active':'')+'" onclick="setCineReaction(\''+item.id+'\',\''+r.key+'\')">'+r.emoji+'</button>';
     }).join('');

@@ -4,11 +4,15 @@
   "description": "El espacio de los dos",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#E6F1FB",
-  "theme_color": "#378ADD",
+  "background_color": "#7A9E8E",
+  "theme_color": "#7A9E8E",
   "orientation": "portrait",
   "icons": [
-    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
