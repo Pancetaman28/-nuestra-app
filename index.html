@@ -277,22 +277,27 @@ button{cursor:pointer;}
 
 /* ── COMING SOON ── */
 .coming-soon{text-align:center;padding:48px 20px;}
-.cine-tab{flex:1;padding:8px 4px;border:1.5px solid var(--border);border-radius:999px;background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);}
-.cine-tab.active{background:var(--accent1);border-color:var(--accent1);color:white;}
-.cine-card{background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden;}
-.cine-card-inner{display:flex;gap:12px;padding:12px;}
-.cine-poster{width:70px;height:105px;object-fit:cover;border-radius:6px;flex-shrink:0;background:var(--bg2);}
-.cine-poster-placeholder{width:70px;height:105px;border-radius:6px;flex-shrink:0;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:28px;}
+.cine-tab{flex:1;padding:9px 4px;border:none;border-radius:10px;background:#1c1c2e;font-family:var(--font-body);font-size:13px;font-weight:700;color:#777;}
+.cine-tab.active{background:#2a9d8f;color:white;}
+.cine-filter{padding:7px 14px;border:1.5px solid #2a2a3e;border-radius:999px;background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:#777;}
+.cine-filter.active{background:#2a2a3e;border-color:#4a4a6e;color:white;}
+.cine-card{background:#13131f;border-radius:16px;margin-bottom:16px;overflow:hidden;border:1px solid #2a2a3e;}
+.cine-card-top{display:flex;gap:12px;padding:14px 14px 10px;}
+.cine-poster{width:75px;height:112px;object-fit:cover;border-radius:8px;flex-shrink:0;}
+.cine-poster-ph{width:75px;height:112px;border-radius:8px;flex-shrink:0;background:#1c1c2e;display:flex;align-items:center;justify-content:center;font-size:28px;}
 .cine-info{flex:1;min-width:0;}
-.cine-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;}
-.cine-meta{font-size:11px;color:var(--text2);margin-bottom:6px;}
-.cine-reactions{display:flex;gap:6px;margin-top:6px;}
-.cine-reaction-btn{background:none;border:1.5px solid var(--border);border-radius:999px;padding:3px 10px;font-size:14px;cursor:pointer;}
-.cine-reaction-btn.active{border-color:var(--accent1);background:var(--accent1)22;}
-.platform-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1.5px solid var(--border);color:var(--text2);margin-right:4px;}
-.rating-screen{position:fixed;inset:0;background:#0a0a0a;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
-.duck-btn{border:none;background:none;cursor:pointer;transition:opacity 0.15s;opacity:0.25;}
-.duck-btn.selected{opacity:1;}
+.cine-title-dk{font-size:15px;font-weight:800;color:white;margin-bottom:4px;line-height:1.3;}
+.cine-meta-dk{font-size:11px;color:#777;margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.cine-synopsis-dk{font-size:12px;color:#aaa;line-height:1.5;padding:0 14px 10px;}
+.cine-reactions{display:flex;gap:8px;padding:10px 14px;border-top:1px solid #1e1e30;}
+.cine-reaction-btn{background:none;border:1.5px solid #2a2a3e;border-radius:999px;padding:5px 14px;font-size:16px;cursor:pointer;flex:1;text-align:center;}
+.cine-reaction-btn.active{border-color:#2a9d8f;background:#2a9d8f22;}
+.cine-rank-btn{padding:7px 14px;border:1.5px solid #2a2a3e;border-radius:999px;background:none;color:#777;font-family:var(--font-body);font-size:12px;font-weight:700;}
+.cine-rank-btn.active{background:#2a2a3e;border-color:#4a4a6e;color:white;}
+.rating-screen{position:fixed;inset:0;background:#050508;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto;}
+.duck-btn{border:none;background:none;cursor:pointer;transition:opacity 0.2s;opacity:0.15;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.duck-btn.lit{opacity:1;}
+.platform-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:900;padding:2px 7px;border-radius:4px;}
 .cs-icon{font-size:48px;margin-bottom:16px;}
 .cs-title{font-family:var(--font-title);font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px;}
 .cs-desc{font-size:14px;color:var(--text2);line-height:1.6;max-width:280px;margin:0 auto;}
@@ -533,56 +538,46 @@ button{cursor:pointer;}
       <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
       <div class="coming-soon"><div class="cs-icon">&#127873;</div><div class="cs-title">Lista de deseos</div><div class="cs-desc">Listas de regalos y deseos para los dos.</div></div>
     </div>
-    <div id="tab-cine" class="tab-section">
-      <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
-      <div style="padding:0 16px 16px;">
-
-        <!-- Header -->
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-          <div style="font-size:22px;font-weight:700;font-family:var(--font-title);color:var(--text);">Cine &amp; Series</div>
-          <button onclick="openAddCineModal()" style="background:var(--accent1);color:white;border:none;border-radius:999px;padding:8px 16px;font-family:var(--font-body);font-size:13px;font-weight:700;">+ A&#241;adir</button>
+    <div id="tab-cine" class="tab-section" style="background:#0a0a12;min-height:100vh;">
+      <div style="background:#0a0a12;padding:12px 16px 0;"><button onclick="showTab('home')" style="background:none;border:none;color:#666;font-size:14px;font-family:var(--font-body);padding:0;">&#8249; Men&#250;</button></div>
+      <div style="padding:0 16px 32px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-top:8px;">
+          <div>
+            <div style="font-size:26px;font-weight:900;color:white;font-family:var(--font-title);">Cartelera</div>
+            <div style="font-size:13px;color:#666;">Hola, <span id="cine-username">David</span></div>
+          </div>
+          <button onclick="openAddCineModal()" style="background:#2a9d8f;color:white;border:none;border-radius:999px;padding:9px 18px;font-family:var(--font-body);font-size:13px;font-weight:700;">+ A&#241;adir</button>
         </div>
-
-        <!-- Tabs: Viendo / Próximo / Visto -->
-        <div style="display:flex;gap:6px;margin-bottom:12px;" id="cine-tabs">
-          <button class="cine-tab active" onclick="setCineTab('viendo')" id="ctab-viendo">&#127902; Viendo</button>
-          <button class="cine-tab" onclick="setCineTab('proximo')" id="ctab-proximo">&#128197; Próximo</button>
-          <button class="cine-tab" onclick="setCineTab('visto')" id="ctab-visto">&#9989; Visto</button>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <button class="cine-tab active" onclick="setCineTab('viendo')" id="ctab-viendo">Viendo</button>
+          <button class="cine-tab" onclick="setCineTab('proximo')" id="ctab-proximo">Pr&#243;ximo</button>
+          <button class="cine-tab" onclick="setCineTab('visto')" id="ctab-visto">Visto</button>
         </div>
-
-        <!-- Filters: All / Cine / Series -->
-        <div style="display:flex;gap:6px;margin-bottom:14px;">
-          <button class="filter-pill fa" onclick="setCineFilter('all')" id="cfil-all">Todos</button>
-          <button class="filter-pill" onclick="setCineFilter('pelicula')" id="cfil-pelicula">&#127871; Cine</button>
-          <button class="filter-pill" onclick="setCineFilter('serie')" id="cfil-serie">&#128250; Serie</button>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <button class="cine-filter active" onclick="setCineFilter('all')" id="cfil-all">Todos</button>
+          <button class="cine-filter" onclick="setCineFilter('pelicula')" id="cfil-pelicula">Cine</button>
+          <button class="cine-filter" onclick="setCineFilter('serie')" id="cfil-serie">Serie</button>
         </div>
-
-        <!-- Ruleta button (only on proximo tab) -->
-        <div id="cine-ruleta-btn" style="display:none;margin-bottom:12px;">
-          <button onclick="openRuleta()" style="width:100%;padding:11px;border:2px dashed var(--accent1);border-radius:var(--radius-sm);background:none;color:var(--accent1);font-family:var(--font-body);font-size:14px;font-weight:700;">&#127922; Girar la ruleta</button>
+        <div id="cine-ruleta-btn" style="display:none;margin-bottom:16px;">
+          <button onclick="openRuleta()" style="width:100%;padding:13px;border:none;border-radius:14px;background:#1a1a2e;color:white;font-family:var(--font-body);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;"><span style="font-size:22px;">&#127922;</span> Girar la ruleta</button>
         </div>
-
-        <!-- List -->
         <div id="cine-list"></div>
-
-        <!-- Ranking -->
-        <div style="margin-top:20px;" id="cine-ranking-section">
-          <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Rankings</div>
+        <div id="cine-ranking-section" style="display:none;margin-top:8px;">
+          <div style="text-align:center;margin-bottom:16px;"><div style="font-size:22px;font-weight:900;color:#f0c040;font-family:var(--font-title);">Ranking Patitos Deluxe</div></div>
           <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-            <select id="ranking-tipo" onchange="renderCineRanking()" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg2);color:var(--text);font-family:var(--font-body);">
-              <option value="mejor">&#127942; Mejor valorado</option>
-              <option value="peor">&#128169; Peor valorado</option>
-            </select>
-            <select id="ranking-filtro" onchange="renderCineRanking()" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg2);color:var(--text);font-family:var(--font-body);">
-              <option value="all">Todos</option>
-              <option value="pelicula">&#127871; Cine</option>
-              <option value="serie">&#128250; Series</option>
-            </select>
-            <select id="ranking-year" onchange="renderCineRanking()" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg2);color:var(--text);font-family:var(--font-body);">
-              <option value="all">Siempre</option>
-            </select>
+            <button class="cine-rank-btn active" id="rbtn-mejor" onclick="setRankTipo('mejor')">Mejor</button>
+            <button class="cine-rank-btn" id="rbtn-peor" onclick="setRankTipo('peor')">Peor</button>
+            <button class="cine-rank-btn active" id="rfil-all" onclick="setRankFiltro('all')">Todos</button>
+            <button class="cine-rank-btn" id="rfil-pelicula" onclick="setRankFiltro('pelicula')">Cine</button>
+            <button class="cine-rank-btn" id="rfil-serie" onclick="setRankFiltro('serie')">Serie</button>
+            <button class="cine-rank-btn active" onclick="setRankYear('all')">Siempre</button>
+            <button class="cine-rank-btn" onclick="setRankYear(new Date().getFullYear()+'')">A&#241;o</button>
           </div>
           <div id="cine-ranking-list"></div>
+          <div id="cine-vs-battle" style="display:none;margin-top:16px;padding:12px;background:#1a1a2e;border-radius:12px;text-align:center;">
+            <div style="font-size:10px;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Vs Battle</div>
+            <div id="cine-vs-text" style="font-size:13px;color:#f0c040;font-weight:700;"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1060,32 +1055,28 @@ button{cursor:pointer;}
 </div>
 
 <!-- RATING SCREEN -->
-<div id="rating-screen" class="rating-screen" style="display:none;z-index:500;">
-  <button onclick="closeRatingScreen()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:white;font-size:24px;">&#xD7;</button>
-  <div id="rating-title" style="color:white;font-size:22px;font-weight:700;text-align:center;margin-bottom:8px;font-family:var(--font-title);"></div>
+<div id="rating-screen" class="rating-screen" style="display:none;">
+  <button onclick="closeRatingScreen()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#555;font-size:24px;">&#xD7;</button>
+  <div id="rating-title" style="color:white;font-size:20px;font-weight:900;text-align:center;margin-bottom:16px;font-family:var(--font-title);max-width:280px;line-height:1.3;"></div>
   <div id="rating-poster-wrap" style="margin-bottom:20px;"></div>
-  <div style="color:#aaa;font-size:14px;margin-bottom:16px;" id="rating-subtitle">&#191;Cu&#225;ntos patitos le das?</div>
-  <div id="duck-selector" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:24px;"></div>
-  <div id="rating-reveal" style="display:none;text-align:center;"></div>
-  <button id="rating-confirm-btn" onclick="confirmRating()" style="background:var(--accent1);color:white;border:none;border-radius:999px;padding:14px 40px;font-size:16px;font-weight:700;font-family:var(--font-body);">Confirmar</button>
+  <div style="color:#888;font-size:15px;margin-bottom:16px;" id="rating-subtitle">&#191;Cu&#225;ntos patitos le das?</div>
+  <div id="duck-selector" style="display:flex;justify-content:center;gap:2px;margin-bottom:28px;width:100%;padding:0 8px;box-sizing:border-box;"></div>
+  <div id="rating-reveal" style="display:none;text-align:center;margin-bottom:20px;"></div>
+  <button id="rating-confirm-btn" onclick="confirmRating()" style="background:#2a9d8f;color:white;border:none;border-radius:999px;padding:15px 50px;font-size:16px;font-weight:700;font-family:var(--font-body);">Confirmar</button>
 </div>
 
 <!-- RULETA MODAL -->
-<div class="modal-bg" id="modal-ruleta">
-  <div class="modal" style="text-align:center;">
-    <div class="modal-handle"></div>
-    <div class="modal-title">&#127922; Ruleta</div>
-    <div id="ruleta-canvas-wrap" style="margin:10px auto 16px;position:relative;width:280px;height:280px;">
-      <canvas id="ruleta-canvas" width="280" height="280"></canvas>
-      <div id="ruleta-pointer" style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:28px;">&#9660;</div>
-    </div>
-    <div id="ruleta-result" style="font-size:16px;font-weight:700;color:var(--accent1);min-height:24px;margin-bottom:12px;"></div>
-    <button onclick="spinRuleta()" id="ruleta-spin-btn" style="background:var(--accent1);color:white;border:none;border-radius:999px;padding:12px 32px;font-size:15px;font-weight:700;font-family:var(--font-body);margin-bottom:10px;">&#127922; Girar</button>
-    <div class="modal-btns" style="margin-top:4px;">
-      <button class="btn-cancel" onclick="closeModal('modal-ruleta')">Cerrar</button>
-    </div>
+<div id="modal-ruleta" style="display:none;position:fixed;inset:0;background:#080814;z-index:400;flex-direction:column;align-items:center;padding:24px 16px 32px;overflow-y:auto;">
+  <button onclick="closeModal('modal-ruleta')" style="position:absolute;top:16px;left:16px;background:none;border:none;color:#777;font-size:14px;font-family:var(--font-body);">&#8249; Men&#250;</button>
+  <div style="margin-top:48px;margin-bottom:20px;text-align:center;"><span style="font-size:24px;font-weight:900;background:linear-gradient(90deg,#00f5ff,#ff00ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--font-title);">Ruleta Ne&#243;n Futurista</span></div>
+  <div style="position:relative;width:300px;height:300px;margin:0 auto 16px;">
+    <canvas id="ruleta-canvas" width="300" height="300" style="filter:drop-shadow(0 0 12px rgba(0,245,255,0.5));"></canvas>
+    <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:20px solid white;"></div>
   </div>
+  <div id="ruleta-result" style="font-size:18px;font-weight:800;color:#f0c040;min-height:28px;margin-bottom:20px;text-align:center;"></div>
+  <button onclick="spinRuleta()" id="ruleta-spin-btn" style="padding:16px 48px;border:2px solid #00f5ff;border-radius:12px;background:transparent;color:#00f5ff;font-size:18px;font-weight:900;font-family:var(--font-title);">&#161;Girar!</button>
 </div>
+
 
 <div class="confirm-bg" id="confirm-bg">
   <div class="confirm-box">
@@ -3414,7 +3405,7 @@ window.setCineTab = function(tab) {
 
 window.setCineFilter = function(f) {
   _cineFilter = f;
-  ['all','pelicula','serie'].forEach(function(x){ var el=safe('cfil-'+x); if(el) el.className='filter-pill'+(x===f?' fa':''); });
+  ['all','pelicula','serie'].forEach(function(x){ var el=safe('cfil-'+x); if(el) el.className='cine-filter'+(x===f?' active':''); });
   renderCineList();
 };
 
@@ -3544,44 +3535,48 @@ window.setCineEstado = async function(id, estado) {
 function renderCineList() {
   var el = safe('cine-list'); if(!el) return;
   if(!appData.cine) appData.cine = [];
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var unEl=safe('cine-username'); if(unEl) unEl.textContent=isDavid?'David':'Mar\u00eda';
   var items = appData.cine.filter(function(x){ return x.estado===_cineTab; });
   if(_cineFilter!=='all') items=items.filter(function(x){return x.tipo===_cineFilter;});
-  if(!items.length){ el.innerHTML='<div class="empty"><p>Nada por aqui todavia</p></div>'; return; }
-  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  if(!items.length){ el.innerHTML='<div style="text-align:center;padding:40px 0;color:#444;font-size:14px;">Nada por aqu\u00ed todav\u00eda</div>'; return; }
   var who=isDavid?'david':'maria';
   el.innerHTML = items.map(function(item){
-    var platformBadge = item.platform ? (PLATFORM_BADGES[item.platform]||PLATFORM_BADGES.otro) : '';
+    var platBadge = item.platform ? (PLATFORM_BADGES[item.platform]||PLATFORM_BADGES.otro) : '';
     var typeEmoji = item.tipo==='pelicula'?'&#127871;':'&#128250;';
-    var proposerEmoji = item.proposedBy==='david'?'&#x1F435;':'&#x1F437;';
+    var propEmoji = item.proposedBy==='david'?'&#x1F435;':'&#x1F437;';
     var myReaction = (item.reactions||{})[who];
-    var reactions = [{key:'like',emoji:'&#128077;'},{key:'love',emoji:'&#128079;&#128079;'},{key:'meh',emoji:'&#128530;'}];
-    var reactionBtns = reactions.map(function(r){
-      return '<button class="cine-reaction-btn'+(myReaction===r.key?' active':'')+'" onclick="setCineReaction(\''+item.id+'\',\''+r.key+'\')">'+r.emoji+'</button>';
+    var reactionBtns = [{key:'like',e:'&#128077;'},{key:'love',e:'&#128079;&#128079;'},{key:'meh',e:'&#128530;'}].map(function(r){
+      return '<button class="cine-reaction-btn'+(myReaction===r.key?' active':'')+'" onclick="setCineReaction(\''+item.id+'\',\''+r.key+'\')">'+r.e+'</button>';
     }).join('');
-    var ratingsHtml = '';
-    if(_cineTab==='visto' && item.ratings) {
-      var dRating = item.ratings.david; var mRating = item.ratings.maria;
-      if(dRating && mRating) {
-        var avg = ((parseInt(dRating)+parseInt(mRating))/2).toFixed(1);
-        ratingsHtml = '<div style="display:flex;gap:10px;margin-top:6px;font-size:12px;"><span>&#x1F435; '+dRating+'/10</span><span>&#x1F437; '+mRating+'/10</span><span style="font-weight:700;color:var(--accent1);">Media: '+avg+'</span></div>';
-      } else if(item.ratings[who]) {
-        ratingsHtml = '<div style="font-size:12px;color:var(--text2);margin-top:4px;">Tu voto guardado, esperando al otro</div>';
-      } else {
-        ratingsHtml = '<button onclick="openRatingScreen(\''+item.id+'\')" style="margin-top:6px;padding:5px 12px;border:1.5px solid var(--accent1);border-radius:999px;background:none;color:var(--accent1);font-size:12px;font-weight:700;font-family:var(--font-body);">Puntuar</button>';
-      }
+    var ratingsHtml='';
+    if(_cineTab==='visto'&&item.ratings){
+      var dR=item.ratings.david,mR=item.ratings.maria;
+      if(dR&&mR){var avg=((parseInt(dR)+parseInt(mR))/2).toFixed(1);ratingsHtml='<div style="padding:8px 14px;font-size:12px;color:#aaa;border-top:1px solid #1e1e30;display:flex;gap:12px;"><span>&#x1F435; '+dR+' &#x1F986;</span><span>&#x1F437; '+mR+' &#x1F986;</span><span style="color:#f0c040;font-weight:700;">Media: '+avg+'</span></div>';}
+      else if(item.ratings[who]){ratingsHtml='<div style="padding:8px 14px;font-size:12px;color:#666;border-top:1px solid #1e1e30;">Tu voto guardado</div>';}
+      else{ratingsHtml='<button onclick="openRatingScreen(\''+item.id+'\')" style="margin:0 14px 12px;width:calc(100% - 28px);padding:9px;border:1.5px solid #2a9d8f;border-radius:10px;background:none;color:#2a9d8f;font-size:13px;font-weight:700;font-family:var(--font-body);">&#x1F986; Puntuar</button>';}
     }
-    var estadoBtns = '';
-    if(_cineTab==='proximo') estadoBtns='<button onclick="setCineEstado(\''+item.id+'\',\'viendo\')" style="font-size:11px;padding:3px 10px;border:1.5px solid var(--border);border-radius:999px;background:none;color:var(--text2);font-family:var(--font-body);">Viendo</button> <button onclick="setCineEstado(\''+item.id+'\',\'visto\')" style="font-size:11px;padding:3px 10px;border:1.5px solid var(--border);border-radius:999px;background:none;color:var(--text2);font-family:var(--font-body);">Visto</button>';
-    else if(_cineTab==='viendo') estadoBtns='<button onclick="setCineEstado(\''+item.id+'\',\'visto\')" style="font-size:11px;padding:3px 10px;border:1.5px solid var(--accent1);border-radius:999px;background:none;color:var(--accent1);font-family:var(--font-body);">Marcar como visto</button>';
-    var linkBtn = item.link ? '<a href="'+esc(item.link)+'" target="_blank" style="font-size:11px;color:var(--accent1);font-weight:700;text-decoration:none;">Ver recomendacion</a>' : '';
-    return '<div class="cine-card"><div class="cine-card-inner">'
-      +(item.poster?'<img class="cine-poster" src="'+esc(item.poster)+'" alt="">':'<div class="cine-poster-placeholder">'+typeEmoji+'</div>')
-      +'<div class="cine-info"><div class="cine-title">'+typeEmoji+' '+esc(item.title)+'</div><div class="cine-meta">'+platformBadge+' '+proposerEmoji+' '+(item.genres?esc(item.genres)+' \u00b7':'')+' '+(item.year||'')+'</div>'
-      +(item.overview?'<div style="font-size:11px;color:var(--text2);margin-bottom:6px;">'+esc(item.overview)+'</div>':'')
-      +linkBtn+'<div class="cine-reactions">'+reactionBtns+'</div>'+ratingsHtml
-      +'<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">'+estadoBtns+'</div></div>'
-      +'<button onclick="delCineItem(\''+item.id+'\')" style="align-self:flex-start;background:none;border:none;font-size:18px;color:var(--text2);opacity:0.4;padding:4px;">&#xD7;</button>'
-      +'</div></div>';
+    var estadoBtns='';
+    if(_cineTab==='proximo') estadoBtns='<button onclick="setCineEstado(\''+item.id+'\',\'viendo\')" style="padding:7px 14px;border:1.5px solid #2a2a3e;border-radius:999px;background:none;color:#aaa;font-family:var(--font-body);font-size:12px;font-weight:700;">Viendo</button><button onclick="setCineEstado(\''+item.id+'\',\'visto\')" style="padding:7px 14px;border:1.5px solid #2a2a3e;border-radius:999px;background:none;color:#aaa;font-family:var(--font-body);font-size:12px;font-weight:700;">Visto</button>';
+    else if(_cineTab==='viendo') estadoBtns='<button onclick="setCineEstado(\''+item.id+'\',\'visto\')" style="padding:7px 14px;border:1.5px solid #2a9d8f;border-radius:999px;background:none;color:#2a9d8f;font-family:var(--font-body);font-size:12px;font-weight:700;">Marcar como visto</button>';
+    var linkBtn=item.link?'<button onclick="window.open(\''+esc(item.link)+'\',\'_blank\')" style="width:calc(100% - 28px);margin:0 14px 12px;padding:10px;border:1.5px solid #2a2a3e;border-radius:10px;background:none;color:#aaa;font-family:var(--font-body);font-size:13px;font-weight:700;">Ver recomendaci\u00f3n</button>':'';
+    return '<div class="cine-card">'
+      +'<div class="cine-card-top">'
+      +(item.poster?'<img class="cine-poster" src="'+esc(item.poster)+'" alt="">':'<div class="cine-poster-ph">'+typeEmoji+'</div>')
+      +'<div class="cine-info">'
+      +'<div class="cine-title-dk">'+esc(item.title)+' <span style="font-size:12px;">'+typeEmoji+'</span></div>'
+      +'<div class="cine-meta-dk">'+platBadge+'<span>'+propEmoji+'</span>'+(item.genres?'<span>'+esc(item.genres)+'</span>':'')+'<span>'+(item.year||'')+'</span></div>'
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:4px;">'
+      +'<button onclick="delCineItem(\''+item.id+'\')" style="background:none;border:none;color:#444;font-size:16px;padding:2px 4px;">&#xD7;</button>'
+      +'<button onclick="openEditCine(\''+item.id+'\')" style="background:none;border:none;color:#444;font-size:13px;padding:2px 4px;">&#x270E;</button>'
+      +'</div></div>'
+      +(item.overview?'<div class="cine-synopsis-dk">'+esc(item.overview)+'</div>':'')
+      +'<div class="cine-reactions">'+reactionBtns+'</div>'
+      +ratingsHtml
+      +(estadoBtns?'<div style="padding:8px 14px 12px;display:flex;gap:8px;flex-wrap:wrap;">'+estadoBtns+'</div>':'')
+      +linkBtn
+      +'</div>';
   }).join('');
   if(_cineTab==='visto') renderCineRanking();
 }
@@ -3643,37 +3638,70 @@ window.confirmRating = async function() {
   }
 };
 
+var _rankTipo='mejor', _rankFiltro='all', _rankYear='all';
+window.setRankTipo=function(v){_rankTipo=v;['mejor','peor'].forEach(function(x){var b=safe('rbtn-'+x);if(b)b.className='cine-rank-btn'+(x===v?' active':'');});renderCineRanking();};
+window.setRankFiltro=function(v){_rankFiltro=v;['all','pelicula','serie'].forEach(function(x){var b=safe('rfil-'+x);if(b)b.className='cine-rank-btn'+(x===v?' active':'');});renderCineRanking();};
+window.setRankYear=function(v){_rankYear=v;renderCineRanking();};
+
 window.renderCineRanking = function() {
   var el=safe('cine-ranking-list'); if(!el) return;
-  var tipo=(safe('ranking-tipo')||{}).value||'mejor';
-  var filtro=(safe('ranking-filtro')||{}).value||'all';
-  var yearF=(safe('ranking-year')||{}).value||'all';
   var items=(appData.cine||[]).filter(function(x){
     if(x.estado!=='visto') return false;
     if(!x.ratings||(!x.ratings.david&&!x.ratings.maria)) return false;
-    if(filtro!=='all'&&x.tipo!==filtro) return false;
-    if(yearF!=='all'&&(x.watchedYear||x.year)!==yearF) return false;
+    if(_rankFiltro!=='all'&&x.tipo!==_rankFiltro) return false;
+    if(_rankYear!=='all'&&(x.watchedYear||x.year)!==_rankYear) return false;
     return true;
-  });
-  items = items.map(function(x){
-    var d=parseInt(x.ratings.david||0); var m=parseInt(x.ratings.maria||0);
-    var cnt=(d?1:0)+(m?1:0); var avg=cnt>0?(d+m)/cnt:0;
+  }).map(function(x){
+    var d=parseInt(x.ratings.david||0),m=parseInt(x.ratings.maria||0);
+    var cnt=(d?1:0)+(m?1:0),avg=cnt>0?(d+m)/cnt:0;
     return Object.assign({},x,{avg:avg});
   });
-  items.sort(function(a,b){ return tipo==='mejor'?b.avg-a.avg:a.avg-b.avg; });
+  items.sort(function(a,b){return _rankTipo==='mejor'?b.avg-a.avg:a.avg-b.avg;});
   items=items.slice(0,10);
-  if(!items.length){el.innerHTML='<div style="font-size:12px;color:var(--text2);padding:8px 0;">Sin datos todavia</div>';return;}
-  el.innerHTML=items.map(function(item,i){
-    var pe=item.proposedBy==='david'?'\uD83D\uDC35':'\uD83D\uDC37';
-    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);"><div style="font-size:18px;font-weight:700;color:var(--text2);width:24px;">'+(i+1)+'</div>'+(item.poster?'<img src="'+esc(item.poster)+'" style="width:36px;height:54px;object-fit:cover;border-radius:4px;">':'')+'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:var(--text);">'+esc(item.title)+'</div><div style="font-size:11px;color:var(--text2);">'+pe+' '+item.avg.toFixed(1)+'</div></div></div>';
-  }).join('');
+  if(!items.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#555;font-size:13px;">Sin datos todav\u00eda</div>';return;}
+  var html='';
+  var top3=items.slice(0,3);
+  var trophies=['\uD83E\uDD47','\uD83E\uDD48','\uD83E\uDD49'];
+  var sizes=['110px','95px','80px'];
+  var order=[1,0,2];
+  html+='<div style="display:flex;justify-content:center;align-items:flex-end;gap:8px;margin-bottom:24px;">';
+  order.forEach(function(idx){
+    if(!top3[idx])return;
+    var it=top3[idx];
+    var bc=idx===0?'#f0c040':idx===1?'#aaa':'#cd7f32';
+    var glow=idx===0?'box-shadow:0 0 20px rgba(240,192,64,0.3);':'';
+    html+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;">'
+      +'<div style="font-size:20px;margin-bottom:4px;">'+trophies[idx]+'</div>'
+      +'<div style="position:relative;width:90%;height:'+sizes[idx]+';border-radius:10px;overflow:hidden;border:2px solid '+bc+';'+glow+'">'
+      +(it.poster?'<img src="'+esc(it.poster)+'" style="width:100%;height:100%;object-fit:cover;">':'<div style="width:100%;height:100%;background:#1c1c2e;display:flex;align-items:center;justify-content:center;font-size:30px;">'+(it.tipo==='pelicula'?'&#127871;':'&#128250;')+'</div>')
+      +'</div>'
+      +'<div style="font-size:11px;font-weight:700;color:white;margin-top:5px;line-height:1.2;">'+esc(it.title.slice(0,18))+'</div>'
+      +'<div style="font-size:11px;color:#f0c040;margin-top:2px;">'+it.avg.toFixed(1)+' &#x1F986;</div>'
+      +'</div>';
+  });
+  html+='</div>';
+  items.slice(3).forEach(function(it,i){
+    var pe=it.proposedBy==='david'?'&#x1F435;':'&#x1F437;';
+    html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1e1e30;">'
+      +'<div style="font-size:15px;font-weight:700;color:#555;width:22px;">'+(i+4)+'.</div>'
+      +(it.poster?'<img src="'+esc(it.poster)+'" style="width:38px;height:56px;object-fit:cover;border-radius:6px;flex-shrink:0;">':'')
+      +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:white;">'+esc(it.title)+'</div><div style="font-size:11px;color:#666;">'+pe+'</div></div>'
+      +'<div style="font-size:13px;color:#f0c040;font-weight:700;white-space:nowrap;">'+it.avg.toFixed(1)+' &#x1F986;</div>'
+      +'</div>';
+  });
+  el.innerHTML=html;
+  var allV=(appData.cine||[]).filter(function(x){return x.estado==='visto'&&x.ratings&&x.ratings.david&&x.ratings.maria;});
+  var dS=0,dC=0,mS=0,mC=0;
+  allV.forEach(function(x){var avg=(parseInt(x.ratings.david)+parseInt(x.ratings.maria))/2;if(x.proposedBy==='david'){dS+=avg;dC++;}else{mS+=avg;mC++;}});
+  var vb=safe('cine-vs-battle'),vt=safe('cine-vs-text');
+  if(vb&&dC>0&&mC>0){vb.style.display='block';vt.textContent='&#x1F435; David '+(dS/dC).toFixed(1)+' &#x1F986;  vs  &#x1F437; Mar\u00eda '+(mS/mC).toFixed(1)+' &#x1F986;';}
 };
 
 window.openRuleta = function() {
   var items=(appData.cine||[]).filter(function(x){return x.estado==='proximo';});
   if(_cineFilter!=='all') items=items.filter(function(x){return x.tipo===_cineFilter;});
   if(!items.length){appConfirm('Sin titulos','Anade algo a Proximos primero.',function(){},false);return;}
-  openModal('modal-ruleta');
+  var rm=safe('modal-ruleta'); if(rm) rm.style.display='flex';
   drawRuleta(items);
 };
 
@@ -3682,21 +3710,27 @@ function drawRuleta(items) {
   _ruletaItems = items;
   var canvas = document.getElementById('ruleta-canvas'); if(!canvas) return;
   var ctx = canvas.getContext('2d');
-  var cx=140,cy=140,r=130;
-  var colors=['#E8543A','#E8A23A','#4A90D9','#7BAE8C','#9B59B6','#E91E63','#00BCD4','#FF8C00','#20B2AA','#C0392B'];
-  var n=items.length;
-  ctx.clearRect(0,0,280,280);
+  var cx=150,cy=150,r=138;
+  var neonColors=['#E50914','#B92FFF','#113CCF','#00A8E1','#2a9d8f','#E91E63','#FF8C00','#9B59B6','#00BCD4','#C0392B'];
+  var n=items.length; if(!n) return;
+  ctx.clearRect(0,0,300,300);
   for(var i=0;i<n;i++){
     var startA=(_ruletaAngle+i*(2*Math.PI/n));
     var endA=startA+(2*Math.PI/n);
     ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,startA,endA); ctx.closePath();
-    ctx.fillStyle=colors[i%colors.length]; ctx.fill();
+    ctx.fillStyle=neonColors[i%neonColors.length]; ctx.fill();
+    ctx.strokeStyle='rgba(0,245,255,0.3)'; ctx.lineWidth=1; ctx.stroke();
     ctx.save(); ctx.translate(cx,cy); ctx.rotate(startA+(2*Math.PI/n/2));
-    ctx.textAlign='right'; ctx.fillStyle='white'; ctx.font='bold 11px sans-serif';
-    var label=items[i].title.slice(0,14)+(items[i].title.length>14?'...':'');
-    ctx.fillText(label,r-8,4); ctx.restore();
+    ctx.textAlign='right'; ctx.fillStyle='white'; ctx.font='bold 10px sans-serif';
+    ctx.shadowColor='white'; ctx.shadowBlur=3;
+    var label=items[i].title.slice(0,12)+(items[i].title.length>12?'...':'');
+    ctx.fillText(label,r-6,4); ctx.restore();
   }
-  ctx.beginPath(); ctx.arc(cx,cy,18,0,2*Math.PI); ctx.fillStyle='white'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI);
+  ctx.strokeStyle='#00f5ff'; ctx.lineWidth=3; ctx.shadowColor='#00f5ff'; ctx.shadowBlur=12; ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.beginPath(); ctx.arc(cx,cy,18,0,2*Math.PI); ctx.fillStyle='#080814'; ctx.fill();
+  ctx.strokeStyle='#00f5ff'; ctx.lineWidth=2; ctx.stroke();
   if(safe('ruleta-result')) safe('ruleta-result').textContent='';
 }
 
