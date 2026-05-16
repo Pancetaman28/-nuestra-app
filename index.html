@@ -277,22 +277,30 @@ button{cursor:pointer;}
 
 /* ── COMING SOON ── */
 .coming-soon{text-align:center;padding:48px 20px;}
-.cine-tab{flex:1;padding:8px 4px;border:1.5px solid var(--border);border-radius:999px;background:none;font-family:var(--font-body);font-size:12px;font-weight:700;color:var(--text2);}
-.cine-tab.active{background:var(--accent1);border-color:var(--accent1);color:white;}
-.cine-card{background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden;}
-.cine-card-inner{display:flex;gap:12px;padding:12px;}
-.cine-poster{width:70px;height:105px;object-fit:cover;border-radius:6px;flex-shrink:0;background:var(--bg2);}
-.cine-poster-placeholder{width:70px;height:105px;border-radius:6px;flex-shrink:0;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:28px;}
+/* CINE DARK */
+.cine-section-dark{background:#0a0a12;min-height:100vh;color:white;}
+.cine-tab{flex:1;padding:10px 6px;border:none;border-radius:999px;background:#1a1a2e;font-family:var(--font-body);font-size:13px;font-weight:700;color:#999;}
+.cine-tab.active{background:#2a4a6e;color:white;}
+.cine-filter{padding:8px 16px;border:none;border-radius:999px;background:#1a1a2e;font-family:var(--font-body);font-size:13px;font-weight:700;color:#999;display:inline-flex;align-items:center;gap:6px;}
+.cine-filter.active{background:#2a4a6e;color:white;}
+.cine-card{background:#13131f;border-radius:18px;margin-bottom:16px;overflow:hidden;border:1px solid #1f1f2e;}
+.cine-card-top{display:flex;gap:14px;padding:16px;}
+.cine-poster{width:80px;height:120px;object-fit:cover;border-radius:10px;flex-shrink:0;}
+.cine-poster-ph{width:80px;height:120px;border-radius:10px;flex-shrink:0;background:#1c1c2e;display:flex;align-items:center;justify-content:center;font-size:32px;}
 .cine-info{flex:1;min-width:0;}
-.cine-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;}
-.cine-meta{font-size:11px;color:var(--text2);margin-bottom:6px;}
-.cine-reactions{display:flex;gap:6px;margin-top:6px;}
-.cine-reaction-btn{background:none;border:1.5px solid var(--border);border-radius:999px;padding:3px 10px;font-size:14px;cursor:pointer;}
-.cine-reaction-btn.active{border-color:var(--accent1);background:var(--accent1)22;}
-.platform-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1.5px solid var(--border);color:var(--text2);margin-right:4px;}
-.rating-screen{position:fixed;inset:0;background:#0a0a0a;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
-.duck-btn{border:none;background:none;cursor:pointer;transition:opacity 0.15s;opacity:0.25;}
-.duck-btn.selected{opacity:1;}
+.cine-title-dk{font-size:17px;font-weight:800;color:white;margin-bottom:6px;line-height:1.25;}
+.cine-meta-dk{font-size:12px;color:#999;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cine-synopsis-dk{font-size:13px;color:#aaa;line-height:1.5;padding:0 16px 12px;}
+.cine-reactions{display:flex;gap:10px;padding:8px 16px;}
+.cine-reaction-btn{background:transparent;border:1.5px solid #2a2a3e;border-radius:999px;padding:6px 18px;cursor:pointer;flex:1;display:flex;align-items:center;justify-content:center;}
+.cine-reaction-btn.active{border-color:#4a7a9e;background:#2a4a6e33;}
+.cine-rec-btn{margin:0 16px 16px;width:calc(100% - 32px);padding:11px;border:1.5px solid #2a4a6e;border-radius:14px;background:#1a1a2e;color:#7ab0d8;font-family:var(--font-body);font-size:13px;font-weight:700;}
+.cine-est-btn{padding:8px 16px;border:1.5px solid #2a2a3e;border-radius:999px;background:none;color:#aaa;font-family:var(--font-body);font-size:12px;font-weight:700;}
+.cine-est-btn.primary{border-color:#4a7a9e;color:#7ab0d8;}
+.cine-rank-btn{padding:8px 14px;border:1.5px solid #2a2a3e;border-radius:999px;background:#1a1a2e;color:#999;font-family:var(--font-body);font-size:12px;font-weight:700;}
+.cine-rank-btn.active{background:#2a4a6e;border-color:#4a7a9e;color:white;}
+.rating-screen{position:fixed;inset:0;background:#000;z-index:500;display:flex;flex-direction:column;align-items:center;padding:20px;overflow-y:auto;}
+.platform-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:900;padding:3px 10px;border-radius:6px;}
 .cs-icon{font-size:48px;margin-bottom:16px;}
 .cs-title{font-family:var(--font-title);font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px;}
 .cs-desc{font-size:14px;color:var(--text2);line-height:1.6;max-width:280px;margin:0 auto;}
@@ -533,56 +541,50 @@ button{cursor:pointer;}
       <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
       <div class="coming-soon"><div class="cs-icon">&#127873;</div><div class="cs-title">Lista de deseos</div><div class="cs-desc">Listas de regalos y deseos para los dos.</div></div>
     </div>
-    <div id="tab-cine" class="tab-section">
-      <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
-      <div style="padding:0 16px 16px;">
-
-        <!-- Header -->
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-          <div style="font-size:22px;font-weight:700;font-family:var(--font-title);color:var(--text);">Cine &amp; Series</div>
-          <button onclick="openAddCineModal()" style="background:var(--accent1);color:white;border:none;border-radius:999px;padding:8px 16px;font-family:var(--font-body);font-size:13px;font-weight:700;">+ A&#241;adir</button>
+    <div id="tab-cine" class="tab-section cine-section-dark">
+      <div style="padding:14px 16px 8px;"><button onclick="showTab('home')" style="background:none;border:none;color:#888;font-size:14px;font-family:var(--font-body);padding:0;">&#8249; Men&#250;</button></div>
+      <div style="padding:0 16px 32px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+          <div>
+            <div style="font-size:30px;font-weight:900;color:white;font-family:var(--font-title);line-height:1.1;">Cartelera</div>
+            <div style="font-size:14px;color:#888;margin-top:4px;">Hola, <span id="cine-username">David</span></div>
+          </div>
+          <button onclick="openAddCineModal()" style="background:#2a4a6e;color:white;border:none;border-radius:999px;padding:10px 18px;font-family:var(--font-body);font-size:13px;font-weight:700;flex-shrink:0;">+ A&#241;adir</button>
         </div>
-
-        <!-- Tabs: Viendo / Próximo / Visto -->
-        <div style="display:flex;gap:6px;margin-bottom:12px;" id="cine-tabs">
-          <button class="cine-tab active" onclick="setCineTab('viendo')" id="ctab-viendo">&#127902; Viendo</button>
-          <button class="cine-tab" onclick="setCineTab('proximo')" id="ctab-proximo">&#128197; Próximo</button>
-          <button class="cine-tab" onclick="setCineTab('visto')" id="ctab-visto">&#9989; Visto</button>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <button class="cine-tab active" onclick="setCineTab('viendo')" id="ctab-viendo">Viendo</button>
+          <button class="cine-tab" onclick="setCineTab('proximo')" id="ctab-proximo">Pr&#243;ximo</button>
+          <button class="cine-tab" onclick="setCineTab('visto')" id="ctab-visto">Visto</button>
         </div>
-
-        <!-- Filters: All / Cine / Series -->
-        <div style="display:flex;gap:6px;margin-bottom:14px;">
-          <button class="filter-pill fa" onclick="setCineFilter('all')" id="cfil-all">Todos</button>
-          <button class="filter-pill" onclick="setCineFilter('pelicula')" id="cfil-pelicula">&#127871; Cine</button>
-          <button class="filter-pill" onclick="setCineFilter('serie')" id="cfil-serie">&#128250; Serie</button>
+        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+          <button class="cine-filter active" onclick="setCineFilter('all')" id="cfil-all">Todos</button>
+          <button class="cine-filter" onclick="setCineFilter('pelicula')" id="cfil-pelicula"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMzAwIDMwMCI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogI2ZmZWI5OTsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsOiAjYzYwNjE5OwogICAgICB9CgogICAgICAuY2xzLTMgewogICAgICAgIGZpbGw6ICNmZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogI2ZmZWNjMDsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjZDNkM2QzOwogICAgICB9CgogICAgICAuY2xzLTYgewogICAgICAgIGZpbGw6ICNkYjUyNTI7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9kZWZzPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTc5Ljg4LDEwMC43NWgtMjIuODdjMTEuMDMsNDguMTcsMjIuMDYsOTYuMzUsMzMuMDksMTQ0LjUyaDEzLjY1Yy03Ljk2LTQ4LjE3LTE1LjkxLTk2LjM1LTIzLjg2LTE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTYiIGQ9Ik0xMDAuNjYsMTAwLjc1aC0yMC43MmM3Ljk1LDQ4LjE3LDE1LjksOTYuMzUsMjMuODQsMTQ0LjUyaDEyLjM2Yy01LjE2LTQ4LjE3LTEwLjMyLTk2LjM1LTE1LjQ4LTE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMDAuNjYsMTAwLjc1YzUuMTYsNDguMTcsMTAuMzIsOTYuMzUsMTUuNDgsMTQ0LjUyaDExLjYxYy0yLjU0LTQ4LjE3LTUuMDktOTYuMzUtNy42My0xNDQuNTJoLTE5LjQ2WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNiIgZD0iTTEzOS4wNCwxMDAuNzVoLTE4Ljg3YzIuNTQsNDguMTcsNS4wOCw5Ni4zNSw3LjYyLDE0NC41MmgxMS4yNWMwLTQ4LjE4LDAtOTYuMzQsMC0xNDQuNTJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTM5LjA0LDEwMC43NWMwLDQ4LjE3LDAsOTYuMzQsMCwxNDQuNTJoMTEuMjVjMi41NC00OC4xNyw1LjA3LTk2LjM1LDcuNjEtMTQ0LjUyaC0xOC44NloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik0xMzkuMDQsMjQ1LjI3YzAtNDguMTgsMC05Ni4zNCwwLTE0NC41MiwwLDQ4LjE3LDAsOTYuMzQsMCwxNDQuNTJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMTc3LjQyLDEwMC43NWgtMTkuNDZjLTIuNTUsNDguMTctNS4wOSw5Ni4zNS03LjYzLDE0NC41MmgxMS42MWM1LjE2LTQ4LjE3LDEwLjMyLTk2LjM1LDE1LjQ4LTE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik0xNzcuNDIsMTAwLjc1Yy01LjE2LDQ4LjE3LTEwLjMzLDk2LjM0LTE1LjQ4LDE0NC41MmgxMi4zNmM3Ljk0LTQ4LjE3LDE1Ljg5LTk2LjM1LDIzLjg0LTE0NC41MmgtMjAuNzJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTYxLjk0LDI0NS4yN2M1LjE2LTQ4LjE3LDEwLjMyLTk2LjM1LDE1LjQ4LTE0NC41Mi01LjE2LDQ4LjE3LTEwLjMzLDk2LjM0LTE1LjQ4LDE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik0xOTguMjEsMTAwLjc0Yy03Ljk2LDQ4LjE4LTE1LjkyLDk2LjM1LTIzLjg3LDE0NC41MmgxMy42NGMxMS4wMy00OC4xNywyMi4wNi05Ni4zNSwzMy4wOS0xNDQuNTJoLTIyLjg3WiIvPgogIDxyZWN0IGNsYXNzPSJjbHMtMyIgeD0iNTEuMiIgeT0iOTAuMTYiIHdpZHRoPSI4Ny44NCIgaGVpZ2h0PSIxMC41OSIvPgogIDxyZWN0IGNsYXNzPSJjbHMtNSIgeD0iMTM5LjA0IiB5PSI5MC4xNiIgd2lkdGg9Ijg3LjgzIiBoZWlnaHQ9IjEwLjU5Ii8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNOTEuNzUsNzMuMTZjLTQuNDYuMzgtOC4yMiwyLjkxLTEwLjM2LDYuNDgtMi0zLjUyLTUuOTEtNS43NS0xMC4yLTUuMzgtNS44OS41LTEwLjI1LDUuNjgtOS43NSwxMS41Ni41MSw1Ljg4LDUuNjgsMTAuMjUsMTEuNTYsOS43NCwzLjA1LS4yNiw1LjY4LTEuNzgsNy40NC00LDIuMTYsNS4zMSw3LjU3LDguODQsMTMuNTgsOC4zMiw3LjM4LS42MiwxMi44NS03LjEyLDEyLjIyLTE0LjUxLS42My03LjM4LTcuMTMtMTIuODYtMTQuNTEtMTIuMjNaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNOTguODgsNjcuNDJjLjcxLDguMzQtNS40NywxNS42OC0xMy44MiwxNi40LTguMzUuNzEtMTUuNjktNS40OC0xNi40LTEzLjgyLS43MS04LjM0LDUuNDgtMTUuNjgsMTMuODItMTYuNCw4LjM0LS43MSwxNS42OCw1LjQ4LDE2LjQsMTMuODJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTIzLjgsMzcuNDFjLTQuNDYuMzgtOC4yMiwyLjkxLTEwLjM2LDYuNDgtMi0zLjUxLTUuOTEtNS43NC0xMC4yLTUuMzgtNS44OC41LTEwLjI0LDUuNjgtOS43NCwxMS41Ni41LDUuODgsNS42OCwxMC4yNCwxMS41Niw5Ljc0LDMuMDUtLjI2LDUuNjgtMS43OCw3LjQ1LTQsMi4xNSw1LjMxLDcuNTcsOC44MywxMy41OCw4LjMyLDcuMzgtLjYzLDEyLjg1LTcuMTMsMTIuMjItMTQuNTEtLjYzLTcuMzktNy4xMy0xMi44Ni0xNC41MS0xMi4yM1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMjguMTgsMTQuNzhjOS4yNC0uNzksMTcuMzcsNi4wNywxOC4xNiwxNS4zMS43OSw5LjI0LTYuMDcsMTcuMzctMTUuMzEsMTguMTYtOS4yNC43OS0xNy4zNy02LjA2LTE4LjE2LTE1LjMtLjc4LTkuMjUsNi4wNy0xNy4zNywxNS4zMS0xOC4xNiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE5NS4zNyw3My4yOWMtMi42NCwyLjYzLTMuNjgsNi4yNC0zLjE0LDkuNjYtMy4xNS0xLjE3LTYuODQtLjUtOS4zNywyLjAyLTMuNDksMy40Ni0zLjUsOS4wOS0uMDQsMTIuNTgsMy40NywzLjQ4LDkuMDksMy41LDEyLjU3LjAzLDEuODEtMS43OSwyLjY3LTQuMTcsMi42MS02LjUyLDQuMjEsMi4yNCw5LjU1LDEuNiwxMy4xMS0xLjk1LDQuMzctNC4zNCw0LjM4LTExLjQxLjA0LTE1Ljc3LTQuMzQtNC4zNy0xMS40MS00LjM5LTE1Ljc4LS4wNVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0yMDAuNTgsNjIuOTNjNC40LDUuMzksMy42LDEzLjM0LTEuNzksMTcuNzQtNS4zOSw0LjQtMTMuMzQsMy42MS0xNy43NS0xLjc5LTQuNC01LjQtMy42LTEzLjM0LDEuNzktMTcuNzQsNS40LTQuNCwxMy4zNC0zLjYsMTcuNzUsMS43OVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMjcuOTUsNjUuOThjLTUuMDEsMy42OS03LjYyLDkuNDEtNy41NywxNS4xOS00LjkyLTIuNzEtMTEuMTctMi41Mi0xNS45OSwxLjAzLTYuNjEsNC44Ni04LjAyLDE0LjE1LTMuMTcsMjAuNzYsNC44Niw2LjYxLDE0LjE2LDguMDIsMjAuNzcsMy4xNiwzLjQyLTIuNTIsNS40NC02LjIzLDUuOTItMTAuMTMsNi40LDQuNzMsMTUuMzgsNC45OCwyMi4xMy4wMiw4LjI5LTYuMSwxMC4wNi0xNy43NywzLjk2LTI2LjA2LTYuMS04LjI5LTE3Ljc2LTEwLjA3LTI2LjA2LTMuOTdaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTMyLjIzLDU0LjAxYzYuOSw5LjM3LDQuODksMjIuNTUtNC40OCwyOS40NS05LjM3LDYuODktMjIuNTYsNC44OS0yOS40NS00LjQ5LTYuOS05LjM3LTQuODktMjIuNTUsNC40OC0yOS40NSw5LjM3LTYuODksMjIuNTYtNC44OSwyOS40NSw0LjQ5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE1OC44Myw3Mi45NmMyLjc2LDMuNTMsNi45Myw1LjMsMTEuMDksNS4xNC0xLjg2LDMuNi0xLjU5LDguMDksMS4wNSwxMS40OCwzLjYzLDQuNjYsMTAuMzUsNS40OSwxNSwxLjg2LDQuNjYtMy42NCw1LjQ5LTEwLjM1LDEuODYtMTUuMDEtMS44OC0yLjQxLTQuNTktMy43OS03LjQxLTQuMDYsMy4yNy00LjcsMy4yNy0xMS4xNy0uNDMtMTUuOTItNC41Ni01Ljg1LTEyLjk5LTYuODktMTguODMtMi4zMy01Ljg0LDQuNTYtNi44OSwxMi45OS0yLjMzLDE4LjgzWiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE1MC4xMyw3MC4xMmM2LjYtNS4xNSwxNi4xMy0zLjk2LDIxLjI5LDIuNjQsNS4xNSw2LjYxLDMuOTYsMTYuMTMtMi42NCwyMS4yOC02LjYsNS4xNS0xNi4xMywzLjk3LTIxLjI4LTIuNjMtNS4xNC02LjYtMy45Ny0xNi4xMywyLjYzLTIxLjI4WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTEzOC4zMSw2MS45NmMzLjczLTIuNDgsNS44MS02LjUsNS45OC0xMC42NywzLjQ0LDIuMTMsNy45NCwyLjIsMTEuNTMtLjE4LDQuOTItMy4yNiw2LjI2LTkuOSwyLjk5LTE0LjgyLTMuMjctNC45Mi05LjktNi4yNi0xNC44MS0yLjk5LTIuNTUsMS42OS00LjEzLDQuMjktNC42MSw3LjA4LTQuNDQtMy42Mi0xMC44OC00LjEyLTE1LjkxLS43OC02LjE3LDQuMS03Ljg1LDEyLjQzLTMuNzUsMTguNiw0LjA5LDYuMTcsMTIuNDIsNy44NiwxOC41OSwzLjc2WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTEzNC44Myw3MC40MmMtNC42My02Ljk4LTIuNzMtMTYuMzksNC4yNS0yMS4wMiw2Ljk4LTQuNjMsMTYuMzktMi43MywyMS4wMiw0LjI1LDQuNjMsNi45OCwyLjczLDE2LjM4LTQuMjUsMjEuMDItNi45Nyw0LjYzLTE2LjM5LDIuNzMtMjEuMDItNC4yNVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNTMuMiwyMC41MWMtMi41MSwxLjc1LTQuMDIsNC4zOC00LjQ0LDcuMTktNC41My0zLjUxLTEwLjk4LTMuODUtMTUuOTItLjQtNi4wOCw0LjI1LTcuNTYsMTIuNjEtMy4zMSwxOC42OCw0LjI0LDYuMDcsMTIuNjEsNy41NiwxOC42OCwzLjMxLDMuNjctMi41Nyw1LjY1LTYuNjQsNS43Mi0xMC44LDMuNDksMi4wNCw3Ljk5LDIuMDEsMTEuNTItLjQ1LDQuODUtMy4zOSw2LjAzLTEwLjA1LDIuNjQtMTQuOSIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE0NC45Miw1Ny44NGMtNC44LTYuODYtMy4xMi0xNi4zMiwzLjc0LTIxLjEyLDYuODctNC44LDE2LjMyLTMuMTIsMjEuMTIsMy43NCw0LjgsNi44NywzLjEyLDE2LjMyLTMuNzQsMjEuMTItNi44Nyw0Ljc5LTE2LjMyLDMuMTItMjEuMTItMy43NFoiLz4KPC9zdmc+" width="18" height="18">Cine</button>
+          <button class="cine-filter" onclick="setCineFilter('serie')" id="cfil-serie"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMzAwIDMwMCI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogIzAwNWY4OTsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsOiAjNmQ2ZDZkOwogICAgICB9CgogICAgICAuY2xzLTMgewogICAgICAgIGZpbGw6ICM1MzdmOTE7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogI2ZmZjsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjMDQzNTU5OwogICAgICB9CgogICAgICAuY2xzLTYgewogICAgICAgIGZpbGw6ICM4M2FjYzY7CiAgICAgIH0KCiAgICAgIC5jbHMtNyB7CiAgICAgICAgZmlsbDogI2QzZDNkMzsKICAgICAgfQogICAgPC9zdHlsZT4KICA8L2RlZnM+CiAgPHJlY3QgY2xhc3M9ImNscy02IiB4PSI2MS45MSIgeT0iODEuNTMiIHdpZHRoPSI4Ny4zIiBoZWlnaHQ9Ijk1LjUzIi8+CiAgPHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjE0OS4yMSAxNzcuMDYgNjEuOTEgMTc3LjA2IDYxLjkxIDgxLjUzIDE0OS4yMSA4MS41MyAxNDkuMjEgNTAuNzggMzEuMTYgNTAuNzggMzEuMTYgMjA3LjgyIDEzMS4wOSAyMDcuODIgMTQ5LjIxIDIwNy44MiAxNDkuMjEgMTc3LjA2Ii8+CiAgPHBvbHlnb24gY2xhc3M9ImNscy00IiBwb2ludHM9IjEzMS4wOSAyMzMuMDcgNzUuMDggMjMzLjA3IDc1LjA4IDI0Ny45IDE0OS4yMSAyNDcuOSAxNDkuMjEgMjMzLjA3IDEzMS4wOSAyMzMuMDciLz4KICA8cmVjdCBjbGFzcz0iY2xzLTQiIHg9IjEzMS4wOSIgeT0iMjA3LjgyIiB3aWR0aD0iMTguMTIiIGhlaWdodD0iMjUuMjYiLz4KICA8cmVjdCBjbGFzcz0iY2xzLTMiIHg9IjE0OS4yMSIgeT0iODEuNTMiIHdpZHRoPSI4Ny4zIiBoZWlnaHQ9Ijk1LjUzIi8+CiAgPHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjIzNi41MSA4MS41MyAyMzYuNTEgMTc3LjA2IDE0OS4yMSAxNzcuMDYgMTQ5LjIxIDIwNy44MiAxNjcuMzMgMjA3LjgyIDI2Ny4yNiAyMDcuODIgMjY3LjI2IDUwLjc4IDE0OS4yMSA1MC43OCAxNDkuMjEgODEuNTMgMjM2LjUxIDgxLjUzIi8+CiAgPHBvbHlnb24gY2xhc3M9ImNscy03IiBwb2ludHM9IjIyMy4zNCAyMzMuMDcgMTY3LjMzIDIzMy4wNyAxNDkuMjEgMjMzLjA3IDE0OS4yMSAyNDcuOSAyMjMuMzQgMjQ3LjkgMjIzLjM0IDIzMy4wNyIvPgogIDxyZWN0IGNsYXNzPSJjbHMtNyIgeD0iMTQ5LjIxIiB5PSIyMDcuODIiIHdpZHRoPSIxOC4xMiIgaGVpZ2h0PSIyNS4yNiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE0MS42OCwxOTIuNDFjMCw0LjE2LDMuMzcsNy41Myw3LjUzLDcuNTN2LTE1LjA2Yy00LjE2LDAtNy41MywzLjM3LTcuNTMsNy41M1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik0xNTYuNzQsMTkyLjQxYzAtNC4xNS0zLjM3LTcuNTMtNy41My03LjUzdjE1LjA2YzQuMTUsMCw3LjUzLTMuMzcsNy41My03LjUzWiIvPgo8L3N2Zz4=" width="18" height="18">Serie</button>
         </div>
-
-        <!-- Ruleta button (only on proximo tab) -->
-        <div id="cine-ruleta-btn" style="display:none;margin-bottom:12px;">
-          <button onclick="openRuleta()" style="width:100%;padding:11px;border:2px dashed var(--accent1);border-radius:var(--radius-sm);background:none;color:var(--accent1);font-family:var(--font-body);font-size:14px;font-weight:700;">&#127922; Girar la ruleta</button>
+        <div id="cine-ruleta-btn" style="display:none;margin-bottom:18px;">
+          <button onclick="openRuleta()" style="width:100%;padding:14px;border:none;border-radius:16px;background:#1a1a2e;color:white;font-family:var(--font-body);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:12px;"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDMwMCAzMDAiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICNmMDQyNzE7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogI2ZmZjsKICAgICAgfQoKICAgICAgLmNscy0zIHsKICAgICAgICBmaWxsOiAjNTllNmZmOwogICAgICB9CgogICAgICAuY2xzLTQgewogICAgICAgIGZpbGw6IHVybCgjRGVncmFkYWRvX3Npbl9ub21icmVfMzQpOwogICAgICB9CgogICAgICAuY2xzLTUgewogICAgICAgIGZpbGw6ICM2MDM7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9IkRlZ3JhZGFkb19zaW5fbm9tYnJlXzM0IiBkYXRhLW5hbWU9IkRlZ3JhZGFkbyBzaW4gbm9tYnJlIDM0IiB4MT0iNjUuMjUiIHkxPSIxNjYuNDEiIHgyPSIyMzQuNzUiIHkyPSIxNjYuNDEiIGdyYWRpZW50VHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTYxLjYgLTU3LjMzKSByb3RhdGUoNDUpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzU5ZTZmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmMDQyNzEiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxjaXJjbGUgY2xhc3M9ImNscy01IiBjeD0iMTUwIiBjeT0iMTY2LjQxIiByPSI5NC41NyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTczLjc0IDE1NC44MSkgcm90YXRlKC00NSkiLz4KICA8Y2lyY2xlIGNsYXNzPSJjbHMtNCIgY3g9IjE1MCIgY3k9IjE2Ni40MSIgcj0iODQuNzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC03My43NCAxNTQuODEpIHJvdGF0ZSgtNDUpIi8+CiAgPGc+CiAgICA8Y2lyY2xlIGNsYXNzPSJjbHMtMyIgY3g9IjE1MCIgY3k9IjE2Ni40MiIgcj0iNzUuMjIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC00Ni4xMiAyNzQuNzQpIHJvdGF0ZSgtNzYuODgpIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNDkuNjEsMTY2LjM4bC0xLjE1LTc1LjIxYzEyLjg2LS4yLDI1LjU2LDIuOTEsMzYuODgsOS4wMiwxNS45LDguNTgsMjguMTgsMjIuNjEsMzQuNTksMzkuNDlsLTcwLjMyLDI2LjdaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNTAuNzgsMTY2LjA2bC02MC40Miw0NC44MWMtNy42Ni0xMC4zMy0xMi41NS0yMi40Ni0xNC4xOS0zNS4yMi0yLjMtMTcuOTIsMS45Mi0zNi4wOCwxMS45LTUxLjE0bDYyLjcxLDQxLjU1WiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTUwLjA0LDE2Ni4wNGw2Ni4xOSwzNS43M2MtNi4xMSwxMS4zMi0xNS4wMiwyMC44OC0yNS44OCwyNy43OC0xNS4yNSw5LjY4LTMzLjQ5LDEzLjU1LTUxLjM2LDEwLjlsMTEuMDUtNzQuNDFaIi8+CiAgPC9nPgogIDxwYXRoIGNsYXNzPSJjbHMtNSIgZD0iTTE2NS4xMiwyNTguOGMtLjA5LDAtLjE4LDAtLjI2LS4wMmwtMjcuMzItMy45OWMtLjQ4LS4wNy0uOTEtLjMzLTEuMi0uNzEtLjI5LS4zOS0uNDEtLjg3LS4zNC0xLjM1bDEyLjI3LTgzLjkyLTY5Ljc0LDUzLjkxYy0uNDIuMzItLjk2LjQ1LTEuNDguMzQtLjUyLS4xMS0uOTctLjQ0LTEuMjItLjlsLTE0LjcxLTI2LjU2Yy0uMTEtLjIxLS4xOS0uNDMtLjIxLS42N2wtNC41OS0zOC4zNWMtLjA0LS4zMiwwLS42NS4xNC0uOTRsMTcuMi0zOS40MWMuMjEtLjQ4LjYxLS44NCwxLjExLTEsLjUtLjE2LDEuMDQtLjEsMS40OS4xN2w3MS45MSw0Mi44NC0xLjUyLTgyLjE0YzAtLjUyLjItMS4wMi41OS0xLjM3LjM4LS4zNS45LS41MiwxLjQyLS40N2wxOC4xOSwxLjkxYy4yMS4wMi40MS4wOC42LjE3bDQxLjg0LDIwLjA2Yy4yNy4xMy41MS4zMy42OS41OGwyNi4yNiwzNi40OWMuMzMuNDYuNDMsMS4wNS4yNiwxLjU5LS4xNy41NC0uNTguOTgtMS4xMSwxLjE3bC03OC41NCwyOS4wNy0uMTkuMjJjMjkuMjUsMTYuNTEsNzEuNjIsNDAuMzQsNzQuMjIsNDEuNTYuNDYuMTYuODUuNSwxLjA2Ljk2LjUyLDEuMTQtLjIzLDEuOTUtLjc0LDIuNDktLjI4LjMtLjY5LjcyLTEuMjQsMS4yOC0xLDEuMDEtMi40OCwyLjQ5LTQuMzksNC4zOC0zLjIxLDMuMTctNy43MSw3LjU4LTEzLjM1LDEzLjA4LTkuNjEsOS4zNy0xOS4zNiwxOC44Mi0xOS40NiwxOC45MS0uMTguMTctLjM5LjMtLjYxLjM5bC0yNi4zNywxMC4xYy0uMjEuMDgtLjQzLjEyLS42NS4xMlpNMTM5Ljg2LDI1MS40NmwyNS4wNSwzLjY2LDI1LjU4LTkuOGMxMi45LTEyLjUsMzEuNC0zMC41LDM2LjgyLTM1Ljk5LTEuODItLjk4LTQuODYtMi42Ny0xMC4xLTUuNTktNi4zNi0zLjU1LTE1LjItOC40OS0yNi4yNS0xNC43MS0xOC44Mi0xMC41OC0zNy44MS0yMS4zLTM4LTIxLjQxLS4zMi0uMTgtLjU3LS40NC0uNzMtLjc2bC0xMi4zNyw4NC42Wk02NC40NywxOTQuMTVsMTMuNTEsMjQuMzksNzEuNTYtNTUuMzJjLS4xNS0uMDQtLjMtLjExLS40NC0uMTlsLTcyLjk1LTQzLjQ2LTE2LjE3LDM3LjA3LDQuNDgsMzcuNTFaTTE1MS4yMSwxNjIuODdjLjE1LjA0LjI5LjEuNDMuMTguNjEuMzYuOTYsMS4wMy44OSwxLjczbDEuODQtMi4xOGMuMi0uMjQuNDYtLjQzLjc2LS41M2w3Ni43Ni0yOC40LTI0LjYtMzQuMTgtNDEuMTQtMTkuNzMtMTUuODMtMS42NiwxLjU0LDgzLjM1Yy4wMS41NS0uMjMsMS4wOC0uNjUsMS40M1oiLz4KICA8Zz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTE2My45MiwxNTMuODloMHMtLjAyLS4wMi0uMDItLjAyYy0xLjQzLTEuNDYtMy4xMS0yLjYtNC45Mi0zLjRsLTIxLjYyLTE0Ljk0YzEuMDUtMS45NCwxLjA3LTQuMzctLjE1LTYuMzktMS44NC0zLjA0LTUuNzktNC4wMS04LjgzLTIuMTctMy4wNCwxLjg0LTQuMDEsNS43OS0yLjE3LDguODMsMS4yOCwyLjEyLDMuNiwzLjIzLDUuOTEsMy4wOWw0LjQ4LDI2LjU1Yy4wMywxLjUxLjI4LDMuMDIuNzYsNC40OXYuMDNzMCwwLDAsMGMuMzcsMS4xNS44OCwyLjI3LDEuNTMsMy4zNSw0LjU2LDcuNTMsMTQuMzYsOS45NSwyMS44OSw1LjM5LDcuNTMtNC41Niw5Ljk1LTE0LjM2LDUuMzktMjEuODktLjY1LTEuMDgtMS40MS0yLjA1LTIuMjYtMi45MVoiLz4KICAgIDxjaXJjbGUgY2xhc3M9ImNscy01IiBjeD0iMTUyLjc3IiBjeT0iMTY0LjYyIiByPSI4LjI1IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMzQuMTkgMjg5LjA1KSByb3RhdGUoLTgwLjc4KSIvPgogICAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTM1LjQ5LDEzMi4xMWMwLDIuMTMtMS43MywzLjg2LTMuODYsMy44NnMtMy44Ni0xLjczLTMuODYtMy44NiwxLjczLTMuODYsMy44Ni0zLjg2LDMuODYsMS43MywzLjg2LDMuODZaIi8+CiAgPC9nPgo8L3N2Zz4=" width="28" height="28">Girar la ruleta</button>
         </div>
-
-        <!-- List -->
         <div id="cine-list"></div>
-
-        <!-- Ranking -->
-        <div style="margin-top:20px;" id="cine-ranking-section">
-          <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Rankings</div>
-          <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-            <select id="ranking-tipo" onchange="renderCineRanking()" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg2);color:var(--text);font-family:var(--font-body);">
-              <option value="mejor">&#127942; Mejor valorado</option>
-              <option value="peor">&#128169; Peor valorado</option>
-            </select>
-            <select id="ranking-filtro" onchange="renderCineRanking()" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg2);color:var(--text);font-family:var(--font-body);">
-              <option value="all">Todos</option>
-              <option value="pelicula">&#127871; Cine</option>
-              <option value="serie">&#128250; Series</option>
-            </select>
-            <select id="ranking-year" onchange="renderCineRanking()" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg2);color:var(--text);font-family:var(--font-body);">
-              <option value="all">Siempre</option>
-            </select>
+        <div id="cine-ranking-section" style="display:none;margin-top:24px;">
+          <div style="text-align:center;margin-bottom:18px;">
+            <div style="font-size:24px;font-weight:900;color:#f0c040;font-family:var(--font-title);">Ranking Patitos Deluxe</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;justify-content:center;">
+            <button class="cine-rank-btn active" id="rbtn-mejor" onclick="setRankTipo('mejor')">Mejor</button>
+            <button class="cine-rank-btn" id="rbtn-peor" onclick="setRankTipo('peor')">Peor</button>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;justify-content:center;">
+            <button class="cine-rank-btn active" id="rfil-all" onclick="setRankFiltro('all')">Todos</button>
+            <button class="cine-rank-btn" id="rfil-pelicula" onclick="setRankFiltro('pelicula')">Cine</button>
+            <button class="cine-rank-btn" id="rfil-serie" onclick="setRankFiltro('serie')">Serie</button>
+            <button class="cine-rank-btn active" id="ryear-all" onclick="setRankYear('all')">Siempre</button>
+            <button class="cine-rank-btn" id="ryear-cur" onclick="setRankYear(new Date().getFullYear()+'')">A&#241;o</button>
           </div>
           <div id="cine-ranking-list"></div>
+          <div id="cine-vs-battle" style="display:none;margin-top:20px;padding:14px;background:#13131f;border-radius:14px;text-align:center;border:1px solid #2a2a3e;">
+            <div style="font-size:11px;color:#777;margin-bottom:8px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">Vs Battle</div>
+            <div id="cine-vs-text" style="font-size:14px;color:#f0c040;font-weight:700;"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1015,10 +1017,10 @@ button{cursor:pointer;}
 </div>
 
 <!-- ADD CINE MODAL -->
-<div class="modal-bg" id="modal-add-cine" style="background:rgba(0,0,0,0.85);">
-  <div class="modal" style="max-height:90vh;overflow-y:auto;background:#13131f;border:1px solid #2a2a3e;">
+<div class="modal-bg" id="modal-add-cine">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;">
     <div class="modal-handle"></div>
-    <div class="modal-title" style="color:white;">A&#241;adir t&#237;tulo</div>
+    <div class="modal-title">A&#241;adir t&#237;tulo</div>
     <!-- Search TMDB -->
     <div style="position:relative;margin-bottom:8px;">
       <input id="cine-search-inp" type="text" placeholder="Buscar pel&#237;cula o serie..." oninput="searchTMDB(this.value)" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg2);color:var(--text);outline:none;font-family:var(--font-body);">
@@ -1060,31 +1062,26 @@ button{cursor:pointer;}
 </div>
 
 <!-- RATING SCREEN -->
-<div id="rating-screen" class="rating-screen" style="display:none;z-index:500;">
-  <button onclick="closeRatingScreen()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:white;font-size:24px;">&#xD7;</button>
-  <div id="rating-title" style="color:white;font-size:22px;font-weight:700;text-align:center;margin-bottom:8px;font-family:var(--font-title);"></div>
-  <div id="rating-poster-wrap" style="margin-bottom:20px;"></div>
-  <div style="color:#aaa;font-size:14px;margin-bottom:16px;" id="rating-subtitle">&#191;Cu&#225;ntos patitos le das?</div>
-  <div id="duck-selector" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:24px;"></div>
-  <div id="rating-reveal" style="display:none;text-align:center;"></div>
-  <button id="rating-confirm-btn" onclick="confirmRating()" style="background:var(--accent1);color:white;border:none;border-radius:999px;padding:14px 40px;font-size:16px;font-weight:700;font-family:var(--font-body);">Confirmar</button>
+<div id="rating-screen" class="rating-screen" style="display:none;">
+  <button onclick="closeRatingScreen()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#666;font-size:26px;z-index:10;">&#xD7;</button>
+  <div id="rating-title" style="color:white;font-size:24px;font-weight:900;text-align:center;margin:32px 0 24px;font-family:var(--font-title);max-width:320px;line-height:1.2;"></div>
+  <div id="rating-poster-wrap" style="margin-bottom:28px;"></div>
+  <div id="rating-subtitle" style="color:#aaa;font-size:16px;margin-bottom:20px;">&#191;Cu&#225;ntos patitos le das?</div>
+  <div id="duck-selector" style="display:flex;justify-content:center;gap:3px;margin-bottom:32px;width:100%;padding:0 8px;box-sizing:border-box;flex-wrap:nowrap;"></div>
+  <div id="rating-reveal" style="display:none;text-align:center;margin-bottom:24px;"></div>
+  <button id="rating-confirm-btn" onclick="confirmRating()" style="background:#3b6e9e;color:white;border:none;border-radius:999px;padding:16px 60px;font-size:17px;font-weight:700;font-family:var(--font-body);width:80%;max-width:340px;">Confirmar</button>
 </div>
 
 <!-- RULETA MODAL -->
-<div class="modal-bg" id="modal-ruleta">
-  <div class="modal" style="text-align:center;">
-    <div class="modal-handle"></div>
-    <div class="modal-title">&#127922; Ruleta</div>
-    <div id="ruleta-canvas-wrap" style="margin:10px auto 16px;position:relative;width:280px;height:280px;">
-      <canvas id="ruleta-canvas" width="280" height="280"></canvas>
-      <div id="ruleta-pointer" style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:28px;">&#9660;</div>
-    </div>
-    <div id="ruleta-result" style="font-size:16px;font-weight:700;color:var(--accent1);min-height:24px;margin-bottom:12px;"></div>
-    <button onclick="spinRuleta()" id="ruleta-spin-btn" style="background:var(--accent1);color:white;border:none;border-radius:999px;padding:12px 32px;font-size:15px;font-weight:700;font-family:var(--font-body);margin-bottom:10px;">&#127922; Girar</button>
-    <div class="modal-btns" style="margin-top:4px;">
-      <button class="btn-cancel" onclick="closeModal('modal-ruleta')">Cerrar</button>
-    </div>
+<div id="modal-ruleta" style="display:none;position:fixed;inset:0;background:#0a0a18;z-index:400;flex-direction:column;align-items:center;padding:20px 16px 30px;overflow-y:auto;">
+  <button onclick="closeModal('modal-ruleta')" style="position:absolute;top:18px;left:16px;background:none;border:none;color:#888;font-size:14px;font-family:var(--font-body);">&#8249; Men&#250;</button>
+  <div style="margin-top:40px;margin-bottom:24px;text-align:center;"><span style="font-size:26px;font-weight:900;background:linear-gradient(90deg,#00f5ff,#ff00ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--font-title);">Ruleta Ne&#243;n Futurista</span></div>
+  <div style="position:relative;width:310px;height:310px;margin:0 auto 20px;">
+    <canvas id="ruleta-canvas" width="310" height="310" style="filter:drop-shadow(0 0 15px rgba(0,245,255,0.6));"></canvas>
+    <div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:24px solid #00f5ff;filter:drop-shadow(0 0 8px #00f5ff);"></div>
   </div>
+  <div id="ruleta-result" style="font-size:20px;font-weight:800;color:#f0c040;min-height:30px;margin-bottom:24px;text-align:center;text-shadow:0 0 10px rgba(240,192,64,0.5);"></div>
+  <button onclick="spinRuleta()" id="ruleta-spin-btn" style="padding:18px 56px;border:2px solid #00f5ff;border-radius:14px;background:transparent;color:#00f5ff;font-size:20px;font-weight:900;font-family:var(--font-title);text-shadow:0 0 8px #00f5ff;box-shadow:0 0 20px rgba(0,245,255,0.4);">&#161;Girar!</button>
 </div>
 
 <div class="confirm-bg" id="confirm-bg">
@@ -3431,7 +3428,10 @@ window.setCineTab = function(tab) {
 
 window.setCineFilter = function(f) {
   _cineFilter = f;
-  ['all','pelicula','serie'].forEach(function(x){ var el=safe('cfil-'+x); if(el) el.className='filter-pill'+(x===f?' fa':''); });
+  ['all','pelicula','serie'].forEach(function(x){ var el=safe('cfil-'+x); if(el) el.className='cine-filter'+(x===f?' active':''); });
+  // Re-inject icons since className reset overwrites text content already in HTML
+  var pf=safe('cfil-pelicula'); if(pf&&pf.innerHTML.indexOf('img')<0) pf.innerHTML='<img src="'+CINE_ICONS.popcorn+'" width="18" height="18">Cine';
+  var sf=safe('cfil-serie'); if(sf&&sf.innerHTML.indexOf('img')<0) sf.innerHTML='<img src="'+CINE_ICONS.tv+'" width="18" height="18">Serie';
   renderCineList();
 };
 
@@ -3561,44 +3561,61 @@ window.setCineEstado = async function(id, estado) {
 function renderCineList() {
   var el = safe('cine-list'); if(!el) return;
   if(!appData.cine) appData.cine = [];
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var unEl=safe('cine-username'); if(unEl) unEl.textContent=isDavid?'David':'Mar&#237;a';
   var items = appData.cine.filter(function(x){ return x.estado===_cineTab; });
   if(_cineFilter!=='all') items=items.filter(function(x){return x.tipo===_cineFilter;});
-  if(!items.length){ el.innerHTML='<div class="empty"><p>Nada por aqui todavia</p></div>'; return; }
-  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  if(!items.length){ el.innerHTML='<div style="text-align:center;padding:50px 0;color:#444;font-size:14px;">Nada por aqu&#237; todav&#237;a</div>'; return; }
   var who=isDavid?'david':'maria';
   el.innerHTML = items.map(function(item){
-    var platformBadge = item.platform ? (PLATFORM_BADGES[item.platform]||PLATFORM_BADGES.otro) : '';
-    var typeEmoji = item.tipo==='pelicula'?'&#127871;':'&#128250;';
-    var proposerEmoji = item.proposedBy==='david'?'&#x1F435;':'&#x1F437;';
+    var platBadge = item.platform ? (PLATFORM_BADGES[item.platform]||PLATFORM_BADGES.otro) : '';
+    var typeIcon = item.tipo==='pelicula' ? '<img src="'+CINE_ICONS.popcorn+'" width="20" height="20" style="vertical-align:middle;">' : '<img src="'+CINE_ICONS.tv+'" width="20" height="20" style="vertical-align:middle;">';
+    var propEmoji = item.proposedBy==='david'?'&#x1F435;':'&#x1F437;';
     var myReaction = (item.reactions||{})[who];
-    var reactions = [{key:'like',emoji:'&#128077;'},{key:'love',emoji:'&#128079;&#128079;'},{key:'meh',emoji:'&#128530;'}];
+    var reactions = [
+      {key:'like', icon:CINE_ICONS.thumb},
+      {key:'love', icon:CINE_ICONS.heart},
+      {key:'meh', icon:CINE_ICONS.bored}
+    ];
     var reactionBtns = reactions.map(function(r){
-      return '<button class="cine-reaction-btn'+(myReaction===r.key?' active':'')+'" onclick="setCineReaction(\''+item.id+'\',\''+r.key+'\')">'+r.emoji+'</button>';
+      return '<button class="cine-reaction-btn'+(myReaction===r.key?' active':'')+'" onclick="setCineReaction(\''+item.id+'\',\''+r.key+'\')"><img src="'+r.icon+'" width="22" height="22"></button>';
     }).join('');
-    var ratingsHtml = '';
+    var ratingsHtml='';
     if(_cineTab==='visto' && item.ratings) {
-      var dRating = item.ratings.david; var mRating = item.ratings.maria;
-      if(dRating && mRating) {
-        var avg = ((parseInt(dRating)+parseInt(mRating))/2).toFixed(1);
-        ratingsHtml = '<div style="display:flex;gap:10px;margin-top:6px;font-size:12px;"><span>&#x1F435; '+dRating+'/10</span><span>&#x1F437; '+mRating+'/10</span><span style="font-weight:700;color:var(--accent1);">Media: '+avg+'</span></div>';
+      var dR=item.ratings.david, mR=item.ratings.maria;
+      if(dR && mR) {
+        var avg=((parseInt(dR)+parseInt(mR))/2).toFixed(1);
+        var dDucks='', mDucks='';
+        for(var dd=0;dd<parseInt(dR);dd++) dDucks+='<img src="'+CINE_ICONS.duck_gold+'" width="14" height="14">';
+        for(var mm=0;mm<parseInt(mR);mm++) mDucks+='<img src="'+CINE_ICONS.duck_gold+'" width="14" height="14">';
+        ratingsHtml='<div style="padding:10px 16px;border-top:1px solid #1e1e30;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px;color:#aaa;"><span>&#x1F435;</span>'+dDucks+'</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px;color:#aaa;"><span>&#x1F437;</span>'+mDucks+'</div><div style="font-size:13px;color:#f0c040;font-weight:700;">Media: '+avg+'</div></div>';
       } else if(item.ratings[who]) {
-        ratingsHtml = '<div style="font-size:12px;color:var(--text2);margin-top:4px;">Tu voto guardado, esperando al otro</div>';
+        ratingsHtml='<div style="padding:10px 16px;border-top:1px solid #1e1e30;font-size:12px;color:#888;">Tu voto guardado &mdash; esperando al otro...</div>';
       } else {
-        ratingsHtml = '<button onclick="openRatingScreen(\''+item.id+'\')" style="margin-top:6px;padding:5px 12px;border:1.5px solid var(--accent1);border-radius:999px;background:none;color:var(--accent1);font-size:12px;font-weight:700;font-family:var(--font-body);">Puntuar</button>';
+        ratingsHtml='<button onclick="openRatingScreen(\''+item.id+'\')" style="margin:0 16px 14px;width:calc(100% - 32px);padding:10px;border:1.5px solid #2a4a6e;border-radius:14px;background:#1a1a2e;color:#7ab0d8;font-size:13px;font-weight:700;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;gap:8px;"><img src="'+CINE_ICONS.duck_gold+'" width="20" height="20">Puntuar</button>';
       }
     }
-    var estadoBtns = '';
-    if(_cineTab==='proximo') estadoBtns='<button onclick="setCineEstado(\''+item.id+'\',\'viendo\')" style="font-size:11px;padding:3px 10px;border:1.5px solid var(--border);border-radius:999px;background:none;color:var(--text2);font-family:var(--font-body);">Viendo</button> <button onclick="setCineEstado(\''+item.id+'\',\'visto\')" style="font-size:11px;padding:3px 10px;border:1.5px solid var(--border);border-radius:999px;background:none;color:var(--text2);font-family:var(--font-body);">Visto</button>';
-    else if(_cineTab==='viendo') estadoBtns='<button onclick="setCineEstado(\''+item.id+'\',\'visto\')" style="font-size:11px;padding:3px 10px;border:1.5px solid var(--accent1);border-radius:999px;background:none;color:var(--accent1);font-family:var(--font-body);">Marcar como visto</button>';
-    var linkBtn = item.link ? '<a href="'+esc(item.link)+'" target="_blank" style="font-size:11px;color:var(--accent1);font-weight:700;text-decoration:none;">Ver recomendacion</a>' : '';
-    return '<div class="cine-card"><div class="cine-card-inner">'
-      +(item.poster?'<img class="cine-poster" src="'+esc(item.poster)+'" alt="">':'<div class="cine-poster-placeholder">'+typeEmoji+'</div>')
-      +'<div class="cine-info"><div class="cine-title">'+typeEmoji+' '+esc(item.title)+'</div><div class="cine-meta">'+platformBadge+' '+proposerEmoji+' '+(item.genres?esc(item.genres)+' \u00b7':'')+' '+(item.year||'')+'</div>'
-      +(item.overview?'<div style="font-size:11px;color:var(--text2);margin-bottom:6px;">'+esc(item.overview)+'</div>':'')
-      +linkBtn+'<div class="cine-reactions">'+reactionBtns+'</div>'+ratingsHtml
-      +'<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">'+estadoBtns+'</div></div>'
-      +'<button onclick="delCineItem(\''+item.id+'\')" style="align-self:flex-start;background:none;border:none;font-size:18px;color:var(--text2);opacity:0.4;padding:4px;">&#xD7;</button>'
-      +'</div></div>';
+    var estadoBtns='';
+    if(_cineTab==='proximo') estadoBtns='<button class="cine-est-btn" onclick="setCineEstado(\''+item.id+'\',\'viendo\')">Viendo</button><button class="cine-est-btn" onclick="setCineEstado(\''+item.id+'\',\'visto\')">Visto</button>';
+    else if(_cineTab==='viendo') estadoBtns='<button class="cine-est-btn primary" onclick="setCineEstado(\''+item.id+'\',\'visto\')">Marcar como visto</button>';
+    var linkBtn=item.link?'<button class="cine-rec-btn" onclick="window.open(\''+esc(item.link)+'\',\'_blank\')">Ver recomendaci&#243;n</button>':'';
+    return '<div class="cine-card">'
+      +'<div class="cine-card-top">'
+      +(item.poster?'<img class="cine-poster" src="'+esc(item.poster)+'" alt="">':'<div class="cine-poster-ph">'+typeIcon+'</div>')
+      +'<div class="cine-info">'
+      +'<div class="cine-title-dk">'+esc(item.title)+' '+typeIcon+'</div>'
+      +'<div class="cine-meta-dk">'+platBadge+'<span>'+propEmoji+'</span>'+(item.genres?'<span>'+esc(item.genres)+'</span>':'')+'<span>'+(item.year||'')+'</span></div>'
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:6px;">'
+      +'<button onclick="delCineItem(\''+item.id+'\')" style="background:none;border:none;color:#444;font-size:18px;padding:2px;line-height:1;">&#xD7;</button>'
+      +'<button onclick="openEditCine(\''+item.id+'\')" style="background:none;border:none;color:#444;font-size:14px;padding:2px;line-height:1;">&#x270E;</button>'
+      +'</div></div>'
+      +(item.overview?'<div class="cine-synopsis-dk">'+esc(item.overview)+'</div>':'')
+      +'<div class="cine-reactions">'+reactionBtns+'</div>'
+      +ratingsHtml
+      +(estadoBtns?'<div style="padding:10px 16px 14px;display:flex;gap:8px;flex-wrap:wrap;">'+estadoBtns+'</div>':'')
+      +linkBtn
+      +'</div>';
   }).join('');
   if(_cineTab==='visto') renderCineRanking();
 }
@@ -3617,13 +3634,23 @@ window.openRatingScreen = function(id) {
     for(var i=1;i<=10;i++){
       (function(n){
         var btn = document.createElement('button');
-        btn.className='duck-btn'; btn.textContent='\uD83E\uDD86';
-        btn.onclick=function(){ _myRating=n; Array.from(ds.querySelectorAll('.duck-btn')).forEach(function(b,idx){ b.className='duck-btn'+(idx<n?' selected':''); }); };
+        btn.style.cssText='background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:2px;min-width:30px;';
+        var img=document.createElement('img'); img.src=CINE_ICONS.duck_grey; img.width=30; img.height=30;
+        var lbl=document.createElement('span'); lbl.style.cssText='color:#555;font-size:11px;font-weight:700;'; lbl.textContent=n;
+        btn.appendChild(img); btn.appendChild(lbl);
+        btn.onclick=function(){
+          _myRating=n;
+          Array.from(ds.children).forEach(function(b,idx){
+            var im=b.querySelector('img'); var sp=b.querySelector('span');
+            if(idx<n){ im.src=CINE_ICONS.duck_gold; sp.style.color='#f0c040'; }
+            else{ im.src=CINE_ICONS.duck_grey; sp.style.color='#555'; }
+          });
+        };
         ds.appendChild(btn);
       })(i);
     }
   }
-  var rev = safe('rating-reveal'); if(rev) rev.style.display='none';
+    var rev = safe('rating-reveal'); if(rev) rev.style.display='none';
   var btn = safe('rating-confirm-btn'); if(btn) btn.style.display='block';
   if(safe('rating-subtitle')) safe('rating-subtitle').textContent='Cuantos patitos le das?';
 };
@@ -3650,7 +3677,7 @@ window.confirmRating = async function() {
     else if(avg<=3) msg='En serio la visteis?';
     else msg='Buena eleccion';
     var rev=safe('rating-reveal');
-    if(rev){ rev.style.display='block'; rev.innerHTML='<div style="color:white;font-size:22px;margin-bottom:8px;">'+(isDavid?'\uD83D\uDC37':'\uD83D\uDC35')+' '+otherVal+'/10</div><div style="color:#ffd700;font-size:16px;font-weight:700;margin-bottom:4px;">Media: '+avg+'</div><div style="color:#aaa;font-size:14px;">'+msg+'</div>'; }
+    if(rev){ var dStr=''; for(var _i=0;_i<otherVal;_i++) dStr+='<img src="'+CINE_ICONS.duck_gold+'" width="22" height="22">'; rev.style.display='block'; rev.innerHTML='<img src="'+CINE_ICONS.confetti+'" width="140" height="70" style="margin-bottom:12px;"><div style="color:white;font-size:16px;margin-bottom:8px;">'+(isDavid?'&#x1F437;':'&#x1F435;')+' vot&#243;:</div><div style="margin-bottom:14px;">'+dStr+'</div><div style="color:#f0c040;font-size:22px;font-weight:900;margin-bottom:8px;">Media: '+avg+'</div><div style="color:#aaa;font-size:15px;">'+msg+'</div>'; }
     var btn=safe('rating-confirm-btn'); if(btn) btn.style.display='none';
     if(safe('rating-subtitle')) safe('rating-subtitle').textContent='El otro ya voto:';
   } else {
@@ -3660,37 +3687,75 @@ window.confirmRating = async function() {
   }
 };
 
+var _rankTipo='mejor', _rankFiltro='all', _rankYear='all';
+window.setRankTipo=function(v){_rankTipo=v;['mejor','peor'].forEach(function(x){var b=safe('rbtn-'+x);if(b)b.className='cine-rank-btn'+(x===v?' active':'');});renderCineRanking();};
+window.setRankFiltro=function(v){_rankFiltro=v;['all','pelicula','serie'].forEach(function(x){var b=safe('rfil-'+x);if(b)b.className='cine-rank-btn'+(x===v?' active':'');});renderCineRanking();};
+window.setRankYear=function(v){_rankYear=v;var ay=safe('ryear-all'),cy=safe('ryear-cur');if(ay)ay.className='cine-rank-btn'+(v==='all'?' active':'');if(cy)cy.className='cine-rank-btn'+(v!=='all'?' active':'');renderCineRanking();};
+
 window.renderCineRanking = function() {
   var el=safe('cine-ranking-list'); if(!el) return;
-  var tipo=(safe('ranking-tipo')||{}).value||'mejor';
-  var filtro=(safe('ranking-filtro')||{}).value||'all';
-  var yearF=(safe('ranking-year')||{}).value||'all';
   var items=(appData.cine||[]).filter(function(x){
     if(x.estado!=='visto') return false;
     if(!x.ratings||(!x.ratings.david&&!x.ratings.maria)) return false;
-    if(filtro!=='all'&&x.tipo!==filtro) return false;
-    if(yearF!=='all'&&(x.watchedYear||x.year)!==yearF) return false;
+    if(_rankFiltro!=='all'&&x.tipo!==_rankFiltro) return false;
+    if(_rankYear!=='all'&&(x.watchedYear||x.year)!==_rankYear) return false;
     return true;
-  });
-  items = items.map(function(x){
-    var d=parseInt(x.ratings.david||0); var m=parseInt(x.ratings.maria||0);
-    var cnt=(d?1:0)+(m?1:0); var avg=cnt>0?(d+m)/cnt:0;
+  }).map(function(x){
+    var d=parseInt(x.ratings.david||0),m=parseInt(x.ratings.maria||0);
+    var cnt=(d?1:0)+(m?1:0),avg=cnt>0?(d+m)/cnt:0;
     return Object.assign({},x,{avg:avg});
   });
-  items.sort(function(a,b){ return tipo==='mejor'?b.avg-a.avg:a.avg-b.avg; });
+  items.sort(function(a,b){return _rankTipo==='mejor'?b.avg-a.avg:a.avg-b.avg;});
   items=items.slice(0,10);
-  if(!items.length){el.innerHTML='<div style="font-size:12px;color:var(--text2);padding:8px 0;">Sin datos todavia</div>';return;}
-  el.innerHTML=items.map(function(item,i){
-    var pe=item.proposedBy==='david'?'\uD83D\uDC35':'\uD83D\uDC37';
-    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);"><div style="font-size:18px;font-weight:700;color:var(--text2);width:24px;">'+(i+1)+'</div>'+(item.poster?'<img src="'+esc(item.poster)+'" style="width:36px;height:54px;object-fit:cover;border-radius:4px;">':'')+'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:var(--text);">'+esc(item.title)+'</div><div style="font-size:11px;color:var(--text2);">'+pe+' '+item.avg.toFixed(1)+'</div></div></div>';
-  }).join('');
+  if(!items.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#555;font-size:13px;">Sin datos todav&#237;a</div>';return;}
+  var html='';
+  // PODIUM TOP 3
+  var top3=items.slice(0,3);
+  var trophies=[CINE_ICONS.trophy_gold,CINE_ICONS.trophy_silver,CINE_ICONS.trophy_bronze];
+  var sizes=['120px','100px','85px'];
+  var order=[1,0,2];
+  html+='<div style="display:flex;justify-content:center;align-items:flex-end;gap:10px;margin-bottom:28px;">';
+  order.forEach(function(idx){
+    if(!top3[idx]) return;
+    var it=top3[idx];
+    var bc=idx===0?'#f0c040':idx===1?'#c0c0c0':'#cd7f32';
+    var glow=idx===0?'box-shadow:0 0 25px rgba(240,192,64,0.4);':'';
+    var dStr='';
+    for(var dd=0;dd<Math.round(it.avg);dd++) dStr+='<img src="'+CINE_ICONS.duck_gold+'" width="13" height="13">';
+    html+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;">'
+      +'<img src="'+trophies[idx]+'" width="36" height="36" style="margin-bottom:6px;">'
+      +'<div style="position:relative;width:92%;height:'+sizes[idx]+';border-radius:12px;overflow:hidden;border:2.5px solid '+bc+';'+glow+'">'
+      +(it.poster?'<img src="'+esc(it.poster)+'" style="width:100%;height:100%;object-fit:cover;">':'<div style="width:100%;height:100%;background:#1c1c2e;display:flex;align-items:center;justify-content:center;font-size:30px;">&#127871;</div>')
+      +'</div>'
+      +'<div style="font-size:12px;font-weight:700;color:white;margin-top:6px;line-height:1.2;">'+esc(it.title.slice(0,18))+(it.title.length>18?'...':'')+'</div>'
+      +'<div style="margin-top:4px;">'+dStr+'</div>'
+      +'</div>';
+  });
+  html+='</div>';
+  // LIST 4-10
+  items.slice(3).forEach(function(it,i){
+    var pe=it.proposedBy==='david'?'&#x1F435;':'&#x1F437;';
+    html+='<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #1e1e30;">'
+      +'<div style="font-size:16px;font-weight:700;color:#555;width:24px;">'+(i+4)+'.</div>'
+      +(it.poster?'<img src="'+esc(it.poster)+'" style="width:40px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;">':'')
+      +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:700;color:white;">'+esc(it.title)+'</div><div style="font-size:11px;color:#666;">'+pe+' Proponente</div></div>'
+      +'<div style="display:flex;align-items:center;gap:4px;font-size:14px;color:#f0c040;font-weight:700;white-space:nowrap;"><img src="'+CINE_ICONS.duck_gold+'" width="16" height="16">'+it.avg.toFixed(1)+'</div>'
+      +'</div>';
+  });
+  el.innerHTML=html;
+  // VS BATTLE
+  var allV=(appData.cine||[]).filter(function(x){return x.estado==='visto'&&x.ratings&&x.ratings.david&&x.ratings.maria;});
+  var dS=0,dC=0,mS=0,mC=0;
+  allV.forEach(function(x){var avg=(parseInt(x.ratings.david)+parseInt(x.ratings.maria))/2;if(x.proposedBy==='david'){dS+=avg;dC++;}else{mS+=avg;mC++;}});
+  var vb=safe('cine-vs-battle'),vt=safe('cine-vs-text');
+  if(vb&&dC>0&&mC>0){vb.style.display='block';vt.innerHTML='&#x1F435; David <img src="'+CINE_ICONS.duck_gold+'" width="16" height="16"> '+(dS/dC).toFixed(1)+'  vs  &#x1F437; Mar&#237;a <img src="'+CINE_ICONS.duck_gold+'" width="16" height="16"> '+(mS/mC).toFixed(1);}
 };
 
 window.openRuleta = function() {
   var items=(appData.cine||[]).filter(function(x){return x.estado==='proximo';});
   if(_cineFilter!=='all') items=items.filter(function(x){return x.tipo===_cineFilter;});
   if(!items.length){appConfirm('Sin titulos','Anade algo a Proximos primero.',function(){},false);return;}
-  openModal('modal-ruleta');
+  var rm=safe('modal-ruleta'); if(rm) rm.style.display='flex';
   drawRuleta(items);
 };
 
@@ -3699,21 +3764,27 @@ function drawRuleta(items) {
   _ruletaItems = items;
   var canvas = document.getElementById('ruleta-canvas'); if(!canvas) return;
   var ctx = canvas.getContext('2d');
-  var cx=140,cy=140,r=130;
-  var colors=['#E8543A','#E8A23A','#4A90D9','#7BAE8C','#9B59B6','#E91E63','#00BCD4','#FF8C00','#20B2AA','#C0392B'];
-  var n=items.length;
-  ctx.clearRect(0,0,280,280);
+  var cx=155, cy=155, r=145;
+  var neonColors=['#ff2d92','#9d4edd','#00f5ff','#f72585','#7209b7','#4cc9f0','#560bad','#f15bb5','#480ca8','#06d6a0'];
+  var n=items.length; if(!n) return;
+  ctx.clearRect(0,0,310,310);
   for(var i=0;i<n;i++){
     var startA=(_ruletaAngle+i*(2*Math.PI/n));
     var endA=startA+(2*Math.PI/n);
     ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,startA,endA); ctx.closePath();
-    ctx.fillStyle=colors[i%colors.length]; ctx.fill();
+    ctx.fillStyle=neonColors[i%neonColors.length]; ctx.fill();
+    ctx.strokeStyle='rgba(0,245,255,0.6)'; ctx.lineWidth=1.5; ctx.stroke();
     ctx.save(); ctx.translate(cx,cy); ctx.rotate(startA+(2*Math.PI/n/2));
-    ctx.textAlign='right'; ctx.fillStyle='white'; ctx.font='bold 11px sans-serif';
-    var label=items[i].title.slice(0,14)+(items[i].title.length>14?'...':'');
-    ctx.fillText(label,r-8,4); ctx.restore();
+    ctx.textAlign='right'; ctx.fillStyle='white'; ctx.font='bold 12px sans-serif';
+    ctx.shadowColor='white'; ctx.shadowBlur=6;
+    var label=items[i].title.slice(0,12)+(items[i].title.length>12?'...':'');
+    ctx.fillText(label,r-10,5); ctx.restore();
   }
-  ctx.beginPath(); ctx.arc(cx,cy,18,0,2*Math.PI); ctx.fillStyle='white'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI);
+  ctx.strokeStyle='#00f5ff'; ctx.lineWidth=4; ctx.shadowColor='#00f5ff'; ctx.shadowBlur=20; ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.beginPath(); ctx.arc(cx,cy,22,0,2*Math.PI); ctx.fillStyle='#0a0a18'; ctx.fill();
+  ctx.strokeStyle='#00f5ff'; ctx.lineWidth=2.5; ctx.stroke();
   if(safe('ruleta-result')) safe('ruleta-result').textContent='';
 }
 
