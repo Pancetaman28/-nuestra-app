@@ -68,9 +68,9 @@ button{cursor:pointer;}
 
 /* ── CONTENT ── */
 .app-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:32px;}
+.app-content.cine-active{padding:0;}
 .tab-section{display:none;}
 .tab-section.active{display:block;}
-#tab-cine.active{display:block !important;}
 
 /* ── BACK TO MENU ── */
 .back-bar{display:flex;align-items:center;margin-bottom:12px;}
@@ -284,7 +284,7 @@ button{cursor:pointer;}
 .cine-tab.active{background:#2a4a6e;color:white;}
 .cine-filter{padding:6px 14px;border:1.5px solid #2a2a3e;border-radius:999px;background:transparent;font-family:var(--font-body);font-size:12px;font-weight:600;color:#777;display:inline-flex;align-items:center;gap:6px;}
 .cine-filter.active{background:transparent;color:#7ab0d8;border-color:#4a7a9e;}
-.cine-card{background:#13131f;border-radius:18px;margin-bottom:16px;overflow:hidden;border:1px solid #1f1f2e;}
+.cine-card{background:#13131f;border-radius:18px;margin-bottom:24px;overflow:hidden;border:1px solid #1f1f2e;}
 .cine-card-top{display:flex;gap:14px;padding:16px;}
 .cine-poster{width:80px;height:120px;object-fit:cover;border-radius:10px;flex-shrink:0;}
 .cine-poster-ph{width:80px;height:120px;border-radius:10px;flex-shrink:0;background:#1c1c2e;display:flex;align-items:center;justify-content:center;font-size:32px;}
@@ -557,21 +557,22 @@ button{cursor:pointer;}
       <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
       <div class="coming-soon"><div class="cs-icon">&#127873;</div><div class="cs-title">Lista de deseos</div><div class="cs-desc">Listas de regalos y deseos para los dos.</div></div>
     </div>
-    <div id="tab-cine" class="tab-section cine-section-dark" style="background:#0a0a12;position:fixed;inset:0;z-index:50;overflow-y:auto;display:none;">
-      <div style="padding:14px 16px 8px;"><button onclick="showTab('home')" style="background:none;border:none;color:#888;font-size:14px;font-family:var(--font-body);padding:0;">&#8249; Men&#250;</button></div>
-      <div style="padding:0 16px 32px;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
-          <div>
-            <div style="font-size:30px;font-weight:900;color:white;font-family:var(--font-title);line-height:1.1;">Cartelera</div>
-            <div style="font-size:14px;color:#888;margin-top:4px;">Hola, <span id="cine-username">David</span></div>
+    <div id="tab-cine" class="tab-section cine-section-dark" style="background:#0a0a12;min-height:100vh;">
+      <div id="cine-sticky-header" style="position:sticky;top:0;background:rgba(10,10,18,0.85);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);z-index:30;padding:14px 16px 12px;border-bottom:1px solid #1a1a2e;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
+          <div style="flex:1;">
+            <div style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
+            <div style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909;</div>
           </div>
-          <button onclick="openAddCineModal()" style="background:#2a4a6e;color:white;border:none;border-radius:999px;padding:10px 18px;font-family:var(--font-body);font-size:13px;font-weight:700;flex-shrink:0;">+ A&#241;adir</button>
         </div>
-        <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <div style="display:flex;gap:8px;">
           <button class="cine-tab active" onclick="setCineTab('viendo')" id="ctab-viendo">Viendo</button>
           <button class="cine-tab" onclick="setCineTab('proximo')" id="ctab-proximo">Pr&#243;ximo</button>
           <button class="cine-tab" onclick="setCineTab('visto')" id="ctab-visto">Visto</button>
         </div>
+      </div>
+      <div style="padding:18px 16px 100px;">
         <div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px;padding-left:4px;">Filtrar por tipo</div>
         <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
           <button class="cine-filter active" onclick="setCineFilter('all')" id="cfil-all">Todos</button>
@@ -605,6 +606,7 @@ button{cursor:pointer;}
           </div>
         </div>
       </div>
+      <button onclick="openAddCineModal()" aria-label="A&#241;adir" style="position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#f0c040 0%,#e8a020 100%);border:none;color:#13131f;font-size:32px;font-weight:300;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 6px 20px rgba(240,192,64,0.4);z-index:100;cursor:pointer;">+</button>
     </div>
     <div id="tab-perros" class="tab-section">
       <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
@@ -1698,6 +1700,8 @@ window.showDTab = function(t) {
   if(t === 'presupuesto') rebuildBudgetCatSelect();
   var topHdr=document.querySelector('.app-header');
   if(topHdr) topHdr.style.display = (t==='cine') ? 'none' : '';
+  var appCont=document.querySelector('.app-content');
+  if(appCont){ if(t==='cine') appCont.classList.add('cine-active'); else appCont.classList.remove('cine-active'); }
   if(t === 'cine') {
     setCineTab(_cineTab);
     // Init ranking years
