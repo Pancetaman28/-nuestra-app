@@ -69,6 +69,7 @@ button{cursor:pointer;}
 /* ── CONTENT ── */
 .app-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:32px;}
 .app-content.cine-active{padding:0;}
+body.cine-mode .app-header,body.cine-mode .header-bar,body.cine-mode .header-row{display:none !important;}
 .tab-section{display:none;}
 .tab-section.active{display:block;}
 
@@ -307,9 +308,9 @@ button{cursor:pointer;}
 .cine-modal-dark label{color:#aaa !important;}
 .cine-modal-dark input,.cine-modal-dark select,.cine-modal-dark textarea{background:#1a1a2e !important;color:white !important;border:1.5px solid #2a2a3e !important;}
 .cine-modal-dark .pcheck{background:#1a1a2e !important;color:#999 !important;border:1.5px solid #2a2a3e !important;}
-.cine-modal-dark .pcheck.on{background:#2a4a6e !important;color:white !important;border-color:#4a7a9e !important;}
+.cine-modal-dark .pcheck.on{background:linear-gradient(135deg,#f0c040 0%,#e8a020 100%) !important;color:#13131f !important;border-color:#f0c040 !important;box-shadow:0 2px 8px rgba(240,192,64,0.3);}
 .cine-modal-dark .btn-cancel{background:#1a1a2e !important;color:#aaa !important;border:1.5px solid #2a2a3e !important;}
-.cine-modal-dark .btn-save{background:#2a4a6e !important;color:white !important;}
+.cine-modal-dark .btn-save{background:linear-gradient(135deg,#f0c040 0%,#e8a020 100%) !important;color:#13131f !important;box-shadow:0 4px 12px rgba(240,192,64,0.3);}
 .cine-modal-dark .modal-handle{background:#3a3a4e !important;}
 .cine-modal-dark #cine-search-results > div{background:#1a1a2e !important;}
 .cine-modal-dark #cine-search-results > div div{color:white !important;}
@@ -1068,6 +1069,15 @@ button{cursor:pointer;}
       <button class="pcheck on" id="cstate-proximo" onclick="setCineState('proximo')">&#128197; Pr&#243;ximo</button>
       <button class="pcheck" id="cstate-viendo" onclick="setCineState('viendo')">&#127902; Viendo</button>
     </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;margin-bottom:10px;background:#1a1a2e;border:1.5px solid #2a2a3e;border-radius:12px;cursor:pointer;" onclick="toggleAmbos()">
+      <div>
+        <div style="font-size:13px;color:white;font-weight:700;">&#x1F435;&#x1F437; Propuesta por ambos</div>
+        <div style="font-size:11px;color:#888;margin-top:2px;">Os contar&#225; como una propuesta conjunta</div>
+      </div>
+      <div id="ambos-switch" style="width:42px;height:24px;background:#2a2a3e;border-radius:999px;position:relative;transition:background 0.2s;flex-shrink:0;">
+        <div id="ambos-switch-knob" style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:transform 0.2s;"></div>
+      </div>
+    </div>
     <label>Plataforma</label>
     <select id="cine-platform" style="margin-bottom:10px;">
       <option value="">Sin especificar</option>
@@ -1706,8 +1716,7 @@ window.showDTab = function(t) {
   var btn = safe('dtb-'+t); if(btn) btn.classList.add('active');
   if(t === 'maleta') { renderPlantillasList(); rebuildMaletaCatSelect(); }
   if(t === 'presupuesto') rebuildBudgetCatSelect();
-  var topHdr=document.querySelector('.app-header');
-  if(topHdr) topHdr.style.display = (t==='cine') ? 'none' : '';
+  if(t==='cine') document.body.classList.add('cine-mode'); else document.body.classList.remove('cine-mode');
   var appCont=document.querySelector('.app-content');
   if(appCont){ if(t==='cine') appCont.classList.add('cine-active'); else appCont.classList.remove('cine-active'); }
   if(t === 'cine') {
@@ -3479,6 +3488,13 @@ window.setCineState = function(s) {
   ['proximo','viendo'].forEach(function(x){ var el=safe('cstate-'+x); if(el) el.className='pcheck'+(x===s?' on':''); });
 };
 
+window.toggleAmbos = function() {
+  _ambosProposed = !_ambosProposed;
+  var sw=safe('ambos-switch'), knob=safe('ambos-switch-knob');
+  if(sw){ sw.style.background = _ambosProposed ? '#f0c040' : '#2a2a3e'; }
+  if(knob){ knob.style.transform = _ambosProposed ? 'translateX(18px)' : 'translateX(0)'; }
+};
+
 var _tmdbSearchTimer = null;
 window.searchTMDB = function(q) {
   clearTimeout(_tmdbSearchTimer);
@@ -3523,6 +3539,12 @@ window.selectTMDB = async function(id, mediaType) {
 };
 
 window.openAddCineModal = function() {
+  _ambosProposed = false;
+  setTimeout(function(){
+    var sw=safe('ambos-switch'), knob=safe('ambos-switch-knob');
+    if(sw) sw.style.background='#2a2a3e';
+    if(knob) knob.style.transform='translateX(0)';
+  }, 50);
   _tmdbSelected = null; _cineEditId = null;
   if(safe('cine-search-inp')) safe('cine-search-inp').value='';
   if(safe('cine-search-results')) safe('cine-search-results').innerHTML='';
@@ -3676,7 +3698,8 @@ function renderCineList() {
         +'</div>'
         +'</div>';
     }
-    return '<div class="cine-card">'
+    var platClass = item.platform ? ' plat-'+item.platform : '';
+    return '<div class="cine-card'+platClass+'">'
       +'<div class="cine-card-top" onclick="openCineDetail(\''+item.id+'\')" style="cursor:pointer;">'
       +(item.poster?'<img class="cine-poster" src="'+esc(item.poster)+'" alt="">':'<div class="cine-poster-ph">'+typeIcon+'</div>')
       +'<div class="cine-info">'
@@ -3963,9 +3986,52 @@ window.confirmRating = async function() {
 };
 
 var _rankTipo='mejor', _rankFiltro='all', _rankYear='all';
-window.setRankTipo=function(v){_rankTipo=v;['mejor','peor'].forEach(function(x){var b=safe('rbtn-'+x);if(b)b.className='cine-rank-btn'+(x===v?' active':'');});renderCineRanking();};
+window.setRankTipo=function(v){
+  _rankTipo=v;
+  var bm=safe('rbtn-mejor'), bp=safe('rbtn-peor');
+  if(bm){ bm.style.background = v==='mejor' ? 'linear-gradient(135deg,#f0c040 0%,#e8a020 100%)' : 'transparent'; bm.style.color = v==='mejor' ? '#13131f' : '#888'; }
+  if(bp){ bp.style.background = v==='peor' ? 'linear-gradient(135deg,#f0c040 0%,#e8a020 100%)' : 'transparent'; bp.style.color = v==='peor' ? '#13131f' : '#888'; }
+  renderCineRanking();
+};
 window.setRankFiltro=function(v){_rankFiltro=v;['all','pelicula','serie'].forEach(function(x){var b=safe('rfil-'+x);if(b)b.className='cine-rank-btn'+(x===v?' active':'');});renderCineRanking();};
-window.setRankYear=function(v){_rankYear=v;var ay=safe('ryear-all'),cy=safe('ryear-cur');if(ay)ay.className='cine-rank-btn'+(v==='all'?' active':'');if(cy)cy.className='cine-rank-btn'+(v!=='all'?' active':'');renderCineRanking();};
+window.setRankYear=function(v){
+  _rankYear=v;
+  var ay=safe('ryear-all'),cy=safe('ryear-cur'),lbl=safe('ryear-cur-label');
+  if(ay){ ay.style.background = v==='all' ? 'rgba(240,192,64,0.15)' : '#1a1a2e'; ay.style.borderColor = v==='all' ? '#f0c040' : '#2a2a3e'; ay.style.color = v==='all' ? '#f0c040' : '#888'; }
+  if(cy){ cy.style.background = v!=='all' ? 'rgba(240,192,64,0.15)' : '#1a1a2e'; cy.style.borderColor = v!=='all' ? '#f0c040' : '#2a2a3e'; cy.style.color = v!=='all' ? '#f0c040' : '#888'; }
+  if(lbl) lbl.textContent = v==='all' ? '' : (' ' + v);
+  var dd=safe('year-dropdown'); if(dd) dd.style.display='none';
+  renderCineRanking();
+};
+
+window.toggleYearDropdown = function() {
+  var dd = safe('year-dropdown'); if(!dd) return;
+  if(dd.style.display==='block') { dd.style.display='none'; return; }
+  // Collect available years from cine items
+  var years = {};
+  (appData.cine||[]).forEach(function(x){
+    if(x.estado==='visto') {
+      var y = x.watchedYear || x.year;
+      if(x.watchedAt) y = new Date(x.watchedAt).getFullYear()+'';
+      if(y) years[y] = true;
+    }
+  });
+  var yearList = Object.keys(years).sort(function(a,b){return parseInt(b)-parseInt(a);});
+  if(!yearList.length) yearList = [new Date().getFullYear()+''];
+  dd.innerHTML = yearList.map(function(y){
+    var isActive = _rankYear === y;
+    return '<button onclick="setRankYear(\''+y+'\')" style="display:block;width:100%;text-align:left;padding:8px 12px;border:none;background:'+(isActive?'rgba(240,192,64,0.15)':'transparent')+';color:'+(isActive?'#f0c040':'white')+';font-family:var(--font-body);font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;margin-bottom:2px;">'+y+'</button>';
+  }).join('');
+  dd.style.display='block';
+};
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e){
+  var dd=safe('year-dropdown'), btn=safe('ryear-cur');
+  if(dd && dd.style.display==='block' && btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+    dd.style.display='none';
+  }
+});
 
 window.renderCineRanking = function() {
   var el=safe('cine-ranking-list'); if(!el) return;
