@@ -69,7 +69,9 @@ button{cursor:pointer;}
 /* ── CONTENT ── */
 .app-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:32px;}
 .app-content.cine-active{padding:0;}
-body.cine-mode .app-header,body.cine-mode .header-bar,body.cine-mode .header-row{display:none !important;}
+body.cine-mode .app-header,body.cine-mode .header-bar,body.cine-mode .header-row,body.cine-mode #screen-app > .app-header{display:none !important;height:0 !important;visibility:hidden !important;}
+body.cine-mode .app-content{padding:0 !important;}
+body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
 .tab-section{display:none;}
 .tab-section.active{display:block;}
 
@@ -285,7 +287,15 @@ body.cine-mode .app-header,body.cine-mode .header-bar,body.cine-mode .header-row
 .cine-tab.active{background:linear-gradient(135deg,#f0c040 0%,#e8a020 100%);color:#13131f;box-shadow:0 4px 12px rgba(240,192,64,0.3);}
 .cine-filter{padding:6px 14px;border:1.5px solid #2a2a3e;border-radius:999px;background:transparent;font-family:var(--font-body);font-size:12px;font-weight:600;color:#777;display:inline-flex;align-items:center;gap:6px;}
 .cine-filter.active{background:transparent;color:#f0c040;border-color:#f0c040;}
-.cine-card{background:#13131f;border-radius:18px;margin-bottom:24px;overflow:hidden;border:1px solid #1f1f2e;}
+.cine-card{background:linear-gradient(135deg,#1a1a2e 0%,#13131f 60%,#0d0d18 100%);border-radius:18px;margin-bottom:24px;overflow:hidden;border:1px solid #1f1f2e;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+.cine-card.plat-netflix{background:linear-gradient(135deg,rgba(229,9,20,0.22) 0%,#13131f 55%,#0d0d18 100%);border-color:rgba(229,9,20,0.3);}
+.cine-card.plat-hbo{background:linear-gradient(135deg,rgba(185,47,255,0.22) 0%,#13131f 55%,#0d0d18 100%);border-color:rgba(185,47,255,0.3);}
+.cine-card.plat-disney{background:linear-gradient(135deg,rgba(17,60,207,0.22) 0%,#13131f 55%,#0d0d18 100%);border-color:rgba(17,60,207,0.3);}
+.cine-card.plat-prime{background:linear-gradient(135deg,rgba(0,168,225,0.22) 0%,#13131f 55%,#0d0d18 100%);border-color:rgba(0,168,225,0.3);}
+.cine-card.plat-apple{background:linear-gradient(135deg,rgba(180,180,180,0.18) 0%,#13131f 55%,#0d0d18 100%);border-color:rgba(180,180,180,0.25);}
+.cine-card.plat-movistar{background:linear-gradient(135deg,rgba(0,192,255,0.18) 0%,#13131f 55%,#0d0d18 100%);border-color:rgba(0,192,255,0.25);}
+.cine-card.plat-skyshowtime{background:linear-gradient(135deg,rgba(255,30,86,0.18) 0%,#13131f 55%,#0d0d18 100%);border-color:rgba(255,30,86,0.25);}
+.cine-card.plat-cinema{background:linear-gradient(135deg,rgba(240,192,64,0.22) 0%,#13131f 55%,#0d0d18 100%);border-color:rgba(240,192,64,0.3);}
 .cine-card-top{display:flex;gap:14px;padding:16px;}
 .cine-poster{width:80px;height:120px;object-fit:cover;border-radius:10px;flex-shrink:0;}
 .cine-poster-ph{width:80px;height:120px;border-radius:10px;flex-shrink:0;background:#1c1c2e;display:flex;align-items:center;justify-content:center;font-size:32px;}
@@ -566,7 +576,7 @@ body.cine-mode .app-header,body.cine-mode .header-bar,body.cine-mode .header-row
       <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
       <div class="coming-soon"><div class="cs-icon">&#127873;</div><div class="cs-title">Lista de deseos</div><div class="cs-desc">Listas de regalos y deseos para los dos.</div></div>
     </div>
-    <div id="tab-cine" class="tab-section cine-section-dark" style="background:#0a0a12;position:fixed;inset:0;z-index:60;overflow-y:auto;">
+    <div id="tab-cine" class="tab-section cine-section-dark" style="background:#0a0a12;min-height:100vh;">
       <div id="cine-sticky-header" style="background:#0a0a12;padding:18px 16px 14px;border-bottom:1px solid #1a1a2e;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
@@ -1261,8 +1271,16 @@ window.showTab = function(t) {
   document.querySelectorAll('.home-grid-btn').forEach(function(b){ b.classList.remove('tab-active-btn'); });
   var btn = document.querySelector('.home-grid-btn[data-tab="'+t+'"]');
   if(btn) btn.classList.add('tab-active-btn');
+  // Hide global header in Cine
+  if(t === 'cine') document.body.classList.add('cine-mode');
+  else document.body.classList.remove('cine-mode');
   if(t === 'home') updateHome();
   if(t === 'gastos') renderGastos();
+  if(t === 'cine') {
+    setCineTab(_cineTab);
+    var rb=safe('cine-ruleta-btn'); if(rb) rb.style.display=_cineTab==='proximo'?'block':'none';
+    var rs2=safe('cine-ranking-section'); if(rs2) rs2.style.display=_cineTab==='visto'?'block':'none';
+  }
 };
 
 // ── AUTH ──────────────────────────────────────────────────
