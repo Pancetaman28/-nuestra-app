@@ -281,9 +281,9 @@ button{cursor:pointer;}
 /* CINE DARK */
 .cine-section-dark{background:#0a0a12;min-height:100vh;color:white;}
 .cine-tab{flex:1;padding:11px 6px;border:none;border-radius:999px;background:#1a1a2e;font-family:var(--font-body);font-size:14px;font-weight:700;color:#999;}
-.cine-tab.active{background:#2a4a6e;color:white;}
+.cine-tab.active{background:linear-gradient(135deg,#f0c040 0%,#e8a020 100%);color:#13131f;box-shadow:0 4px 12px rgba(240,192,64,0.3);}
 .cine-filter{padding:6px 14px;border:1.5px solid #2a2a3e;border-radius:999px;background:transparent;font-family:var(--font-body);font-size:12px;font-weight:600;color:#777;display:inline-flex;align-items:center;gap:6px;}
-.cine-filter.active{background:transparent;color:#7ab0d8;border-color:#4a7a9e;}
+.cine-filter.active{background:transparent;color:#f0c040;border-color:#f0c040;}
 .cine-card{background:#13131f;border-radius:18px;margin-bottom:24px;overflow:hidden;border:1px solid #1f1f2e;}
 .cine-card-top{display:flex;gap:14px;padding:16px;}
 .cine-poster{width:80px;height:120px;object-fit:cover;border-radius:10px;flex-shrink:0;}
@@ -294,12 +294,12 @@ button{cursor:pointer;}
 .cine-synopsis-dk{font-size:13px;color:#aaa;line-height:1.5;padding:0 16px 12px;}
 .cine-reactions{display:flex;gap:10px;padding:8px 16px;}
 .cine-reaction-btn{background:transparent;border:1.5px solid #2a2a3e;border-radius:999px;padding:6px 18px;cursor:pointer;flex:1;display:flex;align-items:center;justify-content:center;}
-.cine-reaction-btn.active{border-color:#4a7a9e;background:#2a4a6e33;}
-.cine-rec-btn{margin:0 16px 16px;width:calc(100% - 32px);padding:11px;border:1.5px solid #2a4a6e;border-radius:14px;background:#1a1a2e;color:#7ab0d8;font-family:var(--font-body);font-size:13px;font-weight:700;}
+.cine-reaction-btn.active{border-color:#f0c040;background:rgba(240,192,64,0.15);}
+.cine-rec-btn{margin:0 16px 16px;width:calc(100% - 32px);padding:11px;border:1.5px solid rgba(240,192,64,0.4);border-radius:14px;background:rgba(240,192,64,0.08);color:#f0c040;font-family:var(--font-body);font-size:13px;font-weight:700;}
 .cine-est-btn{padding:8px 16px;border:1.5px solid #2a2a3e;border-radius:999px;background:none;color:#aaa;font-family:var(--font-body);font-size:12px;font-weight:700;}
-.cine-est-btn.primary{border-color:#4a7a9e;color:#7ab0d8;}
+.cine-est-btn.primary{border-color:#f0c040;color:#f0c040;background:rgba(240,192,64,0.08);}
 .cine-rank-btn{padding:8px 14px;border:1.5px solid #2a2a3e;border-radius:999px;background:#1a1a2e;color:#999;font-family:var(--font-body);font-size:12px;font-weight:700;}
-.cine-rank-btn.active{background:#2a4a6e;border-color:#4a7a9e;color:white;}
+.cine-rank-btn.active{background:rgba(240,192,64,0.15);border-color:#f0c040;color:#f0c040;}
 .rating-screen{position:fixed;inset:0;background:#000;z-index:500;display:flex;flex-direction:column;align-items:center;padding:20px;overflow-y:auto;}
 .platform-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:900;padding:3px 10px;border-radius:6px;}
 .cine-modal-dark .modal{background:#13131f !important;color:white !important;border:1px solid #2a2a3e;}
@@ -315,6 +315,14 @@ button{cursor:pointer;}
 .cine-modal-dark #cine-search-results > div div{color:white !important;}
 .cine-modal-dark #cine-selected-preview{background:#1a1a2e !important;}
 .cine-modal-dark #cine-selected-preview div{color:white !important;}
+@keyframes cardFadeIn{0%{opacity:0;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
+.cine-card{animation:cardFadeIn 0.35s ease-out backwards;}
+.cine-card:nth-child(1){animation-delay:0.02s;}
+.cine-card:nth-child(2){animation-delay:0.08s;}
+.cine-card:nth-child(3){animation-delay:0.14s;}
+.cine-card:nth-child(4){animation-delay:0.20s;}
+.cine-card:nth-child(5){animation-delay:0.26s;}
+.cine-card:nth-child(n+6){animation-delay:0.32s;}
 @keyframes confettiFall{0%{transform:translateY(-100vh) rotate(0);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
 .confetti-piece{position:fixed;top:0;width:12px;height:12px;z-index:9999;animation:confettiFall 2.5s linear forwards;pointer-events:none;}
 .cs-icon{font-size:48px;margin-bottom:16px;}
@@ -557,8 +565,8 @@ button{cursor:pointer;}
       <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
       <div class="coming-soon"><div class="cs-icon">&#127873;</div><div class="cs-title">Lista de deseos</div><div class="cs-desc">Listas de regalos y deseos para los dos.</div></div>
     </div>
-    <div id="tab-cine" class="tab-section cine-section-dark" style="background:#0a0a12;min-height:100vh;">
-      <div id="cine-sticky-header" style="position:sticky;top:0;background:rgba(10,10,18,0.85);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);z-index:30;padding:14px 16px 12px;border-bottom:1px solid #1a1a2e;">
+    <div id="tab-cine" class="tab-section cine-section-dark" style="background:#0a0a12;position:fixed;inset:0;z-index:60;overflow-y:auto;">
+      <div id="cine-sticky-header" style="background:#0a0a12;padding:18px 16px 14px;border-bottom:1px solid #1a1a2e;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
@@ -573,7 +581,7 @@ button{cursor:pointer;}
         </div>
       </div>
       <div style="padding:18px 16px 100px;">
-        <div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px;padding-left:4px;">Filtrar por tipo</div>
+        <div style="font-size:10px;color:rgba(240,192,64,0.5);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px;padding-left:4px;">Filtrar por tipo</div>
         <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
           <button class="cine-filter active" onclick="setCineFilter('all')" id="cfil-all">Todos</button>
           <button class="cine-filter" onclick="setCineFilter('pelicula')" id="cfil-pelicula"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMzAwIDMwMCI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogI2ZmZWI5OTsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsOiAjYzYwNjE5OwogICAgICB9CgogICAgICAuY2xzLTMgewogICAgICAgIGZpbGw6ICNmZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogI2ZmZWNjMDsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjZDNkM2QzOwogICAgICB9CgogICAgICAuY2xzLTYgewogICAgICAgIGZpbGw6ICNkYjUyNTI7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9kZWZzPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTc5Ljg4LDEwMC43NWgtMjIuODdjMTEuMDMsNDguMTcsMjIuMDYsOTYuMzUsMzMuMDksMTQ0LjUyaDEzLjY1Yy03Ljk2LTQ4LjE3LTE1LjkxLTk2LjM1LTIzLjg2LTE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTYiIGQ9Ik0xMDAuNjYsMTAwLjc1aC0yMC43MmM3Ljk1LDQ4LjE3LDE1LjksOTYuMzUsMjMuODQsMTQ0LjUyaDEyLjM2Yy01LjE2LTQ4LjE3LTEwLjMyLTk2LjM1LTE1LjQ4LTE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMDAuNjYsMTAwLjc1YzUuMTYsNDguMTcsMTAuMzIsOTYuMzUsMTUuNDgsMTQ0LjUyaDExLjYxYy0yLjU0LTQ4LjE3LTUuMDktOTYuMzUtNy42My0xNDQuNTJoLTE5LjQ2WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNiIgZD0iTTEzOS4wNCwxMDAuNzVoLTE4Ljg3YzIuNTQsNDguMTcsNS4wOCw5Ni4zNSw3LjYyLDE0NC41MmgxMS4yNWMwLTQ4LjE4LDAtOTYuMzQsMC0xNDQuNTJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTM5LjA0LDEwMC43NWMwLDQ4LjE3LDAsOTYuMzQsMCwxNDQuNTJoMTEuMjVjMi41NC00OC4xNyw1LjA3LTk2LjM1LDcuNjEtMTQ0LjUyaC0xOC44NloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik0xMzkuMDQsMjQ1LjI3YzAtNDguMTgsMC05Ni4zNCwwLTE0NC41MiwwLDQ4LjE3LDAsOTYuMzQsMCwxNDQuNTJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMTc3LjQyLDEwMC43NWgtMTkuNDZjLTIuNTUsNDguMTctNS4wOSw5Ni4zNS03LjYzLDE0NC41MmgxMS42MWM1LjE2LTQ4LjE3LDEwLjMyLTk2LjM1LDE1LjQ4LTE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik0xNzcuNDIsMTAwLjc1Yy01LjE2LDQ4LjE3LTEwLjMzLDk2LjM0LTE1LjQ4LDE0NC41MmgxMi4zNmM3Ljk0LTQ4LjE3LDE1Ljg5LTk2LjM1LDIzLjg0LTE0NC41MmgtMjAuNzJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTYxLjk0LDI0NS4yN2M1LjE2LTQ4LjE3LDEwLjMyLTk2LjM1LDE1LjQ4LTE0NC41Mi01LjE2LDQ4LjE3LTEwLjMzLDk2LjM0LTE1LjQ4LDE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik0xOTguMjEsMTAwLjc0Yy03Ljk2LDQ4LjE4LTE1LjkyLDk2LjM1LTIzLjg3LDE0NC41MmgxMy42NGMxMS4wMy00OC4xNywyMi4wNi05Ni4zNSwzMy4wOS0xNDQuNTJoLTIyLjg3WiIvPgogIDxyZWN0IGNsYXNzPSJjbHMtMyIgeD0iNTEuMiIgeT0iOTAuMTYiIHdpZHRoPSI4Ny44NCIgaGVpZ2h0PSIxMC41OSIvPgogIDxyZWN0IGNsYXNzPSJjbHMtNSIgeD0iMTM5LjA0IiB5PSI5MC4xNiIgd2lkdGg9Ijg3LjgzIiBoZWlnaHQ9IjEwLjU5Ii8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNOTEuNzUsNzMuMTZjLTQuNDYuMzgtOC4yMiwyLjkxLTEwLjM2LDYuNDgtMi0zLjUyLTUuOTEtNS43NS0xMC4yLTUuMzgtNS44OS41LTEwLjI1LDUuNjgtOS43NSwxMS41Ni41MSw1Ljg4LDUuNjgsMTAuMjUsMTEuNTYsOS43NCwzLjA1LS4yNiw1LjY4LTEuNzgsNy40NC00LDIuMTYsNS4zMSw3LjU3LDguODQsMTMuNTgsOC4zMiw3LjM4LS42MiwxMi44NS03LjEyLDEyLjIyLTE0LjUxLS42My03LjM4LTcuMTMtMTIuODYtMTQuNTEtMTIuMjNaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNOTguODgsNjcuNDJjLjcxLDguMzQtNS40NywxNS42OC0xMy44MiwxNi40LTguMzUuNzEtMTUuNjktNS40OC0xNi40LTEzLjgyLS43MS04LjM0LDUuNDgtMTUuNjgsMTMuODItMTYuNCw4LjM0LS43MSwxNS42OCw1LjQ4LDE2LjQsMTMuODJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTIzLjgsMzcuNDFjLTQuNDYuMzgtOC4yMiwyLjkxLTEwLjM2LDYuNDgtMi0zLjUxLTUuOTEtNS43NC0xMC4yLTUuMzgtNS44OC41LTEwLjI0LDUuNjgtOS43NCwxMS41Ni41LDUuODgsNS42OCwxMC4yNCwxMS41Niw5Ljc0LDMuMDUtLjI2LDUuNjgtMS43OCw3LjQ1LTQsMi4xNSw1LjMxLDcuNTcsOC44MywxMy41OCw4LjMyLDcuMzgtLjYzLDEyLjg1LTcuMTMsMTIuMjItMTQuNTEtLjYzLTcuMzktNy4xMy0xMi44Ni0xNC41MS0xMi4yM1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMjguMTgsMTQuNzhjOS4yNC0uNzksMTcuMzcsNi4wNywxOC4xNiwxNS4zMS43OSw5LjI0LTYuMDcsMTcuMzctMTUuMzEsMTguMTYtOS4yNC43OS0xNy4zNy02LjA2LTE4LjE2LTE1LjMtLjc4LTkuMjUsNi4wNy0xNy4zNywxNS4zMS0xOC4xNiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE5NS4zNyw3My4yOWMtMi42NCwyLjYzLTMuNjgsNi4yNC0zLjE0LDkuNjYtMy4xNS0xLjE3LTYuODQtLjUtOS4zNywyLjAyLTMuNDksMy40Ni0zLjUsOS4wOS0uMDQsMTIuNTgsMy40NywzLjQ4LDkuMDksMy41LDEyLjU3LjAzLDEuODEtMS43OSwyLjY3LTQuMTcsMi42MS02LjUyLDQuMjEsMi4yNCw5LjU1LDEuNiwxMy4xMS0xLjk1LDQuMzctNC4zNCw0LjM4LTExLjQxLjA0LTE1Ljc3LTQuMzQtNC4zNy0xMS40MS00LjM5LTE1Ljc4LS4wNVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0yMDAuNTgsNjIuOTNjNC40LDUuMzksMy42LDEzLjM0LTEuNzksMTcuNzQtNS4zOSw0LjQtMTMuMzQsMy42MS0xNy43NS0xLjc5LTQuNC01LjQtMy42LTEzLjM0LDEuNzktMTcuNzQsNS40LTQuNCwxMy4zNC0zLjYsMTcuNzUsMS43OVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMjcuOTUsNjUuOThjLTUuMDEsMy42OS03LjYyLDkuNDEtNy41NywxNS4xOS00LjkyLTIuNzEtMTEuMTctMi41Mi0xNS45OSwxLjAzLTYuNjEsNC44Ni04LjAyLDE0LjE1LTMuMTcsMjAuNzYsNC44Niw2LjYxLDE0LjE2LDguMDIsMjAuNzcsMy4xNiwzLjQyLTIuNTIsNS40NC02LjIzLDUuOTItMTAuMTMsNi40LDQuNzMsMTUuMzgsNC45OCwyMi4xMy4wMiw4LjI5LTYuMSwxMC4wNi0xNy43NywzLjk2LTI2LjA2LTYuMS04LjI5LTE3Ljc2LTEwLjA3LTI2LjA2LTMuOTdaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTMyLjIzLDU0LjAxYzYuOSw5LjM3LDQuODksMjIuNTUtNC40OCwyOS40NS05LjM3LDYuODktMjIuNTYsNC44OS0yOS40NS00LjQ5LTYuOS05LjM3LTQuODktMjIuNTUsNC40OC0yOS40NSw5LjM3LTYuODksMjIuNTYtNC44OSwyOS40NSw0LjQ5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE1OC44Myw3Mi45NmMyLjc2LDMuNTMsNi45Myw1LjMsMTEuMDksNS4xNC0xLjg2LDMuNi0xLjU5LDguMDksMS4wNSwxMS40OCwzLjYzLDQuNjYsMTAuMzUsNS40OSwxNSwxLjg2LDQuNjYtMy42NCw1LjQ5LTEwLjM1LDEuODYtMTUuMDEtMS44OC0yLjQxLTQuNTktMy43OS03LjQxLTQuMDYsMy4yNy00LjcsMy4yNy0xMS4xNy0uNDMtMTUuOTItNC41Ni01Ljg1LTEyLjk5LTYuODktMTguODMtMi4zMy01Ljg0LDQuNTYtNi44OSwxMi45OS0yLjMzLDE4LjgzWiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE1MC4xMyw3MC4xMmM2LjYtNS4xNSwxNi4xMy0zLjk2LDIxLjI5LDIuNjQsNS4xNSw2LjYxLDMuOTYsMTYuMTMtMi42NCwyMS4yOC02LjYsNS4xNS0xNi4xMywzLjk3LTIxLjI4LTIuNjMtNS4xNC02LjYtMy45Ny0xNi4xMywyLjYzLTIxLjI4WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTEzOC4zMSw2MS45NmMzLjczLTIuNDgsNS44MS02LjUsNS45OC0xMC42NywzLjQ0LDIuMTMsNy45NCwyLjIsMTEuNTMtLjE4LDQuOTItMy4yNiw2LjI2LTkuOSwyLjk5LTE0LjgyLTMuMjctNC45Mi05LjktNi4yNi0xNC44MS0yLjk5LTIuNTUsMS42OS00LjEzLDQuMjktNC42MSw3LjA4LTQuNDQtMy42Mi0xMC44OC00LjEyLTE1LjkxLS43OC02LjE3LDQuMS03Ljg1LDEyLjQzLTMuNzUsMTguNiw0LjA5LDYuMTcsMTIuNDIsNy44NiwxOC41OSwzLjc2WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTEzNC44Myw3MC40MmMtNC42My02Ljk4LTIuNzMtMTYuMzksNC4yNS0yMS4wMiw2Ljk4LTQuNjMsMTYuMzktMi43MywyMS4wMiw0LjI1LDQuNjMsNi45OCwyLjczLDE2LjM4LTQuMjUsMjEuMDItNi45Nyw0LjYzLTE2LjM5LDIuNzMtMjEuMDItNC4yNVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNTMuMiwyMC41MWMtMi41MSwxLjc1LTQuMDIsNC4zOC00LjQ0LDcuMTktNC41My0zLjUxLTEwLjk4LTMuODUtMTUuOTItLjQtNi4wOCw0LjI1LTcuNTYsMTIuNjEtMy4zMSwxOC42OCw0LjI0LDYuMDcsMTIuNjEsNy41NiwxOC42OCwzLjMxLDMuNjctMi41Nyw1LjY1LTYuNjQsNS43Mi0xMC44LDMuNDksMi4wNCw3Ljk5LDIuMDEsMTEuNTItLjQ1LDQuODUtMy4zOSw2LjAzLTEwLjA1LDIuNjQtMTQuOSIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE0NC45Miw1Ny44NGMtNC44LTYuODYtMy4xMi0xNi4zMiwzLjc0LTIxLjEyLDYuODctNC44LDE2LjMyLTMuMTIsMjEuMTIsMy43NCw0LjgsNi44NywzLjEyLDE2LjMyLTMuNzQsMjEuMTItNi44Nyw0Ljc5LTE2LjMyLDMuMTItMjEuMTItMy43NFoiLz4KPC9zdmc+" width="18" height="18">Cine</button>
@@ -3595,17 +3603,18 @@ function renderCineList() {
   if(_cineFilter!=='all') items=items.filter(function(x){return x.tipo===_cineFilter;});
   if(!items.length){ el.innerHTML='<div style="text-align:center;padding:50px 0;color:#444;font-size:14px;">Nada por aqu&#237; todav&#237;a</div>'; return; }
   var who=isDavid?'david':'maria';
-  el.innerHTML = items.map(function(item){
+  el.innerHTML = items.map(function(item, _idx){
+    var isHero = (_cineTab==='viendo' && _idx===0);
     var platBadge = item.platform ? (PLATFORM_BADGES[item.platform]||PLATFORM_BADGES.otro) : '';
     var typeIcon = item.tipo==='pelicula' ? '<img src="'+CINE_ICONS.popcorn+'" width="20" height="20" style="vertical-align:middle;">' : '<img src="'+CINE_ICONS.tv+'" width="20" height="20" style="vertical-align:middle;">';
-    var propEmoji = item.proposedBy==='david'?'&#x1F435;':'&#x1F437;';
+    var propEmoji = item.proposedBy==='david'?'&#x1F435;':item.proposedBy==='maria'?'&#x1F437;':'&#x1F435;&#x1F437;';
     var myReaction = (item.reactions||{})[who];
     var reactions = [
       {key:'like', icon:CINE_ICONS.thumb},
       {key:'love', icon:CINE_ICONS.heart},
       {key:'meh', icon:CINE_ICONS.bored}
     ];
-    var iProposed = item.proposedBy === who;
+    var iProposed = item.proposedBy === who || item.proposedBy === 'ambos';
     var other = (who==='david')?'maria':'david';
     var reactionBtns = '';
     if(iProposed) {
@@ -3649,6 +3658,24 @@ function renderCineList() {
       }
     }
     var linkBtn=item.link?'<button class="cine-rec-btn" onclick="window.open(\''+esc(item.link)+'\',\'_blank\')">Ver recomendaci&#243;n</button>':'';
+    if(isHero) {
+      // HERO CARD - first card in viendo tab
+      var heroPropEmoji = item.proposedBy==='david'?'&#x1F435;':item.proposedBy==='maria'?'&#x1F437;':'&#x1F435;&#x1F437;';
+      return '<div class="cine-card cine-hero-card" onclick="openCineDetail(\''+item.id+'\')" style="cursor:pointer;position:relative;height:380px;border-radius:22px;overflow:hidden;margin-bottom:28px;border:1px solid #2a2a3e;box-shadow:0 12px 36px rgba(0,0,0,0.6),0 0 60px rgba(240,192,64,0.08);">'
+        +(item.poster?'<img src="'+esc(item.poster)+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">':'<div style="width:100%;height:100%;background:#1c1c2e;"></div>')
+        +'<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,18,0) 0%,rgba(10,10,18,0.2) 40%,rgba(10,10,18,0.85) 70%,rgba(10,10,18,0.98) 100%);"></div>'
+        +'<div style="position:absolute;top:14px;left:14px;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);color:#f0c040;padding:5px 12px;border-radius:999px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;border:1px solid rgba(240,192,64,0.4);">&#127902; Viendo ahora</div>'
+        +'<div style="position:absolute;top:14px;right:14px;display:flex;flex-direction:column;gap:6px;" onclick="event.stopPropagation()">'
+        +'<button onclick="event.stopPropagation();delCineItem(\''+item.id+'\')" style="width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);color:#ccc;font-size:16px;">&#xD7;</button>'
+        +'<button onclick="event.stopPropagation();openEditCine(\''+item.id+'\')" style="width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);color:#ccc;font-size:13px;">&#x270E;</button>'
+        +'</div>'
+        +'<div style="position:absolute;bottom:0;left:0;right:0;padding:20px;">'
+        +'<div style="font-family:var(--font-title);font-style:italic;font-size:28px;font-weight:900;color:white;line-height:1.1;margin-bottom:8px;text-shadow:0 2px 12px rgba(0,0,0,0.8);">'+esc(item.title)+'</div>'
+        +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">'+platBadge+'<span style="color:#fff;font-size:13px;">'+heroPropEmoji+'</span>'+(item.genres?'<span style="color:#aaa;font-size:12px;">'+esc(item.genres)+'</span>':'')+'<span style="color:#888;font-size:12px;">'+(item.year||'')+'</span></div>'
+        +'<button onclick="event.stopPropagation();setCineEstado(\''+item.id+'\',\'visto\')" style="margin-top:6px;padding:10px 20px;background:rgba(240,192,64,0.95);border:none;border-radius:999px;color:#13131f;font-family:var(--font-body);font-size:13px;font-weight:800;">Marcar como visto</button>'
+        +'</div>'
+        +'</div>';
+    }
     return '<div class="cine-card">'
       +'<div class="cine-card-top" onclick="openCineDetail(\''+item.id+'\')" style="cursor:pointer;">'
       +(item.poster?'<img class="cine-poster" src="'+esc(item.poster)+'" alt="">':'<div class="cine-poster-ph">'+typeIcon+'</div>')
@@ -3671,6 +3698,15 @@ function renderCineList() {
 }
 
 
+
+window.setCineProposer = async function(id, who) {
+  var items=JSON.parse(JSON.stringify(appData.cine||[]));
+  var item=items.find(function(x){return x.id===id;}); if(!item) return;
+  item.proposedBy = who;
+  await setDoc(doc(db,'app_data','cine'),{items:items});
+  setTimeout(function(){ openCineDetail(id); }, 100);
+};
+
 window.openCineDetail = async function(id) {
   var item = (appData.cine||[]).find(function(x){return x.id===id;}); if(!item) return;
   var el = safe('cine-detail-content'); if(!el) return;
@@ -3678,9 +3714,9 @@ window.openCineDetail = async function(id) {
   var who=isDavid?'david':'maria', other=isDavid?'maria':'david';
   var typeIcon = item.tipo==='pelicula'?'<img src="'+CINE_ICONS.popcorn+'" width="20" height="20">':'<img src="'+CINE_ICONS.tv+'" width="20" height="20">';
   var platBadge = item.platform ? (PLATFORM_BADGES[item.platform]||PLATFORM_BADGES.otro) : '';
-  var propEmoji = item.proposedBy==='david'?'&#x1F435;':'&#x1F437;';
+  var propEmoji = item.proposedBy==='david'?'&#x1F435;':item.proposedBy==='maria'?'&#x1F437;':'&#x1F435;&#x1F437;';
   var propName = item.proposedBy==='david'?'David':'Mar\u00eda';
-  var iProposed = item.proposedBy === who;
+  var iProposed = item.proposedBy === who || item.proposedBy === 'ambos';
   var reactBlock = '';
   var rxList = [{key:'like',icon:CINE_ICONS.thumb,lbl:'Me interesa'},{key:'love',icon:CINE_ICONS.heart,lbl:'Me encanta'},{key:'meh',icon:CINE_ICONS.bored,lbl:'Boh'}];
   if(iProposed) {
@@ -3732,6 +3768,7 @@ window.openCineDetail = async function(id) {
     + ratingsBlock
     + estadoBlock
     + linkBlock
+    + (item.proposedBy==='ambos' ? '<button onclick="setCineProposer(\''+item.id+'\',\''+who+'\')" style="width:100%;padding:12px;background:rgba(240,192,64,0.08);border:1.5px solid rgba(240,192,64,0.3);border-radius:12px;color:#f0c040;font-weight:700;font-family:var(--font-body);margin-bottom:8px;">&#x1F435;&#x1F437; Propuesta por ambos &middot; Quitar</button>' : '<button onclick="setCineProposer(\''+item.id+'\',\'ambos\')" style="width:100%;padding:12px;background:transparent;border:1.5px solid #2a2a3e;border-radius:12px;color:#888;font-weight:700;font-family:var(--font-body);margin-bottom:8px;">&#x1F435;&#x1F437; Marcar como propuesta de ambos</button>')
     + '<button onclick="openEditCine(\''+item.id+'\');closeCineDetail()" style="width:100%;padding:12px;background:transparent;border:1.5px solid #2a2a3e;border-radius:12px;color:#666;font-weight:700;font-family:var(--font-body);margin-bottom:8px;">&#x270E; Editar ficha</button>'
     + '<button onclick="delCineItem(\''+item.id+'\')" style="width:100%;padding:12px;background:transparent;border:1.5px solid #4e2a2a;border-radius:12px;color:#aa4444;font-weight:700;font-family:var(--font-body);">Eliminar</button>'
     + '<div id="cine-detail-similar" style="margin-top:24px;"></div>';
@@ -3972,7 +4009,7 @@ window.renderCineRanking = function() {
   html+='</div>';
   // LIST 4-10
   items.slice(3).forEach(function(it,i){
-    var pe=it.proposedBy==='david'?'&#x1F435;':'&#x1F437;';
+    var pe=it.proposedBy==='david'?'&#x1F435;':it.proposedBy==='maria'?'&#x1F437;':'&#x1F435;&#x1F437;';
     html+='<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #1e1e30;">'
       +'<div style="font-size:16px;font-weight:700;color:#555;width:24px;">'+(i+4)+'.</div>'
       +(it.poster?'<img src="'+esc(it.poster)+'" style="width:40px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;">':'')
@@ -3984,7 +4021,7 @@ window.renderCineRanking = function() {
   // VS BATTLE
   var allV=(appData.cine||[]).filter(function(x){return x.estado==='visto'&&x.ratings&&x.ratings.david&&x.ratings.maria;});
   var dS=0,dC=0,mS=0,mC=0;
-  allV.forEach(function(x){var avg=(parseInt(x.ratings.david)+parseInt(x.ratings.maria))/2;if(x.proposedBy==='david'){dS+=avg;dC++;}else{mS+=avg;mC++;}});
+  allV.forEach(function(x){var avg=(parseInt(x.ratings.david)+parseInt(x.ratings.maria))/2;if(x.proposedBy==='ambos'){dS+=avg*0.5;dC+=0.5;mS+=avg*0.5;mC+=0.5;}else if(x.proposedBy==='david'){dS+=avg;dC++;}else{mS+=avg;mC++;}});
   var vb=safe('cine-vs-battle'),vt=safe('cine-vs-text');
   if(vb&&dC>0&&mC>0){
     vb.style.display='block';
