@@ -3457,6 +3457,7 @@ const TMDB_IMG = 'https://image.tmdb.org/t/p/w200';
 var _cineTab = 'proximo';
 var _cineFilter = 'all';
 var _cineType = 'pelicula';
+var _ambosProposed = false;
 var _cineState = 'proximo';
 var _cineEditId = null;
 var _ratingItemId = null;
@@ -3578,7 +3579,7 @@ window.saveCineItem = async function() {
   var title = ((safe('cine-title-inp')||{}).value||'').trim();
   if(!title) return;
   var isDavid = (window._currentUserEmail||'').indexOf('david')>=0;
-  var item = { id: _cineEditId || Date.now()+'', title: title, tipo: _cineType, estado: _cineState, platform: (safe('cine-platform')||{}).value||'', link: ((safe('cine-link-inp')||{}).value||'').trim(), proposedBy: isDavid?'david':'maria', createdAt: Date.now(), reactions: {}, ratings: {}, year: new Date().getFullYear()+'', poster: _tmdbSelected?_tmdbSelected.poster:'', overview: _tmdbSelected?_tmdbSelected.overview:'', genres: _tmdbSelected?_tmdbSelected.genres:'' };
+  var item = { id: _cineEditId || Date.now()+'', title: title, tipo: _cineType, estado: _cineState, platform: (safe('cine-platform')||{}).value||'', link: ((safe('cine-link-inp')||{}).value||'').trim(), proposedBy: _ambosProposed ? 'ambos' : (isDavid?'david':'maria'), createdAt: Date.now(), reactions: {}, ratings: {}, year: new Date().getFullYear()+'', poster: _tmdbSelected?_tmdbSelected.poster:'', overview: _tmdbSelected?_tmdbSelected.overview:'', genres: _tmdbSelected?_tmdbSelected.genres:'' };
   var items = JSON.parse(JSON.stringify(appData.cine||[]));
   if(_cineEditId) { var idx = items.findIndex(function(x){return x.id===_cineEditId;}); if(idx>=0) items[idx] = Object.assign(items[idx], item); } else { items.push(item); }
   await setDoc(doc(db,'app_data','cine'),{items:items});
@@ -3590,6 +3591,12 @@ window.saveCineItem = async function() {
 window.openEditCine = function(id) {
   var item = (appData.cine||[]).find(function(x){return x.id===id;}); if(!item) return;
   _cineEditId = id;
+  _ambosProposed = (item.proposedBy === 'ambos');
+  setTimeout(function(){
+    var sw=safe('ambos-switch'), knob=safe('ambos-switch-knob');
+    if(sw) sw.style.background = _ambosProposed ? '#f0c040' : '#2a2a3e';
+    if(knob) knob.style.transform = _ambosProposed ? 'translateX(18px)' : 'translateX(0)';
+  }, 50);
   _tmdbSelected = item.poster ? {poster:item.poster,overview:item.overview,genres:item.genres} : null;
   if(safe('cine-title-inp')) safe('cine-title-inp').value = item.title||'';
   if(safe('cine-link-inp')) safe('cine-link-inp').value = item.link||'';
@@ -3871,62 +3878,89 @@ window.launchConfetti = function() {
 
 window.openCineWrapped = function(year) {
   year = year || (new Date().getFullYear()+'');
-  var items = (appData.cine||[]).filter(function(x){
+  var allItems = (appData.cine||[]).filter(function(x){
     return x.estado==='visto' && (x.watchedYear===year || ((x.watchedAt||0) > new Date(year+'-01-01').getTime() && (x.watchedAt||0) < new Date((parseInt(year)+1)+'-01-01').getTime()));
   });
-  var total = items.length;
-  if(!total){
+  if(!allItems.length){
     if(!confirm('A\u00fan no hab\u00e9is visto nada en '+year+'. \u00bfMostrar de todos modos?')) return;
   }
-  var allAvgs = items.filter(function(x){return x.ratings&&x.ratings.david&&x.ratings.maria;}).map(function(x){return (parseInt(x.ratings.david)+parseInt(x.ratings.maria))/2;});
-  var avg = allAvgs.length ? (allAvgs.reduce(function(a,b){return a+b;},0)/allAvgs.length).toFixed(1) : '0';
-  var genreCount={};
-  items.forEach(function(x){ (x.genres||'').split(',').forEach(function(g){var gn=g.trim();if(gn)genreCount[gn]=(genreCount[gn]||0)+1;}); });
-  var topGenre = Object.keys(genreCount).sort(function(a,b){return genreCount[b]-genreCount[a];})[0] || '-';
+
+  // Helper para calcular stats de un subconjunto
+  function calcStats(items) {
+    var total = items.length;
+    var avgs = items.filter(function(x){return x.ratings&&x.ratings.david&&x.ratings.maria;}).map(function(x){return (parseInt(x.ratings.david)+parseInt(x.ratings.maria))/2;});
+    var avg = avgs.length ? (avgs.reduce(function(a,b){return a+b;},0)/avgs.length).toFixed(1) : '0';
+    var genreCount={};
+    items.forEach(function(x){ (x.genres||'').split(',').forEach(function(g){var gn=g.trim();if(gn)genreCount[gn]=(genreCount[gn]||0)+1;}); });
+    var topGenre = Object.keys(genreCount).sort(function(a,b){return genreCount[b]-genreCount[a];})[0] || '-';
+    var top3 = items.filter(function(x){return x.ratings&&x.ratings.david&&x.ratings.maria;})
+      .map(function(x){return Object.assign({},x,{avg:(parseInt(x.ratings.david)+parseInt(x.ratings.maria))/2});})
+      .sort(function(a,b){return b.avg-a.avg;}).slice(0,3);
+    return {total:total, avg:avg, topGenre:topGenre, top3:top3};
+  }
+
+  var pelis = allItems.filter(function(x){return x.tipo==='pelicula';});
+  var series = allItems.filter(function(x){return x.tipo==='serie';});
+  var totalAll = allItems.length;
+
+  // Mejor proponente (sobre todo)
   var dAvg=0,mAvg=0,dN=0,mN=0;
-  items.forEach(function(x){
+  allItems.forEach(function(x){
     if(!x.ratings||!x.ratings.david||!x.ratings.maria) return;
     var a=(parseInt(x.ratings.david)+parseInt(x.ratings.maria))/2;
-    if(x.proposedBy==='david'){dAvg+=a;dN++;}else{mAvg+=a;mN++;}
+    if(x.proposedBy==='ambos'){dAvg+=a*0.5;dN+=0.5;mAvg+=a*0.5;mN+=0.5;}
+    else if(x.proposedBy==='david'){dAvg+=a;dN++;}
+    else{mAvg+=a;mN++;}
   });
   var dProp=dN>0?(dAvg/dN).toFixed(1):'0', mProp=mN>0?(mAvg/mN).toFixed(1):'0';
-  var bestProp = parseFloat(dProp) > parseFloat(mProp) ? '&#x1F435; David' : '&#x1F437; Mar\u00eda';
-  var top3 = items.filter(function(x){return x.ratings&&x.ratings.david&&x.ratings.maria;})
-    .map(function(x){return Object.assign({},x,{avg:(parseInt(x.ratings.david)+parseInt(x.ratings.maria))/2});})
-    .sort(function(a,b){return b.avg-a.avg;}).slice(0,3);
+  var bestProp = parseFloat(dProp) > parseFloat(mProp) ? '&#x1F435; David' : parseFloat(mProp) > parseFloat(dProp) ? '&#x1F437; Mar\u00eda' : 'Empate';
+
+  function renderSection(title, stats, icon) {
+    if(stats.total===0) return '<div style="background:#13131f;border:1px solid #2a2a3e;border-radius:18px;padding:20px;margin-bottom:14px;text-align:center;color:#666;font-size:13px;">'+title+': sin datos este a\u00f1o</div>';
+    var html = '<div style="background:#13131f;border:1px solid #2a2a3e;border-radius:18px;padding:18px;margin-bottom:14px;">'
+      + '<div style="text-align:center;margin-bottom:14px;">'
+      + '<div style="display:inline-flex;align-items:center;gap:8px;font-size:11px;color:#f0c040;text-transform:uppercase;letter-spacing:2px;font-weight:900;">'+icon+title+'</div>'
+      + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">'
+      + '<div style="text-align:center;padding:10px 4px;background:#1a1a2e;border-radius:12px;"><div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;">Vistas</div><div style="font-size:24px;font-weight:900;color:white;margin-top:4px;">'+stats.total+'</div></div>'
+      + '<div style="text-align:center;padding:10px 4px;background:#1a1a2e;border-radius:12px;"><div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;">Media</div><div style="font-size:24px;font-weight:900;color:white;margin-top:4px;">'+stats.avg+'</div></div>'
+      + '<div style="text-align:center;padding:10px 4px;background:#1a1a2e;border-radius:12px;"><div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;">G\u00e9nero</div><div style="font-size:11px;font-weight:800;color:white;margin-top:6px;line-height:1.2;">'+stats.topGenre+'</div></div>'
+      + '</div>';
+    if(stats.top3.length) {
+      html += '<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:10px;padding-left:4px;">Top 3</div>';
+      html += stats.top3.map(function(t,i){
+        var medal = ['&#129351;','&#129352;','&#129353;'][i];
+        return '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;'+(i<stats.top3.length-1?'border-bottom:1px solid #2a2a3e;':'')+'">'
+          + '<div style="font-size:20px;">'+medal+'</div>'
+          + (t.poster?'<img src="'+esc(t.poster)+'" style="width:32px;height:48px;object-fit:cover;border-radius:5px;">':'')
+          + '<div style="flex:1;min-width:0;"><div style="color:white;font-weight:700;font-size:13px;line-height:1.2;">'+esc(t.title)+'</div></div>'
+          + '<div style="color:#f0c040;font-weight:900;font-size:14px;">'+t.avg.toFixed(1)+'</div></div>';
+      }).join('');
+    }
+    html += '</div>';
+    return html;
+  }
+
+  var pelisStats = calcStats(pelis);
+  var seriesStats = calcStats(series);
+
   var el = safe('cine-wrapped-content');
   el.innerHTML = '<div style="text-align:center;margin-bottom:24px;">'
     + '<div style="font-size:14px;color:#888;letter-spacing:2px;text-transform:uppercase;">Cartelera</div>'
     + '<div style="font-size:48px;font-weight:900;color:white;font-family:var(--font-title);background:linear-gradient(90deg,#f0c040,#ff4488);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">'+year+'</div>'
     + '</div>'
-    + '<div style="background:#13131f;border:1px solid #2a2a3e;border-radius:18px;padding:20px;margin-bottom:14px;text-align:center;">'
-    + '<div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">T\u00edtulos vistos</div>'
-    + '<div style="font-size:48px;font-weight:900;color:#f0c040;">'+total+'</div>'
+    + '<div style="background:linear-gradient(135deg,rgba(240,192,64,0.15) 0%,#13131f 60%);border:1px solid rgba(240,192,64,0.3);border-radius:18px;padding:20px;margin-bottom:18px;text-align:center;">'
+    + '<div style="font-size:11px;color:#f0c040;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;font-weight:900;">Total visto</div>'
+    + '<div style="font-size:56px;font-weight:900;color:#f0c040;line-height:1;">'+totalAll+'</div>'
+    + '<div style="font-size:13px;color:#aaa;margin-top:6px;">'+pelis.length+' pel\u00edculas \u00b7 '+series.length+' series</div>'
     + '</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">'
-    + '<div style="background:#13131f;border:1px solid #2a2a3e;border-radius:18px;padding:16px;text-align:center;">'
-    + '<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Media</div>'
-    + '<div style="font-size:32px;font-weight:900;color:white;">'+avg+'</div>'
-    + '<div style="font-size:14px;"><img src="'+CINE_ICONS.duck_gold+'" width="18" height="18"></div>'
-    + '</div>'
-    + '<div style="background:#13131f;border:1px solid #2a2a3e;border-radius:18px;padding:16px;text-align:center;">'
-    + '<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">G\u00e9nero top</div>'
-    + '<div style="font-size:16px;font-weight:900;color:white;line-height:1.2;margin-top:8px;">'+topGenre+'</div>'
-    + '</div></div>'
-    + '<div style="background:#13131f;border:1px solid #2a2a3e;border-radius:18px;padding:20px;margin-bottom:14px;text-align:center;">'
-    + '<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Mejor proponente</div>'
-    + '<div style="font-size:24px;font-weight:900;color:#f0c040;">'+bestProp+'</div>'
-    + '<div style="color:#aaa;font-size:13px;margin-top:6px;">Media de sus propuestas: '+(parseFloat(dProp)>parseFloat(mProp)?dProp:mProp)+'</div>'
-    + '</div>'
-    + (top3.length ? '<div style="background:#13131f;border:1px solid #2a2a3e;border-radius:18px;padding:20px;"><div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;text-align:center;">Top 3 del a\u00f1o</div>'
-      + top3.map(function(t,i){
-        var medal = ['&#129351;','&#129352;','&#129353;'][i];
-        return '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;'+(i<2?'border-bottom:1px solid #2a2a3e;':'')+'">'
-          + '<div style="font-size:24px;">'+medal+'</div>'
-          + (t.poster?'<img src="'+esc(t.poster)+'" style="width:40px;height:60px;object-fit:cover;border-radius:6px;">':'')
-          + '<div style="flex:1;"><div style="color:white;font-weight:700;font-size:14px;">'+esc(t.title)+'</div></div>'
-          + '<div style="color:#f0c040;font-weight:900;">'+t.avg.toFixed(1)+'</div></div>';
-      }).join('') + '</div>' : '');
+    + renderSection('Pel\u00edculas', pelisStats, '<img src="'+CINE_ICONS.popcorn+'" width="14" height="14">')
+    + renderSection('Series', seriesStats, '<img src="'+CINE_ICONS.tv+'" width="14" height="14">')
+    + '<div style="background:#13131f;border:1px solid #2a2a3e;border-radius:18px;padding:20px;text-align:center;">'
+    + '<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-weight:700;">Mejor proponente</div>'
+    + '<div style="font-size:26px;font-weight:900;color:#f0c040;">'+bestProp+'</div>'
+    + (bestProp!=='Empate' ? '<div style="color:#aaa;font-size:13px;margin-top:6px;">Media de sus propuestas: '+(parseFloat(dProp)>parseFloat(mProp)?dProp:mProp)+'</div>' : '')
+    + '</div>';
   safe('cine-wrapped-screen').style.display = 'block';
   setTimeout(function(){ if(typeof launchConfetti==='function') launchConfetti(); }, 300);
 };
