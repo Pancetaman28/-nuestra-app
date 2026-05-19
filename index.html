@@ -586,10 +586,11 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
             <div style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909;</div>
           </div>
         </div>
-        <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;align-items:center;">
           <button class="cine-tab active" onclick="setCineTab('viendo')" id="ctab-viendo">Viendo</button>
           <button class="cine-tab" onclick="setCineTab('proximo')" id="ctab-proximo">Pr&#243;ximo</button>
           <button class="cine-tab" onclick="setCineTab('visto')" id="ctab-visto">Visto</button>
+          <button onclick="openMiCartelera()" style="margin-left:auto;padding:7px 12px;border:1.5px solid rgba(240,192,64,0.3);border-radius:999px;background:transparent;color:rgba(240,192,64,0.7);font-family:var(--font-body);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;">&#128274; Mi Cartelera</button>
         </div>
       </div>
       <div style="padding:18px 16px 100px;">
@@ -600,7 +601,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <button class="cine-filter" onclick="setCineFilter('serie')" id="cfil-serie"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMzAwIDMwMCI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogIzAwNWY4OTsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsOiAjNmQ2ZDZkOwogICAgICB9CgogICAgICAuY2xzLTMgewogICAgICAgIGZpbGw6ICM1MzdmOTE7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogI2ZmZjsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjMDQzNTU5OwogICAgICB9CgogICAgICAuY2xzLTYgewogICAgICAgIGZpbGw6ICM4M2FjYzY7CiAgICAgIH0KCiAgICAgIC5jbHMtNyB7CiAgICAgICAgZmlsbDogI2QzZDNkMzsKICAgICAgfQogICAgPC9zdHlsZT4KICA8L2RlZnM+CiAgPHJlY3QgY2xhc3M9ImNscy02IiB4PSI2MS45MSIgeT0iODEuNTMiIHdpZHRoPSI4Ny4zIiBoZWlnaHQ9Ijk1LjUzIi8+CiAgPHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjE0OS4yMSAxNzcuMDYgNjEuOTEgMTc3LjA2IDYxLjkxIDgxLjUzIDE0OS4yMSA4MS41MyAxNDkuMjEgNTAuNzggMzEuMTYgNTAuNzggMzEuMTYgMjA3LjgyIDEzMS4wOSAyMDcuODIgMTQ5LjIxIDIwNy44MiAxNDkuMjEgMTc3LjA2Ii8+CiAgPHBvbHlnb24gY2xhc3M9ImNscy00IiBwb2ludHM9IjEzMS4wOSAyMzMuMDcgNzUuMDggMjMzLjA3IDc1LjA4IDI0Ny45IDE0OS4yMSAyNDcuOSAxNDkuMjEgMjMzLjA3IDEzMS4wOSAyMzMuMDciLz4KICA8cmVjdCBjbGFzcz0iY2xzLTQiIHg9IjEzMS4wOSIgeT0iMjA3LjgyIiB3aWR0aD0iMTguMTIiIGhlaWdodD0iMjUuMjYiLz4KICA8cmVjdCBjbGFzcz0iY2xzLTMiIHg9IjE0OS4yMSIgeT0iODEuNTMiIHdpZHRoPSI4Ny4zIiBoZWlnaHQ9Ijk1LjUzIi8+CiAgPHBvbHlnb24gY2xhc3M9ImNscy0yIiBwb2ludHM9IjIzNi41MSA4MS41MyAyMzYuNTEgMTc3LjA2IDE0OS4yMSAxNzcuMDYgMTQ5LjIxIDIwNy44MiAxNjcuMzMgMjA3LjgyIDI2Ny4yNiAyMDcuODIgMjY3LjI2IDUwLjc4IDE0OS4yMSA1MC43OCAxNDkuMjEgODEuNTMgMjM2LjUxIDgxLjUzIi8+CiAgPHBvbHlnb24gY2xhc3M9ImNscy03IiBwb2ludHM9IjIyMy4zNCAyMzMuMDcgMTY3LjMzIDIzMy4wNyAxNDkuMjEgMjMzLjA3IDE0OS4yMSAyNDcuOSAyMjMuMzQgMjQ3LjkgMjIzLjM0IDIzMy4wNyIvPgogIDxyZWN0IGNsYXNzPSJjbHMtNyIgeD0iMTQ5LjIxIiB5PSIyMDcuODIiIHdpZHRoPSIxOC4xMiIgaGVpZ2h0PSIyNS4yNiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE0MS42OCwxOTIuNDFjMCw0LjE2LDMuMzcsNy41Myw3LjUzLDcuNTN2LTE1LjA2Yy00LjE2LDAtNy41MywzLjM3LTcuNTMsNy41M1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik0xNTYuNzQsMTkyLjQxYzAtNC4xNS0zLjM3LTcuNTMtNy41My03LjUzdjE1LjA2YzQuMTUsMCw3LjUzLTMuMzcsNy41My03LjUzWiIvPgo8L3N2Zz4=" width="18" height="18">Serie</button>
         </div>
         <div id="cine-ruleta-btn" style="display:none;margin-bottom:18px;">
-          <button onclick="openRuleta()" style="width:100%;padding:14px;border:none;border-radius:16px;background:#1a1a2e;color:white;font-family:var(--font-body);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:12px;"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDMwMCAzMDAiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICNmMDQyNzE7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogI2ZmZjsKICAgICAgfQoKICAgICAgLmNscy0zIHsKICAgICAgICBmaWxsOiAjNTllNmZmOwogICAgICB9CgogICAgICAuY2xzLTQgewogICAgICAgIGZpbGw6IHVybCgjRGVncmFkYWRvX3Npbl9ub21icmVfMzQpOwogICAgICB9CgogICAgICAuY2xzLTUgewogICAgICAgIGZpbGw6ICM2MDM7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9IkRlZ3JhZGFkb19zaW5fbm9tYnJlXzM0IiBkYXRhLW5hbWU9IkRlZ3JhZGFkbyBzaW4gbm9tYnJlIDM0IiB4MT0iNjUuMjUiIHkxPSIxNjYuNDEiIHgyPSIyMzQuNzUiIHkyPSIxNjYuNDEiIGdyYWRpZW50VHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTYxLjYgLTU3LjMzKSByb3RhdGUoNDUpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzU5ZTZmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmMDQyNzEiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxjaXJjbGUgY2xhc3M9ImNscy01IiBjeD0iMTUwIiBjeT0iMTY2LjQxIiByPSI5NC41NyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTczLjc0IDE1NC44MSkgcm90YXRlKC00NSkiLz4KICA8Y2lyY2xlIGNsYXNzPSJjbHMtNCIgY3g9IjE1MCIgY3k9IjE2Ni40MSIgcj0iODQuNzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC03My43NCAxNTQuODEpIHJvdGF0ZSgtNDUpIi8+CiAgPGc+CiAgICA8Y2lyY2xlIGNsYXNzPSJjbHMtMyIgY3g9IjE1MCIgY3k9IjE2Ni40MiIgcj0iNzUuMjIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC00Ni4xMiAyNzQuNzQpIHJvdGF0ZSgtNzYuODgpIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNDkuNjEsMTY2LjM4bC0xLjE1LTc1LjIxYzEyLjg2LS4yLDI1LjU2LDIuOTEsMzYuODgsOS4wMiwxNS45LDguNTgsMjguMTgsMjIuNjEsMzQuNTksMzkuNDlsLTcwLjMyLDI2LjdaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNTAuNzgsMTY2LjA2bC02MC40Miw0NC44MWMtNy42Ni0xMC4zMy0xMi41NS0yMi40Ni0xNC4xOS0zNS4yMi0yLjMtMTcuOTIsMS45Mi0zNi4wOCwxMS45LTUxLjE0bDYyLjcxLDQxLjU1WiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTUwLjA0LDE2Ni4wNGw2Ni4xOSwzNS43M2MtNi4xMSwxMS4zMi0xNS4wMiwyMC44OC0yNS44OCwyNy43OC0xNS4yNSw5LjY4LTMzLjQ5LDEzLjU1LTUxLjM2LDEwLjlsMTEuMDUtNzQuNDFaIi8+CiAgPC9nPgogIDxwYXRoIGNsYXNzPSJjbHMtNSIgZD0iTTE2NS4xMiwyNTguOGMtLjA5LDAtLjE4LDAtLjI2LS4wMmwtMjcuMzItMy45OWMtLjQ4LS4wNy0uOTEtLjMzLTEuMi0uNzEtLjI5LS4zOS0uNDEtLjg3LS4zNC0xLjM1bDEyLjI3LTgzLjkyLTY5Ljc0LDUzLjkxYy0uNDIuMzItLjk2LjQ1LTEuNDguMzQtLjUyLS4xMS0uOTctLjQ0LTEuMjItLjlsLTE0LjcxLTI2LjU2Yy0uMTEtLjIxLS4xOS0uNDMtLjIxLS42N2wtNC41OS0zOC4zNWMtLjA0LS4zMiwwLS42NS4xNC0uOTRsMTcuMi0zOS40MWMuMjEtLjQ4LjYxLS44NCwxLjExLTEsLjUtLjE2LDEuMDQtLjEsMS40OS4xN2w3MS45MSw0Mi44NC0xLjUyLTgyLjE0YzAtLjUyLjItMS4wMi41OS0xLjM3LjM4LS4zNS45LS41MiwxLjQyLS40N2wxOC4xOSwxLjkxYy4yMS4wMi40MS4wOC42LjE3bDQxLjg0LDIwLjA2Yy4yNy4xMy41MS4zMy42OS41OGwyNi4yNiwzNi40OWMuMzMuNDYuNDMsMS4wNS4yNiwxLjU5LS4xNy41NC0uNTguOTgtMS4xMSwxLjE3bC03OC41NCwyOS4wNy0uMTkuMjJjMjkuMjUsMTYuNTEsNzEuNjIsNDAuMzQsNzQuMjIsNDEuNTYuNDYuMTYuODUuNSwxLjA2Ljk2LjUyLDEuMTQtLjIzLDEuOTUtLjc0LDIuNDktLjI4LjMtLjY5LjcyLTEuMjQsMS4yOC0xLDEuMDEtMi40OCwyLjQ5LTQuMzksNC4zOC0zLjIxLDMuMTctNy43MSw3LjU4LTEzLjM1LDEzLjA4LTkuNjEsOS4zNy0xOS4zNiwxOC44Mi0xOS40NiwxOC45MS0uMTguMTctLjM5LjMtLjYxLjM5bC0yNi4zNywxMC4xYy0uMjEuMDgtLjQzLjEyLS42NS4xMlpNMTM5Ljg2LDI1MS40NmwyNS4wNSwzLjY2LDI1LjU4LTkuOGMxMi45LTEyLjUsMzEuNC0zMC41LDM2LjgyLTM1Ljk5LTEuODItLjk4LTQuODYtMi42Ny0xMC4xLTUuNTktNi4zNi0zLjU1LTE1LjItOC40OS0yNi4yNS0xNC43MS0xOC44Mi0xMC41OC0zNy44MS0yMS4zLTM4LTIxLjQxLS4zMi0uMTgtLjU3LS40NC0uNzMtLjc2bC0xMi4zNyw4NC42Wk02NC40NywxOTQuMTVsMTMuNTEsMjQuMzksNzEuNTYtNTUuMzJjLS4xNS0uMDQtLjMtLjExLS40NC0uMTlsLTcyLjk1LTQzLjQ2LTE2LjE3LDM3LjA3LDQuNDgsMzcuNTFaTTE1MS4yMSwxNjIuODdjLjE1LjA0LjI5LjEuNDMuMTguNjEuMzYuOTYsMS4wMy44OSwxLjczbDEuODQtMi4xOGMuMi0uMjQuNDYtLjQzLjc2LS41M2w3Ni43Ni0yOC40LTI0LjYtMzQuMTgtNDEuMTQtMTkuNzMtMTUuODMtMS42NiwxLjU0LDgzLjM1Yy4wMS41NS0uMjMsMS4wOC0uNjUsMS40M1oiLz4KICA8Zz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTE2My45MiwxNTMuODloMHMtLjAyLS4wMi0uMDItLjAyYy0xLjQzLTEuNDYtMy4xMS0yLjYtNC45Mi0zLjRsLTIxLjYyLTE0Ljk0YzEuMDUtMS45NCwxLjA3LTQuMzctLjE1LTYuMzktMS44NC0zLjA0LTUuNzktNC4wMS04LjgzLTIuMTctMy4wNCwxLjg0LTQuMDEsNS43OS0yLjE3LDguODMsMS4yOCwyLjEyLDMuNiwzLjIzLDUuOTEsMy4wOWw0LjQ4LDI2LjU1Yy4wMywxLjUxLjI4LDMuMDIuNzYsNC40OXYuMDNzMCwwLDAsMGMuMzcsMS4xNS44OCwyLjI3LDEuNTMsMy4zNSw0LjU2LDcuNTMsMTQuMzYsOS45NSwyMS44OSw1LjM5LDcuNTMtNC41Niw5Ljk1LTE0LjM2LDUuMzktMjEuODktLjY1LTEuMDgtMS40MS0yLjA1LTIuMjYtMi45MVoiLz4KICAgIDxjaXJjbGUgY2xhc3M9ImNscy01IiBjeD0iMTUyLjc3IiBjeT0iMTY0LjYyIiByPSI4LjI1IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMzQuMTkgMjg5LjA1KSByb3RhdGUoLTgwLjc4KSIvPgogICAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTM1LjQ5LDEzMi4xMWMwLDIuMTMtMS43MywzLjg2LTMuODYsMy44NnMtMy44Ni0xLjczLTMuODYtMy44NiwxLjczLTMuODYsMy44Ni0zLjg2LDMuODYsMS43MywzLjg2LDMuODZaIi8+CiAgPC9nPgo8L3N2Zz4=" width="28" height="28">Girar la ruleta</button>
+          <button onclick="openRuleta()" style="width:100%;padding:14px;border:none;border-radius:16px;background:#1a1a2e;color:white;font-family:var(--font-body);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:12px;"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDMwMCAzMDAiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICNmMDQyNzE7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogI2ZmZjsKICAgICAgfQoKICAgICAgLmNscy0zIHsKICAgICAgICBmaWxsOiAjNTllNmZmOwogICAgICB9CgogICAgICAuY2xzLTQgewogICAgICAgIGZpbGw6IHVybCgjRGVncmFkYWRvX3Npbl9ub21icmVfMzQpOwogICAgICB9CgogICAgICAuY2xzLTUgewogICAgICAgIGZpbGw6ICM2MDM7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9IkRlZ3JhZGFkb19zaW5fbm9tYnJlXzM0IiBkYXRhLW5hbWU9IkRlZ3JhZGFkbyBzaW4gbm9tYnJlIDM0IiB4MT0iNjUuMjUiIHkxPSIxNjYuNDEiIHgyPSIyMzQuNzUiIHkyPSIxNjYuNDEiIGdyYWRpZW50VHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTYxLjYgLTU3LjMzKSByb3RhdGUoNDUpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzU5ZTZmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmMDQyNzEiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxjaXJjbGUgY2xhc3M9ImNscy01IiBjeD0iMTUwIiBjeT0iMTY2LjQxIiByPSI5NC41NyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTczLjc0IDE1NC44MSkgcm90YXRlKC00NSkiLz4KICA8Y2lyY2xlIGNsYXNzPSJjbHMtNCIgY3g9IjE1MCIgY3k9IjE2Ni40MSIgcj0iODQuNzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC03My43NCAxNTQuODEpIHJvdGF0ZSgtNDUpIi8+CiAgPGc+CiAgICA8Y2lyY2xlIGNsYXNzPSJjbHMtMyIgY3g9IjE1MCIgY3k9IjE2Ni40MiIgcj0iNzUuMjIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC00Ni4xMiAyNzQuNzQpIHJvdGF0ZSgtNzYuODgpIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNDkuNjEsMTY2LjM4bC0xLjE1LTc1LjIxYzEyLjg2LS4yLDI1LjU2LDIuOTEsMzYuODgsOS4wMiwxNS45LDguNTgsMjguMTgsMjIuNjEsMzQuNTksMzkuNDlsLTcwLjMyLDI2LjdaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNTAuNzgsMTY2LjA2bC02MC40Miw0NC44MWMtNy42Ni0xMC4zMy0xMi41NS0yMi40Ni0xNC4xOS0zNS4yMi0yLjMtMTcuOTIsMS45Mi0zNi4wOCwxMS45LTUxLjE0bDYyLjcxLDQxLjU1WiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTUwLjA0LDE2Ni4wNGw2Ni4xOSwzNS43M2MtNi4xMSwxMS4zMi0xNS4wMiwyMC44OC0yNS44OCwyNy43OC0xNS4yNSw5LjY4LTMzLjQ5LDEzLjU1LTUxLjM2LDEwLjlsMTEuMDUtNzQuNDFaIi8+CiAgPC9nPgogIDxwYXRoIGNsYXNzPSJjbHMtNSIgZD0iTTE2NS4xMiwyNTguOGMtLjA5LDAtLjE4LDAtLjI2LS4wMmwtMjcuMzItMy45OWMtLjQ4LS4wNy0uOTEtLjMzLTEuMi0uNzEtLjI5LS4zOS0uNDEtLjg3LS4zNC0xLjM1bDEyLjI3LTgzLjkyLTY5Ljc0LDUzLjkxYy0uNDIuMzItLjk2LjQ1LTEuNDguMzQtLjUyLS4xMS0uOTctLjQ0LTEuMjItLjlsLTE0LjcxLTI2LjU2Yy0uMTEtLjIxLS4xOS0uNDMtLjIxLS42N2wtNC41OS0zOC4zNWMtLjA0LS4zMiwwLS42NS4xNC0uOTRsMTcuMi0zOS40MWMuMjEtLjQ4LjYxLS44NCwxLjExLTEsLjUtLjE2LDEuMDQtLjEsMS40OS4xN2w3MS45MSw0Mi44NC0xLjUyLTgyLjE0YzAtLjUyLjItMS4wMi41OS0xLjM3LjM4LS4zNS45LS41MiwxLjQyLS40N2wxOC4xOSwxLjkxYy4yMS4wMi40MS4wOC42LjE3bDQxLjg0LDIwLjA2Yy4yNy4xMy41MS4zMy42OS41OGwyNi4yNiwzNi40OWMuMzMuNDYuNDMsMS4wNS4yNiwxLjU5LS4xNy41NC0uNTguOTgtMS4xMSwxLjE3bC03OC41NCwyOS4wNy0uMTkuMjJjMjkuMjUsMTYuNTEsNzEuNjIsNDAuMzQsNzQuMjIsNDEuNTYuNDYuMTYuODUuNSwxLjA2Ljk2LjUyLDEuMTQtLjIzLDEuOTUtLjc0LDIuNDktLjI4LjMtLjY5LjcyLTEuMjQsMS4yOC0xLDEuMDEtMi40OCwyLjQ5LTQuMzksNC4zOC0zLjIxLDMuMTctNy43MSw3LjU4LTEzLjM1LDEzLjA4LTkuNjEsOS4zNy0xOS4zNiwxOC44Mi0xOS40NiwxOC45MS0uMTguMTctLjM5LjMtLjYxLjM5bC0yNi4zNywxMC4xYy0uMjEuMDgtLjQzLjEyLS42NS4xMlpNMTM5Ljg2LDI1MS40NmwyNS4wNSwzLjY2LDI1LjU4LTkuOGMxMi45LTEyLjUsMzEuNC0zMC41LDM2LjgyLTM1Ljk5LTEuODItLjk4LTQuODYtMi42Ny0xMC4xLTUuNTktNi4zNi0zLjU1LTE1LjItOC40OS0yNi4yNS0xNC43MS0xOC44Mi0xMC41OC0zNy44MS0yMS4zLTM4LTIxLjQxLS4zMi0uMTgtLjU3LS40NC0uNzMtLjc2bC0xMi4zNyw4NC42Wk02NC40NywxOTQuMTVsMTMuNTEsMjQuMzksNzEuNTYtNTUuMzJjLS4xNS0uMDQtLjMtLjExLS40NC0uMTlsLTcyLjk1LTQzLjQ2LTE2LjE3LDM3LjA3LDQuNDgsMzcuNTFaTTE1MS4yMSwxNjIuODdjLjE1LjA0LjI5LjEuNDMuMTguNjEuMzYuOTYsMS4wMy44OSwxLjczbDEuODQtMi4xOGMuMi0uMjQuNDYtLjQzLjc2LS41M2w3Ni43Ni0yOC40LTI0LjYtMzQuMTgtNDEuMTQtMTkuNzMtMTUuODMtMS42NiwxLjU0LDgzLjM1Yy4wMS41NS0uMjMsMS4wOC0uNjUsMS40M1oiLz4KICA8Zz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTE2My45MiwxNTMuODloMHMtLjAyLS4wMi0uMDItLjAyYy0xLjQzLTEuNDYtMy4xMS0yLjYtNC45Mi0zLjRsLTIxLjYyLTE0Ljk0YzEuMDUtMS45NCwxLjA3LTQuMzctLjE1LTYuMzktMS44NC0zLjA0LTUuNzktNC4wMS04LjgzLTIuMTctMy4wNCwxLjg0LTQuMDEsNS43OS0yLjE3LDguODMsMS4yOCwyLjEyLDMuNiwzLjIzLDUuOTEsMy4wOWw0LjQ4LDI2LjU1Yy4wMywxLjUxLjI4LDMuMDIuNzYsNC40OXYuMDNzMCwwLDAsMGMuMzcsMS4xNS44OCwyLjI3LDEuNTMsMy4zNSw0LjU2LDcuNTMsMTQuMzYsOS45NSwyMS44OSw1LjM5LDcuNTMtNC41Niw5Ljk1LTE0LjM2LDUuMzktMjEuODktLjY1LTEuMDgtMS40MS0yLjA1LTIuMjYtMi45MVoiLz4KICAgIDxjaXJjbGUgY2xhc3M9ImNscy01IiBjeD0iMTUyLjc3IiBjeT0iMTY0LjYyIiByPSI4LjI1IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMzQuMTkgMjg5LjA1KSByb3RhdGUoLTgwLjc4KSIvPgogICAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTM1LjQ5LDEzMi4xMWMwLDIuMTMtMS43MywzLjg2LTMuODYsMy44NnMtMy44Ni0xLjczLTMuODYtMy44NiwxLjczLTMuODYsMy44Ni0zLjg2LDMuODYsMS43MywzLjg2LDMuODZaIi8+CiAgPC9nPgo8L3N2Zz4=" width="28" height="28">&#127183; El Tarot</button>
         </div>
         <div id="cine-pending-chips"></div>
         <div id="cine-list"></div>
@@ -1101,9 +1102,9 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
 </div>
 
 <!-- RULETA MODAL -->
-<div id="modal-ruleta" style="display:none;position:fixed;inset:0;background:radial-gradient(ellipse at center,#1a0a18 0%,#080814 70%);z-index:400;flex-direction:column;align-items:center;padding:20px 16px 30px;overflow-y:auto;">
+<div id="modal-ruleta" style="display:none;position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,#2a0a35 0%,#0d0510 50%,#050008 100%);z-index:400;flex-direction:column;align-items:center;padding:20px 16px 30px;overflow-y:auto;background-image:radial-gradient(ellipse at 50% 30%,#2a0a35 0%,#0d0510 50%,#050008 100%),repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(240,192,64,0.015) 2px,rgba(240,192,64,0.015) 4px);">
   <button onclick="document.getElementById('modal-ruleta').style.display='none'" style="position:absolute;top:18px;left:16px;background:none;border:none;color:#888;font-size:14px;font-family:var(--font-body);z-index:10;">&#8249; Men&#250;</button>
-  <div style="margin-top:36px;margin-bottom:6px;text-align:center;"><span style="font-size:30px;font-weight:900;background:linear-gradient(90deg,#f0c040 0%,#ff8c42 50%,#f0c040 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--font-title);letter-spacing:2px;">El Tarot del Cine</span></div>
+  <div style="margin-top:36px;margin-bottom:6px;text-align:center;"><span style="font-size:30px;font-weight:900;background:linear-gradient(90deg,#f0c040 0%,#ff8c42 50%,#f0c040 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--font-title);letter-spacing:2px;">El Tarot</span></div>
   <div style="text-align:center;font-size:12px;color:#888;margin-bottom:24px;font-style:italic;">Deja que las cartas decidan...</div>
   <div id="cards-stage" style="position:relative;width:100%;max-width:380px;height:340px;margin:0 auto;perspective:1200px;"></div>
   <div id="cards-result" style="text-align:center;margin-top:8px;min-height:60px;"></div>
@@ -3566,12 +3567,19 @@ window.saveCineItem = async function() {
     if(_proposerChoice === 'otro') return isDavid?'maria':'david';
     return isDavid?'david':'maria';
   })(), createdAt: Date.now(), reactions: {}, ratings: {}, year: new Date().getFullYear()+'', poster: _tmdbSelected?_tmdbSelected.poster:'', overview: _tmdbSelected?_tmdbSelected.overview:'', genres: _tmdbSelected?_tmdbSelected.genres:'' };
+  closeModal('modal-add-cine');
+  // Check if saving to private list
+  if(_savingToPrivate) {
+    _savingToPrivate = false;
+    await saveToMiCartelera(item);
+    renderMiCartelera();
+    return;
+  }
   var items = JSON.parse(JSON.stringify(appData.cine||[]));
   if(_cineEditId) { var idx = items.findIndex(function(x){return x.id===_cineEditId;}); if(idx>=0) items[idx] = Object.assign(items[idx], item); } else { items.push(item); }
   await setDoc(doc(db,'app_data','cine'),{items:items});
   appData.cine = items;
   renderCineList();
-  closeModal('modal-add-cine');
 };
 
 window.openEditCine = function(id) {
@@ -3640,6 +3648,17 @@ function renderCineList() {
       var bT = b.watchedAt || b.createdAt || 0;
       return bT - aT;
     });
+  }
+  if(_cineTab==='proximo') {
+    // M: ordenar por entusiasmo de reacciones
+    function reactionScore(item){
+      var r = item.reactions||{};
+      var s = 0;
+      if(r.david==='love') s+=2; else if(r.david==='like') s+=1; else if(r.david==='meh') s-=1;
+      if(r.maria==='love') s+=2; else if(r.maria==='like') s+=1; else if(r.maria==='meh') s-=1;
+      return s;
+    }
+    items = items.slice().sort(function(a,b){ return reactionScore(b)-reactionScore(a); });
   }
   if(!items.length){ el.innerHTML='<div style="text-align:center;padding:50px 0;color:#444;font-size:14px;">Nada por aqu&#237; todav&#237;a</div>'; return; }
   var who=isDavid?'david':'maria';
@@ -3993,6 +4012,18 @@ window.openCineWrapped = function(year) {
     + '</div>'
     + renderSection('Pel\u00edculas', pelisStats, '<img src="'+CINE_ICONS.popcorn+'" width="14" height="14">')
     + renderSection('Series', seriesStats, '<img src="'+CINE_ICONS.tv+'" width="14" height="14">')
+    + (function(){
+        var gc={};
+        allItems.forEach(function(x){ (x.genres||'').split(',').forEach(function(g){var gn=g.trim();if(gn)gc[gn]=(gc[gn]||0)+1;}); });
+        var top3g=Object.keys(gc).sort(function(a,b){return gc[b]-gc[a];}).slice(0,3);
+        if(!top3g.length) return '';
+        var colors=['#f0c040','#ff8c42','#ff4488'];
+        return '<div style="background:#13131f;border:1px solid #2a2a3e;border-radius:18px;padding:18px;margin-bottom:14px;">'
+          + '<div style="font-size:10px;color:rgba(240,192,64,0.6);text-transform:uppercase;letter-spacing:2px;font-weight:800;margin-bottom:12px;">G\u00e9neros del a\u00f1o</div>'
+          + '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+          + top3g.map(function(g,i){ return '<div style="padding:8px 16px;border:1.5px solid '+colors[i]+';border-radius:999px;color:'+colors[i]+';font-weight:700;font-size:13px;">'+g+'</div>'; }).join('')
+          + '</div></div>';
+      })()
     + '<div style="background:#13131f;border:1px solid #2a2a3e;border-radius:18px;padding:20px;text-align:center;">'
     + '<div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-weight:700;">Mejor proponente</div>'
     + '<div style="font-size:26px;font-weight:900;color:#f0c040;">'+bestProp+'</div>'
@@ -4173,6 +4204,109 @@ window.getPendingReactions = function() {
   });
 };
 
+// ─── MI CARTELERA (privada) ───
+var _miCarteleraData = [];
+
+window.openMiCartelera = function() {
+  var sc = safe('mi-cartelera-screen');
+  if(sc) sc.style.display = 'block';
+  loadMiCartelera();
+};
+
+window.closeMiCartelera = function() {
+  var sc = safe('mi-cartelera-screen');
+  if(sc) sc.style.display = 'none';
+};
+
+function getMiCarteleraKey() {
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  return isDavid ? 'mi_cartelera_david' : 'mi_cartelera_maria';
+}
+
+function getOtroCarteleraKey() {
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  return isDavid ? 'mi_cartelera_maria' : 'mi_cartelera_david';
+}
+
+async function loadMiCartelera() {
+  try {
+    var snap = await getDoc(doc(db,'app_data',getMiCarteleraKey()));
+    _miCarteleraData = snap.exists() ? (snap.data().items||[]) : [];
+    renderMiCartelera();
+  } catch(e) { console.error('loadMiCartelera',e); }
+}
+
+function renderMiCartelera() {
+  var el = safe('mi-cartelera-list'); if(!el) return;
+  if(!_miCarteleraData.length) {
+    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#444;font-size:14px;">&#127871; Tu lista privada est&#225; vac&#237;a.<br><span style="font-size:12px;color:#333;">A&#241;ade pelis y series que quieras guardar para ti.</span></div>';
+    return;
+  }
+  var html = '';
+  _miCarteleraData.forEach(function(item){
+    var typeIcon = item.tipo==='pelicula' ? '&#127871;' : '&#128250;';
+    html += '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #1a1a2e;">'
+      + (item.poster ? '<img src="'+esc(item.poster)+'" style="width:50px;height:75px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '<div style="width:50px;height:75px;background:#1c1c2e;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+typeIcon+'</div>')
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-family:var(--font-title);font-style:italic;font-size:15px;font-weight:800;color:white;line-height:1.2;margin-bottom:4px;">'+esc(item.title)+'</div>'
+      + (item.nota ? '<div style="font-size:12px;color:#888;margin-top:4px;font-style:italic;">&#128172; '+esc(item.nota)+'</div>' : '')
+      + '<div style="font-size:11px;color:#555;margin-top:4px;">'+(item.genres||'')+(item.year?' · '+item.year:'')+'</div>'
+      + '</div>'
+      + '<button onclick="removeMiCartelera(\''+item.id+'\')" style="background:none;border:none;color:#444;font-size:18px;cursor:pointer;padding:6px;flex-shrink:0;">&#215;</button>'
+      + '</div>';
+  });
+  el.innerHTML = html;
+}
+
+window.openAddMiCartelera = function() {
+  _savingToPrivate = true;
+  openAddCineModal();
+};
+
+window.removeMiCartelera = async function(id) {
+  _miCarteleraData = _miCarteleraData.filter(function(x){return x.id!==id;});
+  await setDoc(doc(db,'app_data',getMiCarteleraKey()),{items:_miCarteleraData});
+  renderMiCartelera();
+};
+
+async function saveToMiCartelera(item) {
+  try {
+    var snap = await getDoc(doc(db,'app_data',getMiCarteleraKey()));
+    var myItems = snap.exists() ? (snap.data().items||[]) : [];
+    // Check duplicates
+    var exists = myItems.find(function(x){ return x.title.toLowerCase()===item.title.toLowerCase(); });
+    if(!exists) {
+      myItems.push(item);
+      await setDoc(doc(db,'app_data',getMiCarteleraKey()),{items:myItems});
+      _miCarteleraData = myItems;
+    }
+    // Check coincidence with other person
+    var otroSnap = await getDoc(doc(db,'app_data',getOtroCarteleraKey()));
+    var otroItems = otroSnap.exists() ? (otroSnap.data().items||[]) : [];
+    var coincide = otroItems.find(function(x){ return x.title.toLowerCase()===item.title.toLowerCase(); });
+    if(coincide) {
+      var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+      var otroName = isDavid?'Mar\u00eda':'David';
+      appConfirm(
+        '\u2728 \u00a1Coincidencia!',
+        '\u00a1'+otroName+' tambi\u00e9n tiene "'+item.title+'" en su lista privada! \u00bfLa a\u00f1ad\u00eds a la Cartelera compartida?',
+        async function() {
+          var sharedItem = Object.assign({},item,{id:Date.now()+'',proposedBy:'ambos',estado:'proximo'});
+          var sharedSnap = await getDoc(doc(db,'app_data','cine'));
+          var sharedItems = sharedSnap.exists() ? (sharedSnap.data().items||[]) : [];
+          sharedItems.push(sharedItem);
+          await setDoc(doc(db,'app_data','cine'),{items:sharedItems});
+          if(typeof launchConfetti==='function') launchConfetti();
+        },
+        true
+      );
+    }
+    if(typeof loadMiCartelera==='function') loadMiCartelera();
+  } catch(e){ console.error('saveToMiCartelera',e); }
+}
+
+var _savingToPrivate = false;
+
 window.renderPendingChips = function() {
   var el = safe('cine-pending-chips');
   if(!el) return;
@@ -4244,6 +4378,9 @@ window.renderSwipeCard = function() {
   var cardInner = '<div style="position:relative;overflow:hidden;border-radius:18px;background:#13131f;border:1px solid #2a2a3e;box-shadow:0 12px 36px rgba(0,0,0,0.6);">'
     + (item.poster ? '<img src="'+esc(item.poster)+'" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;">' : '<div style="aspect-ratio:2/3;background:#1c1c2e;display:flex;align-items:center;justify-content:center;font-size:64px;">'+typeIcon+'</div>')
     + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(10,10,18,0.95) 100%);"></div>'
+    + '<div id="swipe-ind-right" style="position:absolute;top:50%;right:16px;transform:translateY(-50%);opacity:0;transition:opacity 0.15s;background:rgba(255,68,136,0.9);border-radius:12px;padding:10px 14px;font-size:13px;font-weight:900;color:white;pointer-events:none;">&#10084; ME ENCANTA</div>'
+    + '<div id="swipe-ind-left" style="position:absolute;top:50%;left:16px;transform:translateY(-50%);opacity:0;transition:opacity 0.15s;background:rgba(80,80,100,0.9);border-radius:12px;padding:10px 14px;font-size:13px;font-weight:900;color:white;pointer-events:none;">&#128542; PASO</div>'
+    + '<div id="swipe-ind-up" style="position:absolute;top:16px;left:50%;transform:translateX(-50%);opacity:0;transition:opacity 0.15s;background:rgba(240,192,64,0.9);border-radius:12px;padding:10px 14px;font-size:13px;font-weight:900;color:#13131f;white-space:nowrap;pointer-events:none;">&#128077; ME INTERESA</div>'
     + '<div style="position:absolute;bottom:0;left:0;right:0;padding:20px;">'
     + '<div style="font-family:var(--font-title);font-style:italic;font-size:24px;font-weight:900;color:white;line-height:1.2;margin-bottom:8px;text-shadow:0 2px 12px rgba(0,0,0,0.9);">'+esc(item.title)+' '+typeIcon+'</div>'
     + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:#fff;font-size:13px;">'+platBadge+'<span>'+propEmoji+'</span>'+(item.genres?'<span style="color:#bbb;">'+esc(item.genres)+'</span>':'')+(item.year?'<span style="color:#999;">'+item.year+'</span>':'')+'</div>'
@@ -4337,6 +4474,12 @@ function attachSwipeHandlers() {
     _swipeDeltaY = e.touches[0].clientY - _swipeStartY;
     var rot = _swipeDelta * 0.05;
     card.style.transform = 'translate('+_swipeDelta+'px,'+_swipeDeltaY+'px) rotate('+rot+'deg)';
+    // Indicadores visuales
+    var threshold = 30;
+    var ri=document.getElementById('swipe-ind-right'), li=document.getElementById('swipe-ind-left'), ui=document.getElementById('swipe-ind-up');
+    if(ri) ri.style.opacity = _swipeDelta > threshold ? Math.min((_swipeDelta-threshold)/80,1) : 0;
+    if(li) li.style.opacity = _swipeDelta < -threshold ? Math.min((-_swipeDelta-threshold)/80,1) : 0;
+    if(ui) ui.style.opacity = _swipeDeltaY < -threshold ? Math.min((-_swipeDeltaY-threshold)/80,1) : 0;
   }, {passive:true});
   card.addEventListener('touchend', function(){
     if(!_swipeActive) return;
@@ -4512,6 +4655,8 @@ window.shuffleCards = function() {
   if(_tarotShuffling) return;
   if(!_tarotItems.length) return;
   _tarotShuffling = true;
+  // Vibración táctil (3 pulsos cortos)
+  if(navigator.vibrate) navigator.vibrate([60,40,60,40,80]);
   var stage = safe('cards-stage'); if(!stage) return;
   var cards = stage.querySelectorAll('.tarot-card');
   var n = cards.length;
@@ -4564,6 +4709,30 @@ window.shuffleCards = function() {
   }
 };
 
+function launchGoldParticles(originEl) {
+  var rect = originEl ? originEl.getBoundingClientRect() : {left:window.innerWidth/2,top:window.innerHeight/2,width:0,height:0};
+  var cx = rect.left + rect.width/2;
+  var cy = rect.top + rect.height/2;
+  for(var gi=0; gi<40; gi++){
+    var p = document.createElement('div');
+    var size = 4 + Math.random()*8;
+    p.style.cssText = 'position:fixed;z-index:9999;width:'+size+'px;height:'+size+'px;border-radius:50%;pointer-events:none;left:'+cx+'px;top:'+cy+'px;background:'+(Math.random()>0.5?'#f0c040':'#ff8c42')+';';
+    document.body.appendChild(p);
+    var angle = Math.random() * Math.PI * 2;
+    var speed = 60 + Math.random() * 160;
+    var dx = Math.cos(angle) * speed;
+    var dy = Math.sin(angle) * speed - 120;
+    var duration = 700 + Math.random()*500;
+    if(p.animate) {
+      p.animate([
+        {transform:'translate(0,0) scale(1)',opacity:1},
+        {transform:'translate('+dx+'px,'+dy+'px) scale(0)',opacity:0}
+      ],{duration:duration,easing:'ease-out',fill:'forwards'});
+    }
+    setTimeout(function(el){ if(el.parentNode) el.parentNode.removeChild(el); }, duration+100, p);
+  }
+}
+
 function pickTarotCard(cardEl) {
   if(_tarotShuffling) return;
   _tarotShuffling = true;
@@ -4579,23 +4748,33 @@ function pickTarotCard(cardEl) {
       card.style.transform += ' scale(0.85)';
     }
   });
-  // Bring picked card to center, scale up, flip
+  // Bring picked card to center
   cardEl.style.transition = 'transform 0.7s cubic-bezier(0.34,1.56,0.64,1)';
   cardEl.style.transform = 'translate(0,0) rotate(0deg) scale(1.4) rotateY(0deg)';
   cardEl.style.zIndex = '50';
+  // 2C: Temblor antes de voltear - suspense
   setTimeout(function(){
-    cardEl.style.transition = 'transform 0.8s cubic-bezier(0.4,0,0.2,1)';
-    cardEl.style.transform = 'translate(0,0) rotate(0deg) scale(1.4) rotateY(180deg)';
-  }, 350);
+    cardEl.style.transition = 'transform 0.08s ease-in-out';
+    var shakeCount = 0;
+    var shakeInterval = setInterval(function(){
+      cardEl.style.transform = 'translate('+(shakeCount%2===0?'-4':'4')+'px,0) rotate(0deg) scale(1.4)';
+      shakeCount++;
+      if(shakeCount >= 6) {
+        clearInterval(shakeInterval);
+        cardEl.style.transition = 'transform 0.8s cubic-bezier(0.4,0,0.2,1)';
+        cardEl.style.transform = 'translate(0,0) rotate(0deg) scale(1.4) rotateY(180deg)';
+      }
+    }, 80);
+  }, 600);
   // Show title
   setTimeout(function(){
     var rs = safe('cards-result');
     if(rs) {
       var typeIcon = winner.tipo==='pelicula' ? '&#127871;' : '&#128250;';
-      rs.innerHTML = '<div style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Esta noche ve\u00e9is</div>'
+      rs.innerHTML = '<div style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Hoy veéis</div>'
         + '<div style="font-family:var(--font-title);font-style:italic;font-size:22px;font-weight:900;color:#f0c040;text-shadow:0 0 20px rgba(240,192,64,0.5);">'+typeIcon+' '+esc(winner.title)+'</div>';
     }
-    if(typeof launchConfetti === 'function') launchConfetti();
+    launchGoldParticles(safe('cards-stage'));
     var btn = safe('cards-shuffle-btn');
     if(btn) { btn.disabled = false; btn.style.opacity = '1'; btn.textContent = 'Otra vez'; }
     _tarotShuffling = false;
@@ -4630,6 +4809,21 @@ applyFont(localStorage.getItem('font')||'D');
     <div id="cine-detail-content"></div>
   </div>
 </div>
+<!-- MI CARTELERA (privada) -->
+<div id="mi-cartelera-screen" style="display:none;position:fixed;inset:0;background:#0a0a12;z-index:465;overflow-y:auto;">
+  <div style="padding:16px;max-width:500px;margin:0 auto;padding-bottom:80px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <button onclick="closeMiCartelera()" style="background:none;border:none;color:#888;font-size:15px;font-family:var(--font-body);padding:0;">&#8249; Volver</button>
+      <div style="font-size:18px;font-weight:900;color:white;font-family:var(--font-title);">&#128274; Mi Cartelera</div>
+      <button onclick="openAddMiCartelera()" style="background:linear-gradient(135deg,#f0c040,#e8a020);border:none;border-radius:999px;padding:8px 14px;color:#13131f;font-weight:800;font-size:12px;font-family:var(--font-body);cursor:pointer;">+ A&#241;adir</button>
+    </div>
+    <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.15);border-radius:12px;padding:10px 14px;margin-bottom:20px;font-size:12px;color:#888;font-style:italic;">
+      &#128274; Solo t&#250; puedes ver esta lista. Privada y solo tuya.
+    </div>
+    <div id="mi-cartelera-list"></div>
+  </div>
+</div>
+
 <div id="cine-swipe-screen" style="display:none;position:fixed;inset:0;background:#0a0a12;z-index:470;overflow-y:auto;">
   <div style="padding:16px;max-width:500px;margin:0 auto;padding-bottom:40px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
