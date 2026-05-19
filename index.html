@@ -1101,16 +1101,13 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
 </div>
 
 <!-- RULETA MODAL -->
-<div id="modal-ruleta" style="display:none;position:fixed;inset:0;background:radial-gradient(ellipse at center,#1a0a0a 0%,#0a0a18 80%);z-index:400;flex-direction:column;align-items:center;padding:20px 16px 30px;overflow-y:auto;">
-  <button onclick="document.getElementById('modal-ruleta').style.display='none'" style="position:absolute;top:18px;left:16px;background:none;border:none;color:#888;font-size:14px;font-family:var(--font-body);">&#8249; Men&#250;</button>
-  <div style="margin-top:40px;margin-bottom:8px;text-align:center;"><span style="font-size:28px;font-weight:900;background:linear-gradient(90deg,#f0c040 0%,#e8a020 50%,#f0c040 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--font-title);letter-spacing:2px;">&#127902; La Ruleta</span></div>
-  <div style="text-align:center;font-size:12px;color:#888;margin-bottom:20px;font-style:italic;">&#191;Qu&#233; veis esta noche?</div>
-  <div style="position:relative;width:310px;height:310px;margin:0 auto 20px;">
-    <canvas id="ruleta-canvas" width="310" height="310" style="filter:drop-shadow(0 0 25px rgba(240,192,64,0.4));"></canvas>
-    <div style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:24px solid #f0c040;filter:drop-shadow(0 0 8px #f0c040);"></div>
-  </div>
-  <div id="ruleta-result" style="font-size:22px;font-weight:900;color:#f0c040;min-height:30px;margin-bottom:24px;text-align:center;text-shadow:0 0 15px rgba(240,192,64,0.6);font-family:var(--font-title);font-style:italic;"></div>
-  <button onclick="spinRuleta()" id="ruleta-spin-btn" style="padding:18px 56px;border:none;border-radius:14px;background:linear-gradient(135deg,#f0c040 0%,#e8a020 100%);color:#13131f;font-size:20px;font-weight:900;font-family:var(--font-title);box-shadow:0 6px 24px rgba(240,192,64,0.5);">&#161;Girar!</button>
+<div id="modal-ruleta" style="display:none;position:fixed;inset:0;background:radial-gradient(ellipse at center,#1a0a18 0%,#080814 70%);z-index:400;flex-direction:column;align-items:center;padding:20px 16px 30px;overflow-y:auto;">
+  <button onclick="document.getElementById('modal-ruleta').style.display='none'" style="position:absolute;top:18px;left:16px;background:none;border:none;color:#888;font-size:14px;font-family:var(--font-body);z-index:10;">&#8249; Men&#250;</button>
+  <div style="margin-top:36px;margin-bottom:6px;text-align:center;"><span style="font-size:30px;font-weight:900;background:linear-gradient(90deg,#f0c040 0%,#ff8c42 50%,#f0c040 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--font-title);letter-spacing:2px;">El Tarot del Cine</span></div>
+  <div style="text-align:center;font-size:12px;color:#888;margin-bottom:24px;font-style:italic;">Deja que las cartas decidan...</div>
+  <div id="cards-stage" style="position:relative;width:100%;max-width:380px;height:340px;margin:0 auto;perspective:1200px;"></div>
+  <div id="cards-result" style="text-align:center;margin-top:8px;min-height:60px;"></div>
+  <button onclick="shuffleCards()" id="cards-shuffle-btn" style="margin-top:14px;padding:18px 56px;border:none;border-radius:14px;background:linear-gradient(135deg,#f0c040 0%,#e8a020 100%);color:#13131f;font-size:20px;font-weight:900;font-family:var(--font-title);box-shadow:0 6px 24px rgba(240,192,64,0.5);cursor:pointer;">Barajar</button>
 </div>
 
 <div class="confirm-bg" id="confirm-bg">
@@ -3497,9 +3494,10 @@ window.setProposer = function(p) {
   var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
   var meEmoji = isDavid?'&#x1F435;':'&#x1F437;';
   var otroEmoji = isDavid?'&#x1F437;':'&#x1F435;';
+  var otroName = isDavid?'Mar&#237;a':'David';
   var byo=safe('prop-yo'), botro=safe('prop-otro');
   if(byo) byo.innerHTML = meEmoji+' Yo';
-  if(botro) botro.innerHTML = otroEmoji+' El otro';
+  if(botro) botro.innerHTML = otroEmoji+' '+otroName;
 };
 
 var _tmdbSearchTimer = null;
@@ -4070,8 +4068,8 @@ window.confirmRating = async function() {
     if(rev){ var dStr=''; for(var _i=0;_i<otherVal;_i++) dStr+='<img src="'+CINE_ICONS.duck_gold+'" width="22" height="22">'; if(typeof launchConfetti==='function') launchConfetti(); rev.style.display='block'; rev.innerHTML='<img src="'+CINE_ICONS.confetti+'" width="140" height="70" style="margin-bottom:12px;"><div style="color:white;font-size:16px;margin-bottom:8px;">'+(isDavid?'&#x1F437;':'&#x1F435;')+' vot&#243;:</div><div style="margin-bottom:14px;">'+dStr+'</div><div style="color:#f0c040;font-size:22px;font-weight:900;margin-bottom:8px;">Media: '+avg+'</div><div style="color:#aaa;font-size:15px;">'+msg+'</div>'; }
     var btn=safe('rating-confirm-btn'); if(btn) btn.style.display='none';
     if(safe('rating-subtitle')) safe('rating-subtitle').textContent='El otro ya voto:';
-    // Auto-close after 4 seconds
-    setTimeout(function(){ closeRatingScreen(); }, 4000);
+    // Auto-close after 1.5 seconds
+    setTimeout(function(){ closeRatingScreen(); }, 1500);
   } else {
     // Save and close immediately
     closeRatingScreen();
@@ -4449,138 +4447,161 @@ window.renderCineRanking = function() {
   }
 };
 
+// ─── EL TAROT DEL CINE (cartas barajadas, opción C) ───
+var _tarotItems = [], _tarotShuffling = false;
+
 window.openRuleta = function() {
   var items=(appData.cine||[]).filter(function(x){return x.estado==='proximo';});
   if(_cineFilter!=='all') items=items.filter(function(x){return x.tipo===_cineFilter;});
   if(items.length < 2){
-    appConfirm('Poco material','A&#241;ade al menos 2 t&#237;tulos a Pr&#243;ximo para girar.',function(){},false);
+    appConfirm('Poco material','A\u00f1ade al menos 2 t\u00edtulos a Pr\u00f3ximo para jugar.',function(){},false);
     return;
   }
-  // Si hay mas de 8, elegir 8 aleatorias
   if(items.length > 8) {
     items = items.slice().sort(function(){return 0.5-Math.random();}).slice(0,8);
   }
+  _tarotItems = items;
+  _tarotShuffling = false;
   var rm=safe('modal-ruleta'); if(rm) rm.style.display='flex';
-  // Pre-cargar pósters
-  _ruletaPosters = {};
-  var loaded = 0, total = items.filter(function(x){return x.poster;}).length;
-  if(total === 0) {
-    drawRuleta(items);
-    return;
-  }
-  items.forEach(function(it){
-    if(!it.poster) return;
-    var img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = function(){
-      _ruletaPosters[it.id] = img;
-      loaded++;
-      if(loaded === total) drawRuleta(items);
-    };
-    img.onerror = function(){
-      loaded++;
-      if(loaded === total) drawRuleta(items);
-    };
-    img.src = it.poster;
-  });
-  // Dibuja inicial sin pósters mientras carga
-  drawRuleta(items);
+  setTimeout(renderTarotCards, 100);
 };
 
-var _ruletaItems = []; var _ruletaAngle = 0; var _ruletaPosters = {};
-function drawRuleta(items) {
-  _ruletaItems = items;
-  var canvas = document.getElementById('ruleta-canvas'); if(!canvas) return;
-  var ctx = canvas.getContext('2d');
-  var cx=155, cy=155, r=145;
-  var n=items.length; if(!n) return;
-  ctx.clearRect(0,0,310,310);
-  // Dibujar cada segmento con su poster
-  for(var i=0;i<n;i++){
-    var startA=(_ruletaAngle+i*(2*Math.PI/n));
-    var endA=startA+(2*Math.PI/n);
-    var midA=startA+(2*Math.PI/n/2);
-    // Recortar el sector
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,r,startA,endA);
-    ctx.closePath();
-    ctx.clip();
-    var img = _ruletaPosters[items[i].id];
-    if(img) {
-      // Dibujar el poster dentro del sector
-      ctx.translate(cx, cy);
-      ctx.rotate(midA);
-      // El poster se dibuja como un rectángulo orientado hacia fuera del centro
-      var posterW = r * 0.85;
-      var posterH = posterW * 1.5;
-      ctx.drawImage(img, 18, -posterH/2, posterW, posterH);
-      // Overlay oscuro sutil para legibilidad
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
-      ctx.fillRect(18, -posterH/2, posterW, posterH);
+function renderTarotCards() {
+  var stage = safe('cards-stage'); if(!stage) return;
+  stage.innerHTML = '';
+  // Stack initial: all cards stacked in center, face down, slight rotation each
+  var n = _tarotItems.length;
+  for(var i=0; i<n; i++){
+    var it = _tarotItems[i];
+    var card = document.createElement('div');
+    card.className = 'tarot-card';
+    card.setAttribute('data-idx', i);
+    var randomRot = (Math.random()*6 - 3);
+    card.style.cssText = 'position:absolute;left:50%;top:50%;width:120px;height:180px;margin-left:-60px;margin-top:-90px;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s;cursor:pointer;transform:translateY('+(i*1.5)+'px) rotate('+randomRot+'deg);z-index:'+(n-i)+';';
+    // Card back (visible initially)
+    var back = document.createElement('div');
+    back.className = 'tarot-back';
+    back.style.cssText = 'position:absolute;inset:0;border-radius:12px;background:linear-gradient(135deg,#1a0820 0%,#3a1245 50%,#1a0820 100%);border:2px solid #f0c040;box-shadow:0 8px 24px rgba(0,0,0,0.6),inset 0 0 30px rgba(240,192,64,0.15);backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;align-items:center;justify-content:center;';
+    back.innerHTML = '<div style="text-align:center;"><div style="font-size:36px;margin-bottom:6px;">&#127902;</div><div style="font-family:var(--font-title);color:#f0c040;font-size:11px;letter-spacing:2px;font-weight:900;">CINE</div><div style="margin-top:6px;font-size:9px;color:rgba(240,192,64,0.6);letter-spacing:1px;">&#10070; &#10070; &#10070;</div></div>';
+    // Card front (poster)
+    var front = document.createElement('div');
+    front.className = 'tarot-front';
+    front.style.cssText = 'position:absolute;inset:0;border-radius:12px;overflow:hidden;border:3px solid #f0c040;box-shadow:0 0 40px rgba(240,192,64,0.5);backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg);background:#13131f;';
+    if(it.poster) {
+      front.innerHTML = '<img src="'+esc(it.poster)+'" style="width:100%;height:100%;object-fit:cover;">';
     } else {
-      // Fallback: color sólido si no hay póster
-      var colors=['#ff2d92','#9d4edd','#00f5ff','#f72585','#2a9d8f','#f0c040','#e8a020','#06d6a0'];
-      ctx.fillStyle=colors[i%colors.length];
-      ctx.fillRect(-r,-r,r*2,r*2);
+      front.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;">&#127871;</div>';
     }
-    ctx.restore();
-    // Línea separadora dorada entre segmentos
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    var ex = cx + r * Math.cos(startA);
-    var ey = cy + r * Math.sin(startA);
-    ctx.lineTo(ex, ey);
-    ctx.strokeStyle = 'rgba(240,192,64,0.6)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    card.appendChild(back);
+    card.appendChild(front);
+    // Click handler - solo activo cuando estan repartidas (despues de barajar)
+    card.addEventListener('click', function(){
+      if(!this.classList.contains('tarot-ready')) return;
+      pickTarotCard(this);
+    });
+    stage.appendChild(card);
   }
-  // Anillo exterior dorado brillante
-  ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI);
-  ctx.strokeStyle='#f0c040'; ctx.lineWidth=4; ctx.shadowColor='#f0c040'; ctx.shadowBlur=20; ctx.stroke();
-  ctx.shadowBlur=0;
-  // Centro - claqueta de cine estilizada
-  ctx.beginPath(); ctx.arc(cx,cy,26,0,2*Math.PI); ctx.fillStyle='#0a0a18'; ctx.fill();
-  ctx.strokeStyle='#f0c040'; ctx.lineWidth=2.5; ctx.stroke();
-  // Icono de cine en el centro
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.fillStyle = '#f0c040';
-  ctx.font = 'bold 20px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('\u{1F3AC}', 0, 1);
-  ctx.restore();
-  if(safe('ruleta-result')) safe('ruleta-result').textContent='';
+  // Result text
+  var rs = safe('cards-result');
+  if(rs) rs.innerHTML = '<div style="color:#888;font-size:13px;font-style:italic;">Pulsa <strong style="color:#f0c040;">Barajar</strong> para empezar</div>';
+  var btn = safe('cards-shuffle-btn');
+  if(btn) { btn.disabled = false; btn.textContent = 'Barajar'; btn.style.opacity = '1'; }
 }
 
-window.spinRuleta = function() {
-  if(_ruletaSpinning||!_ruletaItems.length) return;
-  _ruletaSpinning=true;
-  var btn=safe('ruleta-spin-btn'); if(btn) btn.disabled=true;
-  var totalSpins = (Math.random()*5+5)*2*Math.PI;
-  var duration=3500; var start=null;
-  var n=_ruletaItems.length;
-  function animate(ts){
-    if(!start) start=ts;
-    var elapsed=ts-start;
-    var progress=Math.min(elapsed/duration,1);
-    var ease=1-Math.pow(1-progress,4);
-    _ruletaAngle=ease*totalSpins;
-    drawRuleta(_ruletaItems);
-    if(progress<1){ requestAnimationFrame(animate); }
-    else {
-      _ruletaSpinning=false;
-      if(btn){btn.disabled=false;}
-      var norm = ((3*Math.PI/2) - (_ruletaAngle%(2*Math.PI)) + 2*Math.PI)%(2*Math.PI);
-      var idx = Math.floor(norm/(2*Math.PI/n))%n;
-      var winner=_ruletaItems[idx];
-      if(safe('ruleta-result')) safe('ruleta-result').textContent=winner.title;
+window.shuffleCards = function() {
+  if(_tarotShuffling) return;
+  if(!_tarotItems.length) return;
+  _tarotShuffling = true;
+  var stage = safe('cards-stage'); if(!stage) return;
+  var cards = stage.querySelectorAll('.tarot-card');
+  var n = cards.length;
+  var btn = safe('cards-shuffle-btn');
+  if(btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.textContent = 'Barajando...'; }
+  var rs = safe('cards-result');
+  if(rs) rs.innerHTML = '<div style="color:#888;font-size:13px;font-style:italic;">Barajando las cartas...</div>';
+
+  // PHASE 1: Shuffle in center (fast random positions, all in center)
+  var shuffles = 0;
+  var shuffleInterval = setInterval(function(){
+    cards.forEach(function(card){
+      var dx = (Math.random()*60 - 30);
+      var dy = (Math.random()*30 - 15);
+      var rot = (Math.random()*30 - 15);
+      card.style.transition = 'transform 0.15s ease-out';
+      card.style.transform = 'translate('+dx+'px,'+dy+'px) rotate('+rot+'deg)';
+    });
+    shuffles++;
+    if(shuffles >= 6) {
+      clearInterval(shuffleInterval);
+      // PHASE 2: Deal cards in fan
+      setTimeout(dealCardsFan, 200);
     }
+  }, 180);
+
+  function dealCardsFan() {
+    // Container width approximate
+    var stageWidth = stage.offsetWidth || 380;
+    var availableWidth = Math.min(stageWidth - 40, 320);
+    var spacing = availableWidth / Math.max(n-1, 1);
+    if(n === 1) spacing = 0;
+    var startX = -availableWidth/2;
+    cards.forEach(function(card, i){
+      var x = startX + i*spacing;
+      var rot = (i - (n-1)/2) * 4;
+      var delay = i * 70;
+      setTimeout(function(){
+        card.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+        card.style.transform = 'translateX('+x+'px) translateY(0) rotate('+rot+'deg)';
+        card.classList.add('tarot-ready');
+        card.style.zIndex = i+1;
+      }, delay);
+    });
+    setTimeout(function(){
+      if(rs) rs.innerHTML = '<div style="color:#f0c040;font-size:14px;font-weight:700;">Elige una carta...</div>';
+      if(btn) { btn.textContent = 'Volver a barajar'; btn.disabled = false; btn.style.opacity = '1'; }
+      _tarotShuffling = false;
+    }, n*70 + 600);
   }
-  requestAnimationFrame(animate);
 };
+
+function pickTarotCard(cardEl) {
+  if(_tarotShuffling) return;
+  _tarotShuffling = true;
+  var stage = safe('cards-stage'); if(!stage) return;
+  var cards = stage.querySelectorAll('.tarot-card');
+  var pickedIdx = parseInt(cardEl.getAttribute('data-idx'));
+  var winner = _tarotItems[pickedIdx];
+  // Hide other cards
+  cards.forEach(function(card){
+    if(card !== cardEl) {
+      card.style.transition = 'transform 0.5s ease-in,opacity 0.5s ease-in';
+      card.style.opacity = '0.15';
+      card.style.transform += ' scale(0.85)';
+    }
+  });
+  // Bring picked card to center, scale up, flip
+  cardEl.style.transition = 'transform 0.7s cubic-bezier(0.34,1.56,0.64,1)';
+  cardEl.style.transform = 'translate(0,0) rotate(0deg) scale(1.4) rotateY(0deg)';
+  cardEl.style.zIndex = '50';
+  setTimeout(function(){
+    cardEl.style.transition = 'transform 0.8s cubic-bezier(0.4,0,0.2,1)';
+    cardEl.style.transform = 'translate(0,0) rotate(0deg) scale(1.4) rotateY(180deg)';
+  }, 350);
+  // Show title
+  setTimeout(function(){
+    var rs = safe('cards-result');
+    if(rs) {
+      var typeIcon = winner.tipo==='pelicula' ? '&#127871;' : '&#128250;';
+      rs.innerHTML = '<div style="font-size:11px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Esta noche ve\u00e9is</div>'
+        + '<div style="font-family:var(--font-title);font-style:italic;font-size:22px;font-weight:900;color:#f0c040;text-shadow:0 0 20px rgba(240,192,64,0.5);">'+typeIcon+' '+esc(winner.title)+'</div>';
+    }
+    if(typeof launchConfetti === 'function') launchConfetti();
+    var btn = safe('cards-shuffle-btn');
+    if(btn) { btn.disabled = false; btn.style.opacity = '1'; btn.textContent = 'Otra vez'; }
+    _tarotShuffling = false;
+  }, 1200);
+}
+
 
 function subscribeCine() {
   _unsubs.push(onSnapshot(doc(db,'app_data','cine'), function(snap){
