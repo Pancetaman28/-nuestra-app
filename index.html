@@ -336,6 +336,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
 .cine-card:nth-child(n+6){animation-delay:0.32s;}
 @keyframes confettiFall{0%{transform:translateY(-100vh) rotate(0);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
 .confetti-piece{position:fixed;top:0;width:12px;height:12px;z-index:9999;animation:confettiFall 2.5s linear forwards;pointer-events:none;}
+@keyframes chipPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(240,192,64,0.4);}50%{transform:scale(1.01);box-shadow:0 0 0 6px rgba(240,192,64,0);}}
 .cs-icon{font-size:48px;margin-bottom:16px;}
 .cs-title{font-family:var(--font-title);font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px;}
 .cs-desc{font-size:14px;color:var(--text2);line-height:1.6;max-width:280px;margin:0 auto;}
@@ -601,6 +602,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
         <div id="cine-ruleta-btn" style="display:none;margin-bottom:18px;">
           <button onclick="openRuleta()" style="width:100%;padding:14px;border:none;border-radius:16px;background:#1a1a2e;color:white;font-family:var(--font-body);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:12px;"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDMwMCAzMDAiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICNmMDQyNzE7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogI2ZmZjsKICAgICAgfQoKICAgICAgLmNscy0zIHsKICAgICAgICBmaWxsOiAjNTllNmZmOwogICAgICB9CgogICAgICAuY2xzLTQgewogICAgICAgIGZpbGw6IHVybCgjRGVncmFkYWRvX3Npbl9ub21icmVfMzQpOwogICAgICB9CgogICAgICAuY2xzLTUgewogICAgICAgIGZpbGw6ICM2MDM7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9IkRlZ3JhZGFkb19zaW5fbm9tYnJlXzM0IiBkYXRhLW5hbWU9IkRlZ3JhZGFkbyBzaW4gbm9tYnJlIDM0IiB4MT0iNjUuMjUiIHkxPSIxNjYuNDEiIHgyPSIyMzQuNzUiIHkyPSIxNjYuNDEiIGdyYWRpZW50VHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTYxLjYgLTU3LjMzKSByb3RhdGUoNDUpIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzU5ZTZmZiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmMDQyNzEiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxjaXJjbGUgY2xhc3M9ImNscy01IiBjeD0iMTUwIiBjeT0iMTY2LjQxIiByPSI5NC41NyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTczLjc0IDE1NC44MSkgcm90YXRlKC00NSkiLz4KICA8Y2lyY2xlIGNsYXNzPSJjbHMtNCIgY3g9IjE1MCIgY3k9IjE2Ni40MSIgcj0iODQuNzUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC03My43NCAxNTQuODEpIHJvdGF0ZSgtNDUpIi8+CiAgPGc+CiAgICA8Y2lyY2xlIGNsYXNzPSJjbHMtMyIgY3g9IjE1MCIgY3k9IjE2Ni40MiIgcj0iNzUuMjIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC00Ni4xMiAyNzQuNzQpIHJvdGF0ZSgtNzYuODgpIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNDkuNjEsMTY2LjM4bC0xLjE1LTc1LjIxYzEyLjg2LS4yLDI1LjU2LDIuOTEsMzYuODgsOS4wMiwxNS45LDguNTgsMjguMTgsMjIuNjEsMzQuNTksMzkuNDlsLTcwLjMyLDI2LjdaIi8+CiAgICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNTAuNzgsMTY2LjA2bC02MC40Miw0NC44MWMtNy42Ni0xMC4zMy0xMi41NS0yMi40Ni0xNC4xOS0zNS4yMi0yLjMtMTcuOTIsMS45Mi0zNi4wOCwxMS45LTUxLjE0bDYyLjcxLDQxLjU1WiIvPgogICAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTUwLjA0LDE2Ni4wNGw2Ni4xOSwzNS43M2MtNi4xMSwxMS4zMi0xNS4wMiwyMC44OC0yNS44OCwyNy43OC0xNS4yNSw5LjY4LTMzLjQ5LDEzLjU1LTUxLjM2LDEwLjlsMTEuMDUtNzQuNDFaIi8+CiAgPC9nPgogIDxwYXRoIGNsYXNzPSJjbHMtNSIgZD0iTTE2NS4xMiwyNTguOGMtLjA5LDAtLjE4LDAtLjI2LS4wMmwtMjcuMzItMy45OWMtLjQ4LS4wNy0uOTEtLjMzLTEuMi0uNzEtLjI5LS4zOS0uNDEtLjg3LS4zNC0xLjM1bDEyLjI3LTgzLjkyLTY5Ljc0LDUzLjkxYy0uNDIuMzItLjk2LjQ1LTEuNDguMzQtLjUyLS4xMS0uOTctLjQ0LTEuMjItLjlsLTE0LjcxLTI2LjU2Yy0uMTEtLjIxLS4xOS0uNDMtLjIxLS42N2wtNC41OS0zOC4zNWMtLjA0LS4zMiwwLS42NS4xNC0uOTRsMTcuMi0zOS40MWMuMjEtLjQ4LjYxLS44NCwxLjExLTEsLjUtLjE2LDEuMDQtLjEsMS40OS4xN2w3MS45MSw0Mi44NC0xLjUyLTgyLjE0YzAtLjUyLjItMS4wMi41OS0xLjM3LjM4LS4zNS45LS41MiwxLjQyLS40N2wxOC4xOSwxLjkxYy4yMS4wMi40MS4wOC42LjE3bDQxLjg0LDIwLjA2Yy4yNy4xMy41MS4zMy42OS41OGwyNi4yNiwzNi40OWMuMzMuNDYuNDMsMS4wNS4yNiwxLjU5LS4xNy41NC0uNTguOTgtMS4xMSwxLjE3bC03OC41NCwyOS4wNy0uMTkuMjJjMjkuMjUsMTYuNTEsNzEuNjIsNDAuMzQsNzQuMjIsNDEuNTYuNDYuMTYuODUuNSwxLjA2Ljk2LjUyLDEuMTQtLjIzLDEuOTUtLjc0LDIuNDktLjI4LjMtLjY5LjcyLTEuMjQsMS4yOC0xLDEuMDEtMi40OCwyLjQ5LTQuMzksNC4zOC0zLjIxLDMuMTctNy43MSw3LjU4LTEzLjM1LDEzLjA4LTkuNjEsOS4zNy0xOS4zNiwxOC44Mi0xOS40NiwxOC45MS0uMTguMTctLjM5LjMtLjYxLjM5bC0yNi4zNywxMC4xYy0uMjEuMDgtLjQzLjEyLS42NS4xMlpNMTM5Ljg2LDI1MS40NmwyNS4wNSwzLjY2LDI1LjU4LTkuOGMxMi45LTEyLjUsMzEuNC0zMC41LDM2LjgyLTM1Ljk5LTEuODItLjk4LTQuODYtMi42Ny0xMC4xLTUuNTktNi4zNi0zLjU1LTE1LjItOC40OS0yNi4yNS0xNC43MS0xOC44Mi0xMC41OC0zNy44MS0yMS4zLTM4LTIxLjQxLS4zMi0uMTgtLjU3LS40NC0uNzMtLjc2bC0xMi4zNyw4NC42Wk02NC40NywxOTQuMTVsMTMuNTEsMjQuMzksNzEuNTYtNTUuMzJjLS4xNS0uMDQtLjMtLjExLS40NC0uMTlsLTcyLjk1LTQzLjQ2LTE2LjE3LDM3LjA3LDQuNDgsMzcuNTFaTTE1MS4yMSwxNjIuODdjLjE1LjA0LjI5LjEuNDMuMTguNjEuMzYuOTYsMS4wMy44OSwxLjczbDEuODQtMi4xOGMuMi0uMjQuNDYtLjQzLjc2LS41M2w3Ni43Ni0yOC40LTI0LjYtMzQuMTgtNDEuMTQtMTkuNzMtMTUuODMtMS42NiwxLjU0LDgzLjM1Yy4wMS41NS0uMjMsMS4wOC0uNjUsMS40M1oiLz4KICA8Zz4KICAgIDxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTE2My45MiwxNTMuODloMHMtLjAyLS4wMi0uMDItLjAyYy0xLjQzLTEuNDYtMy4xMS0yLjYtNC45Mi0zLjRsLTIxLjYyLTE0Ljk0YzEuMDUtMS45NCwxLjA3LTQuMzctLjE1LTYuMzktMS44NC0zLjA0LTUuNzktNC4wMS04LjgzLTIuMTctMy4wNCwxLjg0LTQuMDEsNS43OS0yLjE3LDguODMsMS4yOCwyLjEyLDMuNiwzLjIzLDUuOTEsMy4wOWw0LjQ4LDI2LjU1Yy4wMywxLjUxLjI4LDMuMDIuNzYsNC40OXYuMDNzMCwwLDAsMGMuMzcsMS4xNS44OCwyLjI3LDEuNTMsMy4zNSw0LjU2LDcuNTMsMTQuMzYsOS45NSwyMS44OSw1LjM5LDcuNTMtNC41Niw5Ljk1LTE0LjM2LDUuMzktMjEuODktLjY1LTEuMDgtMS40MS0yLjA1LTIuMjYtMi45MVoiLz4KICAgIDxjaXJjbGUgY2xhc3M9ImNscy01IiBjeD0iMTUyLjc3IiBjeT0iMTY0LjYyIiByPSI4LjI1IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMzQuMTkgMjg5LjA1KSByb3RhdGUoLTgwLjc4KSIvPgogICAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTM1LjQ5LDEzMi4xMWMwLDIuMTMtMS43MywzLjg2LTMuODYsMy44NnMtMy44Ni0xLjczLTMuODYtMy44NiwxLjczLTMuODYsMy44Ni0zLjg2LDMuODYsMS43MywzLjg2LDMuODZaIi8+CiAgPC9nPgo8L3N2Zz4=" width="28" height="28">Girar la ruleta</button>
         </div>
+        <div id="cine-pending-chips"></div>
         <div id="cine-list"></div>
       </div>
       <!-- FAB Ranking (only visible when enough data) -->
@@ -1059,14 +1061,11 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
       <button class="pcheck on" id="cstate-proximo" onclick="setCineState('proximo')">&#128197; Pr&#243;ximo</button>
       <button class="pcheck" id="cstate-viendo" onclick="setCineState('viendo')">&#127902; Viendo</button>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;margin-bottom:10px;background:#1a1a2e;border:1.5px solid #2a2a3e;border-radius:12px;cursor:pointer;" onclick="toggleAmbos()">
-      <div>
-        <div style="font-size:13px;color:white;font-weight:700;">&#x1F435;&#x1F437; Propuesta por ambos</div>
-        <div style="font-size:11px;color:#888;margin-top:2px;">Os contar&#225; como una propuesta conjunta</div>
-      </div>
-      <div id="ambos-switch" style="width:42px;height:24px;background:#2a2a3e;border-radius:999px;position:relative;transition:background 0.2s;flex-shrink:0;">
-        <div id="ambos-switch-knob" style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:white;border-radius:50%;transition:transform 0.2s;"></div>
-      </div>
+    <label>Propuesta por</label>
+    <div style="display:flex;gap:6px;margin-bottom:10px;">
+      <button class="pcheck" id="prop-yo" onclick="setProposer('yo')">&#x1F435; Yo</button>
+      <button class="pcheck" id="prop-otro" onclick="setProposer('otro')">&#x1F437; El otro</button>
+      <button class="pcheck" id="prop-ambos" onclick="setProposer('ambos')">&#x1F435;&#x1F437; Ambos</button>
     </div>
     <label>Plataforma</label>
     <select id="cine-platform" style="margin-bottom:10px;">
@@ -3439,7 +3438,7 @@ const TMDB_IMG = 'https://image.tmdb.org/t/p/w200';
 var _cineTab = 'proximo';
 var _cineFilter = 'all';
 var _cineType = 'pelicula';
-var _ambosProposed = false;
+var _proposerChoice = 'yo';
 var _cineState = 'proximo';
 var _cineEditId = null;
 var _ratingItemId = null;
@@ -3489,11 +3488,18 @@ window.setCineState = function(s) {
   ['proximo','viendo'].forEach(function(x){ var el=safe('cstate-'+x); if(el) el.className='pcheck'+(x===s?' on':''); });
 };
 
-window.toggleAmbos = function() {
-  _ambosProposed = !_ambosProposed;
-  var sw=safe('ambos-switch'), knob=safe('ambos-switch-knob');
-  if(sw){ sw.style.background = _ambosProposed ? '#f0c040' : '#2a2a3e'; }
-  if(knob){ knob.style.transform = _ambosProposed ? 'translateX(18px)' : 'translateX(0)'; }
+window.setProposer = function(p) {
+  _proposerChoice = p; // 'yo' | 'otro' | 'ambos'
+  ['yo','otro','ambos'].forEach(function(x){
+    var b=safe('prop-'+x); if(b) b.className='pcheck'+(x===p?' on':'');
+  });
+  // Adapt labels based on who I am
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var meEmoji = isDavid?'&#x1F435;':'&#x1F437;';
+  var otroEmoji = isDavid?'&#x1F437;':'&#x1F435;';
+  var byo=safe('prop-yo'), botro=safe('prop-otro');
+  if(byo) byo.innerHTML = meEmoji+' Yo';
+  if(botro) botro.innerHTML = otroEmoji+' El otro';
 };
 
 var _tmdbSearchTimer = null;
@@ -3540,12 +3546,8 @@ window.selectTMDB = async function(id, mediaType) {
 };
 
 window.openAddCineModal = function() {
-  _ambosProposed = false;
-  setTimeout(function(){
-    var sw=safe('ambos-switch'), knob=safe('ambos-switch-knob');
-    if(sw) sw.style.background='#2a2a3e';
-    if(knob) knob.style.transform='translateX(0)';
-  }, 50);
+  _proposerChoice = 'yo';
+  setTimeout(function(){ setProposer('yo'); }, 50);
   _tmdbSelected = null; _cineEditId = null;
   if(safe('cine-search-inp')) safe('cine-search-inp').value='';
   if(safe('cine-search-results')) safe('cine-search-results').innerHTML='';
@@ -3561,7 +3563,11 @@ window.saveCineItem = async function() {
   var title = ((safe('cine-title-inp')||{}).value||'').trim();
   if(!title) return;
   var isDavid = (window._currentUserEmail||'').indexOf('david')>=0;
-  var item = { id: _cineEditId || Date.now()+'', title: title, tipo: _cineType, estado: _cineState, platform: (safe('cine-platform')||{}).value||'', link: ((safe('cine-link-inp')||{}).value||'').trim(), proposedBy: _ambosProposed ? 'ambos' : (isDavid?'david':'maria'), createdAt: Date.now(), reactions: {}, ratings: {}, year: new Date().getFullYear()+'', poster: _tmdbSelected?_tmdbSelected.poster:'', overview: _tmdbSelected?_tmdbSelected.overview:'', genres: _tmdbSelected?_tmdbSelected.genres:'' };
+  var item = { id: _cineEditId || Date.now()+'', title: title, tipo: _cineType, estado: _cineState, platform: (safe('cine-platform')||{}).value||'', link: ((safe('cine-link-inp')||{}).value||'').trim(), proposedBy: (function(){
+    if(_proposerChoice === 'ambos') return 'ambos';
+    if(_proposerChoice === 'otro') return isDavid?'maria':'david';
+    return isDavid?'david':'maria';
+  })(), createdAt: Date.now(), reactions: {}, ratings: {}, year: new Date().getFullYear()+'', poster: _tmdbSelected?_tmdbSelected.poster:'', overview: _tmdbSelected?_tmdbSelected.overview:'', genres: _tmdbSelected?_tmdbSelected.genres:'' };
   var items = JSON.parse(JSON.stringify(appData.cine||[]));
   if(_cineEditId) { var idx = items.findIndex(function(x){return x.id===_cineEditId;}); if(idx>=0) items[idx] = Object.assign(items[idx], item); } else { items.push(item); }
   await setDoc(doc(db,'app_data','cine'),{items:items});
@@ -3573,12 +3579,12 @@ window.saveCineItem = async function() {
 window.openEditCine = function(id) {
   var item = (appData.cine||[]).find(function(x){return x.id===id;}); if(!item) return;
   _cineEditId = id;
-  _ambosProposed = (item.proposedBy === 'ambos');
-  setTimeout(function(){
-    var sw=safe('ambos-switch'), knob=safe('ambos-switch-knob');
-    if(sw) sw.style.background = _ambosProposed ? '#f0c040' : '#2a2a3e';
-    if(knob) knob.style.transform = _ambosProposed ? 'translateX(18px)' : 'translateX(0)';
-  }, 50);
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var who=isDavid?'david':'maria';
+  if(item.proposedBy === 'ambos') _proposerChoice = 'ambos';
+  else if(item.proposedBy === who) _proposerChoice = 'yo';
+  else _proposerChoice = 'otro';
+  setTimeout(function(){ setProposer(_proposerChoice); }, 50);
   _tmdbSelected = item.poster ? {poster:item.poster,overview:item.overview,genres:item.genres} : null;
   if(safe('cine-title-inp')) safe('cine-title-inp').value = item.title||'';
   if(safe('cine-link-inp')) safe('cine-link-inp').value = item.link||'';
@@ -3630,6 +3636,13 @@ function renderCineList() {
   var unEl=safe('cine-username'); if(unEl) unEl.textContent=isDavid?'David':'Mar&#237;a';
   var items = appData.cine.filter(function(x){ return x.estado===_cineTab; });
   if(_cineFilter!=='all') items=items.filter(function(x){return x.tipo===_cineFilter;});
+  if(_cineTab==='visto') {
+    items = items.slice().sort(function(a,b){
+      var aT = a.watchedAt || a.createdAt || 0;
+      var bT = b.watchedAt || b.createdAt || 0;
+      return bT - aT;
+    });
+  }
   if(!items.length){ el.innerHTML='<div style="text-align:center;padding:50px 0;color:#444;font-size:14px;">Nada por aqu&#237; todav&#237;a</div>'; return; }
   var who=isDavid?'david':'maria';
   el.innerHTML = items.map(function(item, _idx){
@@ -3725,6 +3738,8 @@ function renderCineList() {
       +'</div>';
   }).join('');
   if(_cineTab==='visto') renderCineRanking();
+  if(typeof renderPendingChips === 'function') renderPendingChips();
+  if(typeof updateRankFAB === 'function') updateRankFAB();
 }
 
 
@@ -4000,6 +4015,7 @@ window.confirmRating = async function() {
   await setDoc(doc(db,'app_data','cine'),{items:items});
   var other = isDavid?'maria':'david';
   if(item.ratings[other]) {
+    // Reveal both ratings briefly then close
     var myVal=parseInt(item.ratings[who]); var otherVal=parseInt(item.ratings[other]);
     var diff=Math.abs(myVal-otherVal); var avg=((myVal+otherVal)/2).toFixed(1);
     var msg='';
@@ -4012,10 +4028,11 @@ window.confirmRating = async function() {
     if(rev){ var dStr=''; for(var _i=0;_i<otherVal;_i++) dStr+='<img src="'+CINE_ICONS.duck_gold+'" width="22" height="22">'; if(typeof launchConfetti==='function') launchConfetti(); rev.style.display='block'; rev.innerHTML='<img src="'+CINE_ICONS.confetti+'" width="140" height="70" style="margin-bottom:12px;"><div style="color:white;font-size:16px;margin-bottom:8px;">'+(isDavid?'&#x1F437;':'&#x1F435;')+' vot&#243;:</div><div style="margin-bottom:14px;">'+dStr+'</div><div style="color:#f0c040;font-size:22px;font-weight:900;margin-bottom:8px;">Media: '+avg+'</div><div style="color:#aaa;font-size:15px;">'+msg+'</div>'; }
     var btn=safe('rating-confirm-btn'); if(btn) btn.style.display='none';
     if(safe('rating-subtitle')) safe('rating-subtitle').textContent='El otro ya voto:';
+    // Auto-close after 4 seconds
+    setTimeout(function(){ closeRatingScreen(); }, 4000);
   } else {
-    var rev=safe('rating-reveal');
-    if(rev){ rev.style.display='block'; rev.innerHTML='<div style="color:#aaa;font-size:14px;">Esperando que el otro tambien valore...</div>'; }
-    var btn=safe('rating-confirm-btn'); if(btn) btn.style.display='none';
+    // Save and close immediately
+    closeRatingScreen();
   }
 };
 
@@ -4093,6 +4110,210 @@ window.updateRankFAB = function() {
     fab.style.display = 'none';
   }
 };
+
+// ─── PENDIENTES (votar / reaccionar) ───
+window.getPendingRatings = function() {
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var who=isDavid?'david':'maria';
+  return (appData.cine||[]).filter(function(x){
+    if(x.estado !== 'visto') return false;
+    var r = x.ratings || {};
+    return !r[who]; // me falta puntuar
+  });
+};
+
+window.getPendingReactions = function() {
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var who=isDavid?'david':'maria';
+  return (appData.cine||[]).filter(function(x){
+    if(x.estado !== 'proximo') return false;
+    if(x.proposedBy === who || x.proposedBy === 'ambos') return false; // si yo propongo no reacciono
+    var r = x.reactions || {};
+    return !r[who]; // me falta reaccionar
+  });
+};
+
+window.renderPendingChips = function() {
+  var el = safe('cine-pending-chips');
+  if(!el) return;
+  var html = '';
+  // Solo mostrar en la pestaña relevante
+  if(_cineTab === 'visto') {
+    var pendVote = getPendingRatings();
+    if(pendVote.length > 0) {
+      html += '<button onclick="openSwipeMode(\'vote\')" style="width:100%;padding:14px 16px;margin-bottom:14px;background:linear-gradient(135deg,rgba(240,192,64,0.18) 0%,rgba(240,192,64,0.08) 100%);border:1.5px solid rgba(240,192,64,0.5);border-radius:14px;color:#f0c040;font-family:var(--font-body);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;animation:chipPulse 2s ease-in-out infinite;">'
+        + '<span style="display:flex;align-items:center;gap:10px;"><img src="'+CINE_ICONS.duck_gold+'" width="22" height="22">Tienes '+pendVote.length+' '+(pendVote.length===1?'puntuaci\u00f3n pendiente':'puntuaciones pendientes')+'</span>'
+        + '<span style="font-size:18px;">&#8250;</span>'
+        + '</button>';
+    }
+  }
+  if(_cineTab === 'proximo') {
+    var pendReact = getPendingReactions();
+    if(pendReact.length > 0) {
+      html += '<button onclick="openSwipeMode(\'react\')" style="width:100%;padding:14px 16px;margin-bottom:14px;background:linear-gradient(135deg,rgba(255,68,136,0.18) 0%,rgba(255,68,136,0.08) 100%);border:1.5px solid rgba(255,68,136,0.5);border-radius:14px;color:#ff7aa8;font-family:var(--font-body);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;animation:chipPulse 2s ease-in-out infinite;">'
+        + '<span style="display:flex;align-items:center;gap:10px;"><img src="'+CINE_ICONS.heart+'" width="22" height="22">Tienes '+pendReact.length+' '+(pendReact.length===1?'propuesta nueva':'propuestas nuevas')+'</span>'
+        + '<span style="font-size:18px;">&#8250;</span>'
+        + '</button>';
+    }
+  }
+  el.innerHTML = html;
+};
+
+// ─── MODO SWIPE ───
+var _swipeQueue = [], _swipeIdx = 0, _swipeMode = null;
+var _swipeStartX = 0, _swipeStartY = 0, _swipeDelta = 0, _swipeDeltaY = 0, _swipeActive = false;
+
+window.openSwipeMode = function(mode) {
+  _swipeMode = mode;
+  _swipeQueue = (mode === 'vote') ? getPendingRatings() : getPendingReactions();
+  _swipeIdx = 0;
+  if(!_swipeQueue.length) return;
+  var sc = safe('cine-swipe-screen');
+  if(sc) sc.style.display = 'block';
+  renderSwipeCard();
+};
+
+window.closeSwipeMode = function() {
+  var sc = safe('cine-swipe-screen');
+  if(sc) sc.style.display = 'none';
+  _swipeQueue = []; _swipeIdx = 0; _swipeMode = null;
+};
+
+window.renderSwipeCard = function() {
+  var el = safe('cine-swipe-content');
+  var counter = safe('cine-swipe-counter');
+  if(!el) return;
+  if(_swipeIdx >= _swipeQueue.length) {
+    // Final
+    el.innerHTML = '<div style="text-align:center;padding:60px 20px;">'
+      + '<div style="font-size:64px;margin-bottom:20px;">&#127881;</div>'
+      + '<div style="font-size:24px;font-weight:900;color:white;margin-bottom:10px;font-family:var(--font-title);">&#161;Listo!</div>'
+      + '<div style="color:#aaa;font-size:14px;margin-bottom:30px;">Has revisado todo.</div>'
+      + '<button onclick="closeSwipeMode()" style="padding:14px 36px;background:linear-gradient(135deg,#f0c040,#e8a020);border:none;border-radius:999px;color:#13131f;font-weight:800;font-family:var(--font-body);font-size:14px;">Volver</button>'
+      + '</div>';
+    if(counter) counter.textContent = '';
+    if(typeof launchConfetti==='function') launchConfetti();
+    return;
+  }
+  var item = _swipeQueue[_swipeIdx];
+  if(counter) counter.textContent = (_swipeIdx+1)+' / '+_swipeQueue.length;
+  var typeIcon = item.tipo==='pelicula' ? '<img src="'+CINE_ICONS.popcorn+'" width="20" height="20" style="vertical-align:middle;">' : '<img src="'+CINE_ICONS.tv+'" width="20" height="20" style="vertical-align:middle;">';
+  var platBadge = item.platform ? (PLATFORM_BADGES[item.platform]||PLATFORM_BADGES.otro) : '';
+  var propEmoji = item.proposedBy==='david'?'&#x1F435;':item.proposedBy==='maria'?'&#x1F437;':'&#x1F435;&#x1F437;';
+  // Card content (common)
+  var cardInner = '<div style="position:relative;overflow:hidden;border-radius:18px;background:#13131f;border:1px solid #2a2a3e;box-shadow:0 12px 36px rgba(0,0,0,0.6);">'
+    + (item.poster ? '<img src="'+esc(item.poster)+'" style="width:100%;aspect-ratio:2/3;object-fit:cover;display:block;">' : '<div style="aspect-ratio:2/3;background:#1c1c2e;display:flex;align-items:center;justify-content:center;font-size:64px;">'+typeIcon+'</div>')
+    + '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(10,10,18,0.95) 100%);"></div>'
+    + '<div style="position:absolute;bottom:0;left:0;right:0;padding:20px;">'
+    + '<div style="font-family:var(--font-title);font-style:italic;font-size:24px;font-weight:900;color:white;line-height:1.2;margin-bottom:8px;text-shadow:0 2px 12px rgba(0,0,0,0.9);">'+esc(item.title)+' '+typeIcon+'</div>'
+    + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:#fff;font-size:13px;">'+platBadge+'<span>'+propEmoji+'</span>'+(item.genres?'<span style="color:#bbb;">'+esc(item.genres)+'</span>':'')+(item.year?'<span style="color:#999;">'+item.year+'</span>':'')+'</div>'
+    + (item.overview ? '<div style="color:#ddd;font-size:13px;line-height:1.5;margin-top:10px;max-height:90px;overflow:hidden;">'+esc(item.overview)+'</div>' : '')
+    + '</div></div>';
+
+  var actions = '';
+  if(_swipeMode === 'vote') {
+    // 10 patitos en grid
+    var ducks = '';
+    for(var n=1;n<=10;n++){
+      ducks += '<button onclick="swipeVote('+n+')" style="background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;min-width:32px;">'
+        + '<img src="'+CINE_ICONS.duck_grey+'" width="32" height="32" data-duck="'+n+'">'
+        + '<span style="color:#555;font-size:11px;font-weight:700;">'+n+'</span>'
+        + '</button>';
+    }
+    actions = '<div style="margin-top:18px;text-align:center;color:#aaa;font-size:13px;margin-bottom:10px;">&#191;Cu&#225;ntos patitos le das?</div>'
+      + '<div style="display:flex;justify-content:center;gap:2px;flex-wrap:nowrap;overflow-x:auto;padding:0 4px;">'+ducks+'</div>';
+  } else {
+    // 3 botones de reacción
+    actions = '<div style="margin-top:20px;display:flex;gap:10px;">'
+      + '<button onclick="swipeReact(\'meh\')" style="flex:1;padding:18px 8px;background:rgba(100,100,120,0.15);border:1.5px solid rgba(100,100,120,0.4);border-radius:16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;"><img src="'+CINE_ICONS.bored+'" width="36" height="36"><span style="color:#999;font-size:11px;font-weight:700;">Paso</span></button>'
+      + '<button onclick="swipeReact(\'like\')" style="flex:1;padding:18px 8px;background:rgba(240,192,64,0.15);border:1.5px solid rgba(240,192,64,0.4);border-radius:16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;"><img src="'+CINE_ICONS.thumb+'" width="36" height="36"><span style="color:#f0c040;font-size:11px;font-weight:700;">Me interesa</span></button>'
+      + '<button onclick="swipeReact(\'love\')" style="flex:1;padding:18px 8px;background:rgba(255,68,136,0.15);border:1.5px solid rgba(255,68,136,0.4);border-radius:16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;"><img src="'+CINE_ICONS.heart+'" width="36" height="36"><span style="color:#ff7aa8;font-size:11px;font-weight:700;">Me encanta</span></button>'
+      + '</div>'
+      + '<div style="text-align:center;margin-top:14px;color:#666;font-size:11px;">Tip: desliza la tarjeta a izq/dcha/arriba</div>';
+  }
+
+  el.innerHTML = '<div id="swipe-card-wrap" style="transition:transform 0.3s ease-out,opacity 0.3s ease-out;">'+cardInner+'</div>'+actions;
+  // Attach swipe handlers
+  setTimeout(attachSwipeHandlers, 50);
+};
+
+window.swipeVote = async function(n) {
+  if(_swipeIdx >= _swipeQueue.length) return;
+  var item = _swipeQueue[_swipeIdx];
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var who=isDavid?'david':'maria';
+  var items=JSON.parse(JSON.stringify(appData.cine||[]));
+  var it=items.find(function(x){return x.id===item.id;});
+  if(it) {
+    if(!it.ratings) it.ratings={};
+    it.ratings[who] = n+'';
+    await setDoc(doc(db,'app_data','cine'),{items:items});
+  }
+  animateSwipeOut('right');
+};
+
+window.swipeReact = async function(reaction) {
+  if(_swipeIdx >= _swipeQueue.length) return;
+  var item = _swipeQueue[_swipeIdx];
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var who=isDavid?'david':'maria';
+  var items=JSON.parse(JSON.stringify(appData.cine||[]));
+  var it=items.find(function(x){return x.id===item.id;});
+  if(it) {
+    if(!it.reactions) it.reactions={};
+    it.reactions[who] = reaction;
+    await setDoc(doc(db,'app_data','cine'),{items:items});
+  }
+  var dir = reaction==='love' ? 'right' : reaction==='meh' ? 'left' : 'up';
+  animateSwipeOut(dir);
+};
+
+function animateSwipeOut(direction) {
+  var card = safe('swipe-card-wrap');
+  if(card) {
+    if(direction==='right') card.style.transform = 'translateX(120%) rotate(20deg)';
+    else if(direction==='left') card.style.transform = 'translateX(-120%) rotate(-20deg)';
+    else card.style.transform = 'translateY(-120%)';
+    card.style.opacity = '0';
+  }
+  setTimeout(function(){
+    _swipeIdx++;
+    renderSwipeCard();
+  }, 300);
+}
+
+function attachSwipeHandlers() {
+  var card = safe('swipe-card-wrap');
+  if(!card) return;
+  card.addEventListener('touchstart', function(e){
+    _swipeStartX = e.touches[0].clientX;
+    _swipeStartY = e.touches[0].clientY;
+    _swipeActive = true;
+    card.style.transition = 'none';
+  }, {passive:true});
+  card.addEventListener('touchmove', function(e){
+    if(!_swipeActive) return;
+    _swipeDelta = e.touches[0].clientX - _swipeStartX;
+    _swipeDeltaY = e.touches[0].clientY - _swipeStartY;
+    var rot = _swipeDelta * 0.05;
+    card.style.transform = 'translate('+_swipeDelta+'px,'+_swipeDeltaY+'px) rotate('+rot+'deg)';
+  }, {passive:true});
+  card.addEventListener('touchend', function(){
+    if(!_swipeActive) return;
+    _swipeActive = false;
+    card.style.transition = 'transform 0.3s ease-out,opacity 0.3s ease-out';
+    var threshold = 100;
+    if(_swipeMode === 'react') {
+      if(_swipeDelta > threshold) { swipeReact('love'); return; }
+      if(_swipeDelta < -threshold) { swipeReact('meh'); return; }
+      if(_swipeDeltaY < -threshold) { swipeReact('like'); return; }
+    }
+    // No swipe valido: volver al centro
+    card.style.transform = '';
+    _swipeDelta = 0; _swipeDeltaY = 0;
+  }, {passive:true});
+}
+
 
 window.renderCineRanking = function() {
   var el=safe('cine-ranking-list'); if(!el) return;
@@ -4344,6 +4565,15 @@ applyFont(localStorage.getItem('font')||'D');
   <div style="padding:16px;max-width:600px;margin:0 auto;">
     <button onclick="closeCineDetail()" style="background:none;border:none;color:#888;font-size:15px;font-family:var(--font-body);margin-bottom:16px;padding:0;">&#8249; Volver</button>
     <div id="cine-detail-content"></div>
+  </div>
+</div>
+<div id="cine-swipe-screen" style="display:none;position:fixed;inset:0;background:#0a0a12;z-index:470;overflow-y:auto;">
+  <div style="padding:16px;max-width:500px;margin:0 auto;padding-bottom:40px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <button onclick="closeSwipeMode()" style="background:none;border:none;color:#888;font-size:15px;font-family:var(--font-body);padding:0;">&#8249; Volver</button>
+      <span id="cine-swipe-counter" style="color:#666;font-size:13px;font-family:var(--font-body);"></span>
+    </div>
+    <div id="cine-swipe-content"></div>
   </div>
 </div>
 <div id="cine-ranking-screen" style="display:none;position:fixed;inset:0;background:#0a0a12;z-index:455;overflow-y:auto;">
