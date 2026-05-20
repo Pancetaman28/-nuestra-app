@@ -1260,6 +1260,30 @@ window.showTab = function(t) {
     var rs2=safe('cine-ranking-section'); if(rs2) rs2.style.display=_cineTab==='visto'?'block':'none';
   }
 };
+var _cineMode = 'compartida';
+
+window.setCineMode = function(mode) {
+  _cineMode = mode;
+  var tc=safe('toggle-compartida'), tm=safe('toggle-misala');
+  var title=safe('cine-header-title'), sub=safe('cine-header-sub');
+  if(mode==='misala') {
+    document.body.classList.add('mi-sala-mode');
+    if(tc){tc.style.background='transparent';tc.style.color='#555';tc.style.boxShadow='none';}
+    if(tm){tm.style.background='linear-gradient(135deg,#7c3aed,#5b21b6)';tm.style.color='white';tm.style.boxShadow='0 4px 12px rgba(124,58,237,0.4)';}
+    if(title){title.textContent='Mi Sala';}
+    if(sub){sub.textContent='tu espacio personal &#127910;';sub.style.color='#9d7ae8';}
+    if(typeof loadMiSalaData==='function') loadMiSalaData();
+  } else {
+    document.body.classList.remove('mi-sala-mode');
+    if(tc){tc.style.background='linear-gradient(135deg,#f0c040,#e8a020)';tc.style.color='#13131f';tc.style.boxShadow='0 4px 12px rgba(240,192,64,0.3)';}
+    if(tm){tm.style.background='transparent';tm.style.color='#555';tm.style.boxShadow='none';}
+    if(title){title.textContent='Cartelera';}
+    if(sub){sub.textContent='vuestras pelis y series &#127909;';sub.style.color='#666';}
+    renderCineList();
+  }
+};
+
+
 
 // ── AUTH ──────────────────────────────────────────────────
 function switchAuthTab(tab) {
@@ -3568,11 +3592,10 @@ window.saveCineItem = async function() {
     return isDavid?'david':'maria';
   })(), createdAt: Date.now(), reactions: {}, ratings: {}, year: new Date().getFullYear()+'', poster: _tmdbSelected?_tmdbSelected.poster:'', overview: _tmdbSelected?_tmdbSelected.overview:'', genres: _tmdbSelected?_tmdbSelected.genres:'' };
   closeModal('modal-add-cine');
-  // Check if saving to private list
-  if(_savingToPrivate) {
+  // Check if saving to private list (Mi Sala mode or explicit flag)
+  if(_savingToPrivate || _cineMode==='misala') {
     _savingToPrivate = false;
-    await saveToMiCartelera(item);
-    renderMiCartelera();
+    await saveToMiSala(item);
     return;
   }
   var items = JSON.parse(JSON.stringify(appData.cine||[]));
@@ -3799,6 +3822,9 @@ function renderCineList() {
   if(_cineTab==='visto') renderCineRanking();
   if(typeof renderPendingChips === 'function') renderPendingChips();
   if(typeof updateRankFAB === 'function') updateRankFAB();
+  if(typeof checkHitos === 'function') checkHitos();
+  if(typeof checkRecomendacionSemanal === 'function') setTimeout(checkRecomendacionSemanal,1000);
+  if(typeof checkMoodMes === 'function') setTimeout(checkMoodMes,2000);
 }
 
 
@@ -4204,108 +4230,227 @@ window.getPendingReactions = function() {
   });
 };
 
-// ─── MI CARTELERA (privada) ───
-var _miCarteleraData = [];
+// ─── MI SALA (espacio privado) ───
+var _miSalaData = [];
 
-window.openMiCartelera = function() {
-  var sc = safe('mi-cartelera-screen');
-  if(sc) sc.style.display = 'block';
-  loadMiCartelera();
-};
-
-window.closeMiCartelera = function() {
-  var sc = safe('mi-cartelera-screen');
-  if(sc) sc.style.display = 'none';
-};
-
-function getMiCarteleraKey() {
+function getMiSalaKey() {
   var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
-  return isDavid ? 'mi_cartelera_david' : 'mi_cartelera_maria';
+  return isDavid ? 'mi_sala_david' : 'mi_sala_maria';
+}
+function getOtroSalaKey() {
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  return isDavid ? 'mi_sala_maria' : 'mi_sala_david';
 }
 
-function getOtroCarteleraKey() {
-  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
-  return isDavid ? 'mi_cartelera_maria' : 'mi_cartelera_david';
-}
+// Keep old keys for backward compat
+function getMiCarteleraKey(){ return getMiSalaKey(); }
+function getOtroCarteleraKey(){ return getOtroSalaKey(); }
 
-async function loadMiCartelera() {
+window.loadMiSalaData = async function() {
   try {
-    var snap = await getDoc(doc(db,'app_data',getMiCarteleraKey()));
-    _miCarteleraData = snap.exists() ? (snap.data().items||[]) : [];
-    renderMiCartelera();
-  } catch(e) { console.error('loadMiCartelera',e); }
-}
+    // Try new key first, fall back to old key
+    var snap = await getDoc(doc(db,'app_data',getMiSalaKey()));
+    if(!snap.exists()) snap = await getDoc(doc(db,'app_data',getMiSalaKey().replace('mi_sala','mi_cartelera')));
+    _miSalaData = snap.exists() ? (snap.data().items||[]) : [];
+    renderMiSalaList();
+    renderPendingChips();
+    updateRankFAB();
+  } catch(e){ console.error('loadMiSalaData',e); }
+};
 
-function renderMiCartelera() {
-  var el = safe('mi-cartelera-list'); if(!el) return;
-  if(!_miCarteleraData.length) {
-    el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#444;font-size:14px;">&#127871; Tu lista privada est&#225; vac&#237;a.<br><span style="font-size:12px;color:#333;">A&#241;ade pelis y series que quieras guardar para ti.</span></div>';
+// also keep loadMiCartelera as alias
+var loadMiCartelera = window.loadMiSalaData;
+
+window.renderMiSalaList = function() {
+  var el = safe('cine-list'); if(!el) return;
+  var items = _miSalaData.filter(function(x){ return x.estado===_cineTab; });
+  if(_cineFilter!=='all') items = items.filter(function(x){ return x.tipo===_cineFilter; });
+  if(!items.length) {
+    var msgs = {
+      viendo: '&#127902; Nada en tu sala ahora mismo',
+      proximo: '&#127820; Tu lista de deseos est&#225; vac&#237;a',
+      visto: '&#127871; A&#250;n no has registrado nada aqu&#237;'
+    };
+    el.innerHTML = '<div style="text-align:center;padding:50px 20px;color:#4a3a6e;font-size:14px;">'+(msgs[_cineTab]||'Vac&#237;o')+'</div>';
     return;
   }
-  var html = '';
-  _miCarteleraData.forEach(function(item){
-    var typeIcon = item.tipo==='pelicula' ? '&#127871;' : '&#128250;';
-    html += '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #1a1a2e;">'
-      + (item.poster ? '<img src="'+esc(item.poster)+'" style="width:50px;height:75px;object-fit:cover;border-radius:8px;flex-shrink:0;">' : '<div style="width:50px;height:75px;background:#1c1c2e;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+typeIcon+'</div>')
-      + '<div style="flex:1;min-width:0;">'
-      + '<div style="font-family:var(--font-title);font-style:italic;font-size:15px;font-weight:800;color:white;line-height:1.2;margin-bottom:4px;">'+esc(item.title)+'</div>'
-      + (item.nota ? '<div style="font-size:12px;color:#888;margin-top:4px;font-style:italic;">&#128172; '+esc(item.nota)+'</div>' : '')
-      + '<div style="font-size:11px;color:#555;margin-top:4px;">'+(item.genres||'')+(item.year?' · '+item.year:'')+'</div>'
-      + '</div>'
-      + '<button onclick="removeMiCartelera(\''+item.id+'\')" style="background:none;border:none;color:#444;font-size:18px;cursor:pointer;padding:6px;flex-shrink:0;">&#215;</button>'
-      + '</div>';
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var who=isDavid?'david':'maria';
+  var html='';
+  items.forEach(function(item){
+    var typeIcon=item.tipo==='pelicula'?'&#127871;':'&#128250;';
+    var platBadge=item.platform?(PLATFORM_BADGES[item.platform]||PLATFORM_BADGES.otro):'';
+    var myRating=item.myRating?parseInt(item.myRating):0;
+    var ratingHtml='';
+    if(item.estado==='visto'){
+      if(myRating>0){
+        var dStr='';
+        for(var i=0;i<myRating;i++) dStr+='<img src="'+CINE_ICONS.duck_gold+'" width="14" height="14">';
+        ratingHtml='<div style="display:flex;align-items:center;gap:2px;margin-top:6px;">'+dStr+'</div>';
+      } else {
+        ratingHtml='<button onclick="event.stopPropagation();openMiSalaRating(\''+item.id+'\')" style="margin-top:6px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);border-radius:999px;padding:4px 10px;color:#a78bfa;font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;">Votar &#127820;</button>';
+      }
+    }
+    var notaHtml=item.critica?'<div style="font-size:11px;color:#7c5ac2;font-style:italic;margin-top:4px;line-height:1.4;">&#128196; '+esc(item.critica)+'</div>':'';
+    var platClass=item.platform?' plat-'+item.platform:'';
+    html+='<div class="cine-card'+platClass+'" onclick="openMiSalaDetail(\''+item.id+'\')" style="cursor:pointer;">'
+      +'<div class="cine-card-top">'
+      +(item.poster?'<img src="'+esc(item.poster)+'" class="cine-poster">':'<div class="cine-poster-ph">'+typeIcon+'</div>')
+      +'<div class="cine-info">'
+      +'<div class="cine-title-dk">'+esc(item.title)+' '+typeIcon+'</div>'
+      +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:11px;">'+platBadge+'</div>'
+      +(item.genres?'<div style="font-size:11px;color:#666;margin-top:3px;">'+esc(item.genres)+'</div>':'')
+      +ratingHtml
+      +notaHtml
+      +'</div>'
+      +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="background:none;border:none;color:#333;font-size:18px;cursor:pointer;padding:6px;flex-shrink:0;align-self:flex-start;">&#215;</button>'
+      +'</div></div>';
   });
-  el.innerHTML = html;
-}
-
-window.openAddMiCartelera = function() {
-  _savingToPrivate = true;
-  openAddCineModal();
+  el.innerHTML=html;
 };
 
-window.removeMiCartelera = async function(id) {
-  _miCarteleraData = _miCarteleraData.filter(function(x){return x.id!==id;});
-  await setDoc(doc(db,'app_data',getMiCarteleraKey()),{items:_miCarteleraData});
-  renderMiCartelera();
+window.openMiSalaDetail = function(id) {
+  var item=_miSalaData.find(function(x){return x.id===id;}); if(!item) return;
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var myRating=item.myRating?parseInt(item.myRating):0;
+  var dStr='';
+  for(var i=0;i<myRating;i++) dStr+='<img src="'+CINE_ICONS.duck_gold+'" width="18" height="18">';
+  var sc=safe('cine-detail-screen'); if(!sc) return;
+  sc.innerHTML='<div style="padding:16px;max-width:500px;margin:0 auto;padding-bottom:60px;">'
+    +'<button onclick="closeCineDetail()" style="background:none;border:none;color:#9d7ae8;font-size:15px;font-family:var(--font-body);margin-bottom:16px;padding:0;">&#8249; Mi Sala</button>'
+    +(item.poster?'<img src="'+esc(item.poster)+'" style="width:100%;max-height:280px;object-fit:cover;border-radius:16px;margin-bottom:16px;border:2px solid #3b1f6e;">':'')
+    +'<div style="font-family:var(--font-title);font-style:italic;font-size:26px;font-weight:900;color:white;margin-bottom:8px;">'+esc(item.title)+'</div>'
+    +(item.genres?'<div style="color:#888;font-size:13px;margin-bottom:6px;">'+esc(item.genres)+(item.year?' &middot; '+item.year:'')+'</div>':'')
+    +(item.overview?'<div style="color:#aaa;font-size:13px;line-height:1.6;margin-bottom:16px;">'+esc(item.overview)+'</div>':'')
+    // Mi Critica
+    +'<div style="margin-bottom:16px;">'
+    +'<div style="font-size:11px;color:#9d7ae8;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:8px;">Mi cr&iacute;tica</div>'
+    +'<textarea id="misala-critica-inp" placeholder="Qu&eacute; te pareci&oacute;, por qu&eacute; te gust&oacute;..." style="width:100%;padding:12px;background:#1a0a30;border:1.5px solid #3b1f6e;border-radius:12px;color:white;font-family:var(--font-body);font-size:13px;min-height:80px;resize:vertical;box-sizing:border-box;">'+esc(item.critica||'')+'</textarea>'
+    +'</div>'
+    // Mi puntuacion
+    +(item.estado==='visto'?'<div style="margin-bottom:16px;"><div style="font-size:11px;color:#9d7ae8;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:8px;">Mi puntuaci&oacute;n</div><div id="misala-duck-row" style="display:flex;gap:4px;flex-wrap:wrap;">'
+    +Array.from({length:10},function(_,n){return '<button onclick="setMiSalaRating(\''+item.id+'\','+(n+1)+')" style="background:none;border:none;cursor:pointer;padding:2px;"><img src="'+(n<myRating?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey)+'" width="28" height="28" id="misala-duck-'+(n+1)+'"></button>';}).join('')
+    +'</div></div>':'')
+    // Estado buttons
+    +'<div style="display:flex;gap:8px;margin-bottom:12px;">'
+    +['proximo','viendo','visto'].map(function(e){return '<button onclick="setMiSalaEstado(\''+item.id+'\',\''+e+'\')" style="flex:1;padding:9px;border:1.5px solid '+(item.estado===e?'#7c3aed':'#2a1a4e')+';border-radius:999px;background:'+(item.estado===e?'rgba(124,58,237,0.2)':'transparent')+';color:'+(item.estado===e?'#a78bfa':'#555')+';font-family:var(--font-body);font-size:12px;font-weight:700;">'+{proximo:'Pr&oacute;ximo',viendo:'Viendo',visto:'Visto'}[e]+'</button>';}).join('')
+    +'</div>'
+    // Proponer a compartida
+    +'<button onclick="proponerACompartida(\''+item.id+'\')" style="width:100%;padding:12px;margin-bottom:8px;background:transparent;border:1.5px solid rgba(240,192,64,0.3);border-radius:12px;color:#f0c040;font-family:var(--font-body);font-weight:700;font-size:13px;cursor:pointer;">&#127902; Proponer a la Cartelera compartida</button>'
+    +'<button onclick="saveMiSalaCritica(\''+item.id+'\')" style="width:100%;padding:12px;background:linear-gradient(135deg,#7c3aed,#5b21b6);border:none;border-radius:12px;color:white;font-family:var(--font-body);font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 12px rgba(124,58,237,0.4);">Guardar</button>'
+    +'</div>';
+  sc.style.display='block';
 };
 
-async function saveToMiCartelera(item) {
+window.saveMiSalaCritica = async function(id) {
+  var inp=safe('misala-critica-inp'); if(!inp) return;
+  var critica=inp.value.trim();
+  var items=JSON.parse(JSON.stringify(_miSalaData));
+  var item=items.find(function(x){return x.id===id;}); if(!item) return;
+  item.critica=critica;
+  await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
+  _miSalaData=items;
+  closeCineDetail();
+  renderMiSalaList();
+};
+
+window.setMiSalaRating = async function(id, n) {
+  // Update duck icons visually
+  for(var i=1;i<=10;i++){
+    var dk=document.getElementById('misala-duck-'+i);
+    if(dk) dk.src=i<=n?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey;
+  }
+  var items=JSON.parse(JSON.stringify(_miSalaData));
+  var item=items.find(function(x){return x.id===id;}); if(!item) return;
+  item.myRating=n+'';
+  await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
+  _miSalaData=items;
+};
+
+window.openMiSalaRating = function(id) {
+  openMiSalaDetail(id);
+};
+
+window.setMiSalaEstado = async function(id, estado) {
+  var items=JSON.parse(JSON.stringify(_miSalaData));
+  var item=items.find(function(x){return x.id===id;}); if(!item) return;
+  item.estado=estado;
+  if(estado==='visto') item.watchedAt=Date.now();
+  await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
+  _miSalaData=items;
+  closeCineDetail();
+  renderMiSalaList();
+};
+
+window.delMiSalaItem = async function(id) {
+  _miSalaData=_miSalaData.filter(function(x){return x.id!==id;});
+  await setDoc(doc(db,'app_data',getMiSalaKey()),{items:_miSalaData});
+  renderMiSalaList();
+};
+
+window.proponerACompartida = async function(id) {
+  var item=_miSalaData.find(function(x){return x.id===id;}); if(!item) return;
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var sharedItem=Object.assign({},item,{id:Date.now()+'',proposedBy:isDavid?'david':'maria',estado:'proximo',reactions:{},ratings:{}});
+  delete sharedItem.myRating; delete sharedItem.critica;
+  var snap=await getDoc(doc(db,'app_data','cine'));
+  var sharedItems=snap.exists()?(snap.data().items||[]):[];
+  sharedItems.push(sharedItem);
+  await setDoc(doc(db,'app_data','cine'),{items:sharedItems});
+  closeCineDetail();
+  setCineMode('compartida');
+  if(typeof launchConfetti==='function') launchConfetti();
+};
+
+window.saveToMiSala = async function(item) {
   try {
-    var snap = await getDoc(doc(db,'app_data',getMiCarteleraKey()));
-    var myItems = snap.exists() ? (snap.data().items||[]) : [];
-    // Check duplicates
-    var exists = myItems.find(function(x){ return x.title.toLowerCase()===item.title.toLowerCase(); });
-    if(!exists) {
-      myItems.push(item);
-      await setDoc(doc(db,'app_data',getMiCarteleraKey()),{items:myItems});
-      _miCarteleraData = myItems;
-    }
-    // Check coincidence with other person
-    var otroSnap = await getDoc(doc(db,'app_data',getOtroCarteleraKey()));
-    var otroItems = otroSnap.exists() ? (otroSnap.data().items||[]) : [];
-    var coincide = otroItems.find(function(x){ return x.title.toLowerCase()===item.title.toLowerCase(); });
-    if(coincide) {
+    item.estado = item.estado || 'proximo';
+    var snap=await getDoc(doc(db,'app_data',getMiSalaKey()));
+    var myItems=snap.exists()?(snap.data().items||[]):[];
+    var exists=myItems.find(function(x){return x.title.toLowerCase()===item.title.toLowerCase();});
+    if(!exists){ myItems.push(item); await setDoc(doc(db,'app_data',getMiSalaKey()),{items:myItems}); _miSalaData=myItems; }
+    // Check coincidence
+    var otroSnap=await getDoc(doc(db,'app_data',getOtroSalaKey()));
+    var otroItems=otroSnap.exists()?(otroSnap.data().items||[]):[];
+    var coincide=otroItems.find(function(x){return x.title.toLowerCase()===item.title.toLowerCase();});
+    if(coincide){
       var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
-      var otroName = isDavid?'Mar\u00eda':'David';
-      appConfirm(
-        '\u2728 \u00a1Coincidencia!',
-        '\u00a1'+otroName+' tambi\u00e9n tiene "'+item.title+'" en su lista privada! \u00bfLa a\u00f1ad\u00eds a la Cartelera compartida?',
-        async function() {
-          var sharedItem = Object.assign({},item,{id:Date.now()+'',proposedBy:'ambos',estado:'proximo'});
-          var sharedSnap = await getDoc(doc(db,'app_data','cine'));
-          var sharedItems = sharedSnap.exists() ? (sharedSnap.data().items||[]) : [];
-          sharedItems.push(sharedItem);
-          await setDoc(doc(db,'app_data','cine'),{items:sharedItems});
-          if(typeof launchConfetti==='function') launchConfetti();
-        },
-        true
-      );
+      var otroName=isDavid?'Mar\u00eda':'David';
+      appConfirm('\u2728 \u00a1Coincidencia!','\u00a1'+otroName+' tambi\u00e9n tiene "'+item.title+'" en Mi Sala! \u00bfLa prop\u00f3n\u00e9is a la Cartelera compartida?',async function(){
+        var sharedItem=Object.assign({},item,{id:Date.now()+'',proposedBy:'ambos',estado:'proximo',reactions:{},ratings:{}});
+        delete sharedItem.myRating; delete sharedItem.critica;
+        var ss=await getDoc(doc(db,'app_data','cine'));
+        var si=ss.exists()?(ss.data().items||[]):[];
+        si.push(sharedItem);
+        await setDoc(doc(db,'app_data','cine'),{items:si});
+        if(typeof launchConfetti==='function') launchConfetti();
+      },true);
     }
-    if(typeof loadMiCartelera==='function') loadMiCartelera();
-  } catch(e){ console.error('saveToMiCartelera',e); }
-}
+    renderMiSalaList();
+  } catch(e){ console.error('saveToMiSala',e); }
+};
+
+// Move item from compartida to Mi Sala
+window.moveToMiSala = async function(id) {
+  var items=JSON.parse(JSON.stringify(appData.cine||[]));
+  var item=items.find(function(x){return x.id===id;}); if(!item) return;
+  items=items.filter(function(x){return x.id!==id;});
+  await setDoc(doc(db,'app_data','cine'),{items:items});
+  var privateItem=Object.assign({},item,{id:Date.now()+'',estado:'proximo'});
+  delete privateItem.reactions; delete privateItem.ratings; delete privateItem.proposedBy;
+  await saveToMiSala(privateItem);
+  closeCineDetail();
+};
+
+// Keep old aliases
+window.openMiCartelera = function(){ setCineMode('misala'); };
+window.closeMiCartelera = function(){ setCineMode('compartida'); };
+var _miCarteleraData = _miSalaData;
+var saveToMiCartelera = window.saveToMiSala;
 
 var _savingToPrivate = false;
+
+
 
 window.renderPendingChips = function() {
   var el = safe('cine-pending-chips');
@@ -4800,6 +4945,177 @@ function subscribeCine() {
 // ── INIT ─────────────────────────────────────────────────
 applyPalette(localStorage.getItem('palette')||'azul');
 applyFont(localStorage.getItem('font')||'D');
+
+
+// ─── GAMIFICACIÓN: HITOS Y RACHAS ───
+var _hitsShown = {};
+
+window.checkHitos = function() {
+  if(_cineMode==='misala') checkHitosMiSala(); else checkHitosCompartida();
+};
+
+function checkHitosCompartida() {
+  var all=appData.cine||[];
+  var vistas=all.filter(function(x){return x.estado==='visto';});
+  var hitos=[
+    {key:'shared_10',n:10,titulo:'10 juntos',sub:'Lleváis 10 pelis y series juntos. ¡Esto va en serio!',icon:'&#127902;'},
+    {key:'shared_25',n:25,titulo:'25 juntos',sub:'Una cuarta parte de 100. Sois unos cinéfilos.',icon:'&#127871;'},
+    {key:'shared_50',n:50,titulo:'50 juntos',sub:'50 pelis y series. Eso es dedicación.',icon:'&#127942;'},
+    {key:'shared_100',n:100,titulo:'100 juntos',sub:'¡CENTENARIO! Sois unos auténticos expertos.',icon:'&#128081;}'}
+  ];
+  hitos.forEach(function(h){
+    if(vistas.length>=h.n && !_hitsShown[h.key]) {
+      _hitsShown[h.key]=true;
+      setTimeout(function(){ showHitoScreen(h.titulo,h.sub,h.icon,false); },500);
+    }
+  });
+}
+
+function checkHitosMiSala() {
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var who=isDavid?'david':'maria';
+  var hitos=[
+    {key:'sala_5',n:5,titulo:'5 en Mi Sala',sub:'Tu sala empieza a llenarse. ¡Buen ojo!',icon:'&#127820;'},
+    {key:'sala_20',n:20,titulo:'20 en Mi Sala',sub:'20 pelis guardadas. Eres todo un curador.',icon:'&#127902;'},
+    {key:'sala_rated_10',n:10,titulo:'10 valoradas',sub:'Ya tienes 10 puntuaciones propias. ¡Eres un crítico!',icon:'&#128020;',tipo:'rated'}
+  ];
+  var vistas=_miSalaData.filter(function(x){return x.estado==='visto';});
+  var rated=_miSalaData.filter(function(x){return x.myRating;});
+  hitos.forEach(function(h){
+    var count=h.tipo==='rated'?rated.length:_miSalaData.length;
+    if(count>=h.n && !_hitsShown[h.key]) {
+      _hitsShown[h.key]=true;
+      setTimeout(function(){ showHitoScreen(h.titulo,h.sub,h.icon,true); },500);
+    }
+  });
+}
+
+window.showHitoScreen = function(titulo, sub, icon, privado) {
+  var sc = document.createElement('div');
+  sc.style.cssText='position:fixed;inset:0;background:rgba(10,10,18,0.95);z-index:9990;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;';
+  var accent = privado ? '#7c3aed' : '#f0c040';
+  var accentLight = privado ? 'rgba(124,58,237,0.2)' : 'rgba(240,192,64,0.2)';
+  sc.innerHTML='<div style="width:120px;height:120px;border-radius:50%;background:'+accentLight+';border:3px solid '+accent+';display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:24px;animation:hitoScale 0.6s cubic-bezier(0.34,1.56,0.64,1);">'+icon+'</div>'
+    +'<div style="font-size:11px;color:'+accent+';text-transform:uppercase;letter-spacing:3px;font-weight:900;margin-bottom:12px;">'+(privado?'LOGRO DE MI SALA':'LOGRO COMPARTIDO')+'</div>'
+    +'<div style="font-family:var(--font-title);font-size:30px;font-weight:900;color:white;margin-bottom:12px;">'+titulo+'</div>'
+    +'<div style="color:#aaa;font-size:15px;line-height:1.5;max-width:280px;margin-bottom:36px;">'+sub+'</div>'
+    +'<button onclick="this.parentElement.remove()" style="padding:16px 48px;background:linear-gradient(135deg,'+accent+','+accent+'cc);border:none;border-radius:999px;color:'+(privado?'white':'#13131f')+';font-weight:900;font-size:16px;font-family:var(--font-title);cursor:pointer;box-shadow:0 6px 20px '+accentLight+';">&#161;Genial!</button>';
+  // Add CSS animation
+  if(!document.getElementById('hito-style')){
+    var st=document.createElement('style');
+    st.id='hito-style';
+    st.textContent='@keyframes hitoScale{0%{transform:scale(0) rotate(-180deg);}100%{transform:scale(1) rotate(0deg);}}';
+    document.head.appendChild(st);
+  }
+  document.body.appendChild(sc);
+  if(typeof launchGoldParticles==='function') launchGoldParticles(sc.querySelector('div'));
+};
+
+// ─── RECOMENDACIÓN SEMANAL ───
+window.checkRecomendacionSemanal = function() {
+  var lastCheck=localStorage.getItem('recom_week_checked');
+  var now=new Date();
+  var weekKey=now.getFullYear()+'-W'+Math.ceil(now.getDate()/7);
+  if(lastCheck===weekKey) return;
+  // Only show on Monday (day 1) or if never shown
+  if(now.getDay()!==1 && lastCheck) return;
+  localStorage.setItem('recom_week_checked',weekKey);
+  var data=_cineMode==='misala'?_miSalaData:(appData.cine||[]);
+  var proximoItems=data.filter(function(x){return x.estado==='proximo';});
+  if(!proximoItems.length) return;
+  // Find best match based on genres of highest-rated items
+  var vistas=data.filter(function(x){return x.estado==='visto';});
+  var topGenres={};
+  vistas.forEach(function(x){
+    var myR=parseInt(_cineMode==='misala'?x.myRating||0:((parseInt(x.ratings&&x.ratings.david||0)+parseInt(x.ratings&&x.ratings.maria||0))/2));
+    if(myR>=7){
+      (x.genres||'').split(',').forEach(function(g){var gn=g.trim();if(gn)topGenres[gn]=(topGenres[gn]||0)+1;});
+    }
+  });
+  var bestMatch=null, bestScore=0;
+  proximoItems.forEach(function(x){
+    var score=0;
+    (x.genres||'').split(',').forEach(function(g){score+=(topGenres[g.trim()]||0);});
+    if(score>bestScore){bestScore=score;bestMatch=x;}
+  });
+  if(!bestMatch) bestMatch=proximoItems[Math.floor(Math.random()*proximoItems.length)];
+  showRecomendacion(bestMatch);
+};
+
+function showRecomendacion(item) {
+  var privado=_cineMode==='misala';
+  var accent=privado?'#7c3aed':'#f0c040';
+  var rc=document.createElement('div');
+  rc.style.cssText='position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;background:linear-gradient(180deg,transparent,#0a0a18 30%);padding:20px 16px;z-index:500;';
+  rc.innerHTML='<div style="background:'+(privado?'#1a0a30':'#1a1400')+';border:1.5px solid '+accent+';border-radius:18px;padding:16px;display:flex;gap:12px;align-items:center;box-shadow:0 -4px 20px rgba(0,0,0,0.5);">'
+    +'<div style="font-size:10px;color:'+accent+';text-transform:uppercase;letter-spacing:1.5px;font-weight:900;position:absolute;top:-10px;left:20px;background:'+(privado?'#1a0a30':'#1a1400')+';padding:2px 8px;border-radius:999px;border:1px solid '+accent+';">Recomendaci&#243;n</div>'
+    +(item.poster?'<img src="'+esc(item.poster)+'" style="width:50px;height:75px;object-fit:cover;border-radius:8px;flex-shrink:0;">':'')
+    +'<div style="flex:1;min-width:0;">'
+    +'<div style="font-size:11px;color:#888;margin-bottom:4px;">Esta semana te toca...</div>'
+    +'<div style="font-family:var(--font-title);font-style:italic;font-size:17px;font-weight:900;color:white;line-height:1.2;">'+esc(item.title)+'</div>'
+    +(item.genres?'<div style="font-size:11px;color:#666;margin-top:3px;">'+esc(item.genres)+'</div>':'')
+    +'</div>'
+    +'<button onclick="this.closest(\'[data-rc]\').remove()" style="background:none;border:none;color:#555;font-size:20px;cursor:pointer;flex-shrink:0;">&#215;</button>'
+    +'</div>';
+  rc.setAttribute('data-rc','1');
+  var stage=safe('tab-cine');
+  if(stage) stage.appendChild(rc);
+  else document.body.appendChild(rc);
+  setTimeout(function(){if(rc.parentNode)rc.remove();},8000);
+}
+
+// ─── MOOD DEL MES ───
+window.checkMoodMes = function() {
+  var lastCheck=localStorage.getItem('mood_month_checked');
+  var now=new Date();
+  var monthKey=now.getFullYear()+'-'+(now.getMonth()+1);
+  if(lastCheck===monthKey) return;
+  // Show on 1st of month or if never shown
+  if(now.getDate()!==1 && lastCheck) return;
+  localStorage.setItem('mood_month_checked',monthKey);
+  var prevMonth=new Date(now.getFullYear(),now.getMonth()-1,1);
+  var prevKey=prevMonth.getFullYear()+'-'+(prevMonth.getMonth()+1);
+  var months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var monthName=months[prevMonth.getMonth()];
+  var data=_cineMode==='misala'?_miSalaData:(appData.cine||[]);
+  var mesItems=data.filter(function(x){
+    if(x.estado!=='visto') return false;
+    var t=x.watchedAt||0;
+    if(!t) return false;
+    var d=new Date(t);
+    return d.getFullYear()===prevMonth.getFullYear()&&d.getMonth()===prevMonth.getMonth();
+  });
+  if(!mesItems.length) return;
+  var gc={};
+  mesItems.forEach(function(x){(x.genres||'').split(',').forEach(function(g){var gn=g.trim();if(gn)gc[gn]=(gc[gn]||0)+1;});});
+  var topG=Object.keys(gc).sort(function(a,b){return gc[b]-gc[a];})[0]||'';
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var privado=_cineMode==='misala';
+  var avgRatings=mesItems.filter(function(x){
+    return privado?x.myRating:(x.ratings&&x.ratings.david&&x.ratings.maria);
+  }).map(function(x){
+    return privado?parseInt(x.myRating):((parseInt(x.ratings.david)+parseInt(x.ratings.maria))/2);
+  });
+  var avg=avgRatings.length?(avgRatings.reduce(function(a,b){return a+b;},0)/avgRatings.length).toFixed(1):'—';
+  showMoodMes(monthName,mesItems.length,topG,avg,privado);
+};
+
+function showMoodMes(mes,total,genero,avg,privado) {
+  var accent=privado?'#7c3aed':'#f0c040';
+  var accentLight=privado?'rgba(124,58,237,0.15)':'rgba(240,192,64,0.15)';
+  var sc=document.createElement('div');
+  sc.style.cssText='position:fixed;inset:0;background:rgba(10,10,18,0.95);z-index:9989;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;';
+  sc.innerHTML='<div style="font-size:11px;color:'+accent+';text-transform:uppercase;letter-spacing:3px;font-weight:900;margin-bottom:16px;">'+(privado?'TU MES EN MI SALA':'VUESTRO MES JUNTOS')+'</div>'
+    +'<div style="font-family:var(--font-title);font-size:36px;font-weight:900;color:white;margin-bottom:24px;text-transform:capitalize;">'+mes+'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:300px;margin-bottom:28px;">'
+    +'<div style="background:'+accentLight+';border:1px solid '+accent+';border-radius:16px;padding:16px;"><div style="font-size:36px;font-weight:900;color:'+accent+';">'+total+'</div><div style="font-size:11px;color:#888;margin-top:4px;">vistas</div></div>'
+    +'<div style="background:'+accentLight+';border:1px solid '+accent+';border-radius:16px;padding:16px;"><div style="font-size:36px;font-weight:900;color:'+accent+';">'+avg+'</div><div style="font-size:11px;color:#888;margin-top:4px;">media</div></div>'
+    +(genero?'<div style="grid-column:1/-1;background:'+accentLight+';border:1px solid '+accent+';border-radius:16px;padding:14px;"><div style="font-size:14px;font-weight:800;color:white;">G&#233;nero del mes</div><div style="font-size:22px;font-weight:900;color:'+accent+';margin-top:4px;">'+genero+'</div></div>':'')
+    +'</div>'
+    +'<button onclick="this.parentElement.remove()" style="padding:14px 40px;background:linear-gradient(135deg,'+accent+','+accent+'cc);border:none;border-radius:999px;color:'+(privado?'white':'#13131f')+';font-weight:900;font-size:15px;font-family:var(--font-title);cursor:pointer;">Cerrar</button>';
+  document.body.appendChild(sc);
+}
+
 
 </script>
 
