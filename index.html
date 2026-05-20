@@ -1286,7 +1286,8 @@ window.setCineMode = function(mode) {
     if(tc){tc.style.background='transparent';tc.style.color='#555';tc.style.boxShadow='none';}
     if(tm){tm.style.background='linear-gradient(135deg,#7c3aed,#5b21b6)';tm.style.color='white';tm.style.boxShadow='0 4px 12px rgba(124,58,237,0.4)';}
     if(title){title.textContent='Mi Sala';}
-    if(sub){sub.textContent='tu espacio personal &#127910;';sub.style.color='#9d7ae8';}
+    if(sub){sub.innerHTML='tu espacio personal &#127910;';sub.style.color='#9d7ae8';}
+    setCineTab(_cineTab);
     if(typeof loadMiSalaData==='function') loadMiSalaData();
   } else {
     document.body.classList.remove('mi-sala-mode');
@@ -1294,8 +1295,8 @@ window.setCineMode = function(mode) {
     if(tc){tc.style.background='linear-gradient(135deg,#f0c040,#e8a020)';tc.style.color='#13131f';tc.style.boxShadow='0 4px 12px rgba(240,192,64,0.3)';}
     if(tm){tm.style.background='transparent';tm.style.color='#555';tm.style.boxShadow='none';}
     if(title){title.textContent='Cartelera';}
-    if(sub){sub.textContent='vuestras pelis y series &#127909;';sub.style.color='#666';}
-    renderCineList();
+    if(sub){sub.innerHTML='vuestras pelis y series &#127909;';sub.style.color='#666';}
+    setCineTab(_cineTab);
   }
 };
 
@@ -3505,9 +3506,9 @@ const PLATFORM_BADGES = {
 window.setCineTab = function(tab) {
   if(!appData.cine) appData.cine = [];
   _cineTab = tab;
-  ['viendo','proximo','visto'].forEach(function(t){ var el=safe('ctab-'+t); if(el){el.className='cine-tab'+(t===tab?' active':'');} });
-  var rb = safe('cine-ruleta-btn'); if(rb) rb.style.display = tab==='proximo' ? 'block' : 'none';
-  var rs = safe('cine-ranking-section'); if(rs) rs.style.display = tab==='visto' ? 'block' : 'none';
+  var algTab=safe('ctab-algund\u00eda'); if(algTab) algTab.style.display=(_cineMode==='misala')?'':'none';
+  ['viendo','proximo','visto','algund\u00eda'].forEach(function(t){ var el=safe('ctab-'+t); if(el){el.className='cine-tab'+(t===tab?' active':'');} });
+  var rb = safe('cine-ruleta-btn'); if(rb) rb.style.display = (tab==='proximo'&&_cineMode!=='misala') ? 'block' : 'none';
   renderCineList();
 };
 
@@ -3598,7 +3599,7 @@ window.openAddCineModal = function() {
   if(safe('cine-title-inp')) safe('cine-title-inp').value='';
   if(safe('cine-link-inp')) safe('cine-link-inp').value='';
   if(safe('cine-platform')) safe('cine-platform').value='';
-  setCineType('pelicula'); setCineState(_cineTab==='visto'?'proximo':_cineTab);
+  setCineType('pelicula'); setCineState((_cineTab==='visto'||_cineTab==='algund\u00eda')?'proximo':_cineTab);
   openModal('modal-add-cine');
 };
 
@@ -3615,6 +3616,11 @@ window.saveCineItem = async function() {
   // Check if saving to private list (Mi Sala mode or explicit flag)
   if(_savingToPrivate || _cineMode==='misala') {
     _savingToPrivate = false;
+    if(_cineEditId) {
+      var mItems = JSON.parse(JSON.stringify(_miSalaData));
+      var mi = mItems.findIndex(function(x){return x.id===_cineEditId;});
+      if(mi>=0){ mItems[mi]=Object.assign(mItems[mi],item); await setDoc(doc(db,'app_data',getMiSalaKey()),{items:mItems}); _miSalaData=mItems; renderMiSalaList(); return; }
+    }
     await saveToMiSala(item);
     return;
   }
@@ -3680,6 +3686,7 @@ window.setCineEstado = async function(id, estado) {
 
 function renderCineList() {
   var el = safe('cine-list'); if(!el) return;
+  if(_cineMode==='misala') { renderMiSalaList(); return; }
   if(!appData.cine) appData.cine = [];
   var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
   var unEl=safe('cine-username'); if(unEl) unEl.textContent=isDavid?'David':'Mar&#237;a';
@@ -4480,6 +4487,7 @@ window.moveToMiSala = async function(id) {
 
 // Keep old aliases
 window.openMiCartelera = function(){ setCineMode('misala'); };
+window.openAddMiCartelera = function(){ _savingToPrivate=true; openAddCineModal(); };
 window.closeMiCartelera = function(){ setCineMode('compartida'); };
 var _miCarteleraData = _miSalaData;
 var saveToMiCartelera = window.saveToMiSala;
@@ -5225,21 +5233,6 @@ window.openNotifPanel = function() {
     <div id="cine-detail-content"></div>
   </div>
 </div>
-<!-- MI CARTELERA (privada) -->
-<div id="mi-cartelera-screen" style="display:none;position:fixed;inset:0;background:#0a0a12;z-index:465;overflow-y:auto;">
-  <div style="padding:16px;max-width:500px;margin:0 auto;padding-bottom:80px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <button onclick="closeMiCartelera()" style="background:none;border:none;color:#888;font-size:15px;font-family:var(--font-body);padding:0;">&#8249; Volver</button>
-      <div style="font-size:18px;font-weight:900;color:white;font-family:var(--font-title);">&#128274; Mi Cartelera</div>
-      <button onclick="openAddMiCartelera()" style="background:linear-gradient(135deg,#f0c040,#e8a020);border:none;border-radius:999px;padding:8px 14px;color:#13131f;font-weight:800;font-size:12px;font-family:var(--font-body);cursor:pointer;">+ A&#241;adir</button>
-    </div>
-    <div style="background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.15);border-radius:12px;padding:10px 14px;margin-bottom:20px;font-size:12px;color:#888;font-style:italic;">
-      &#128274; Solo t&#250; puedes ver esta lista. Privada y solo tuya.
-    </div>
-    <div id="mi-cartelera-list"></div>
-  </div>
-</div>
-
 <div id="cine-swipe-screen" style="display:none;position:fixed;inset:0;background:#0a0a12;z-index:470;overflow-y:auto;">
   <div style="padding:16px;max-width:500px;margin:0 auto;padding-bottom:40px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
