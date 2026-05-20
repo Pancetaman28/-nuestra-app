@@ -69,6 +69,12 @@ button{cursor:pointer;}
 /* ── CONTENT ── */
 .app-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:32px;}
 .app-content.cine-active{padding:0;}
+.mi-sala-mode #tab-cine{background:#0a0818 !important;}
+.mi-sala-mode .cine-tab{background:#1a0a30 !important;}
+.mi-sala-mode .cine-tab.active{background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%) !important;box-shadow:0 4px 12px rgba(124,58,237,0.4) !important;}
+.mi-sala-mode .cine-filter.active{color:#a78bfa !important;border-color:#7c3aed !important;}
+.mi-sala-mode #cine-sticky-header{background:#0a0818 !important;border-bottom-color:#2a1a4e !important;}
+.mi-sala-mode .cine-card{border-color:#2a1a4e !important;}
 body.cine-mode .app-header,body.cine-mode .header-bar,body.cine-mode .header-row,body.cine-mode #screen-app > .app-header{display:none !important;height:0 !important;visibility:hidden !important;}
 body.cine-mode .app-content{padding:0 !important;}
 body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
@@ -583,19 +589,22 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
     </div>
     <div id="tab-cine" class="tab-section cine-section-dark" style="background:#0a0a12;min-height:100vh;">
       <div id="cine-sticky-header" style="background:#0a0a12;padding:18px 16px 14px;border-bottom:1px solid #1a1a2e;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
-            <div style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
-            <div style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909;</div>
+            <div id="cine-header-title" style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
+            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909;</div>
           </div>
+        </div>
+        <div style="display:flex;background:#0a0a14;border:1px solid #1e1e30;border-radius:999px;padding:3px;margin-bottom:12px;">
+          <button id="toggle-compartida" onclick="setCineMode('compartida')" style="flex:1;padding:9px 10px;border:none;border-radius:999px;background:linear-gradient(135deg,#f0c040,#e8a020);color:#13131f;font-family:var(--font-body);font-weight:800;font-size:12px;cursor:pointer;transition:all 0.25s;">&#127902; Compartida</button>
+          <button id="toggle-misala" onclick="setCineMode('misala')" style="flex:1;padding:9px 10px;border:none;border-radius:999px;background:transparent;color:#555;font-family:var(--font-body);font-weight:700;font-size:12px;cursor:pointer;transition:all 0.25s;">&#127820; Mi Sala</button>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
           <button class="cine-tab active" onclick="setCineTab('viendo')" id="ctab-viendo">Viendo</button>
           <button class="cine-tab" onclick="setCineTab('proximo')" id="ctab-proximo">Pr&#243;ximo</button>
           <button class="cine-tab" onclick="setCineTab('visto')" id="ctab-visto">Visto</button>
           <button class="cine-tab" onclick="setCineTab('algundía')" id="ctab-algundía" style="display:none;">Alg&#250;n d&#237;a...</button>
-          <button onclick="openMiCartelera()" style="margin-left:auto;padding:7px 12px;border:1.5px solid rgba(240,192,64,0.3);border-radius:999px;background:transparent;color:rgba(240,192,64,0.7);font-family:var(--font-body);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;">&#128274; Mi Cartelera</button>
         </div>
       </div>
       <div style="padding:18px 16px 100px;">
