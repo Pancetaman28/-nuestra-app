@@ -598,11 +598,11 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
             <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909;</div>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          <div onclick="setCineMode(_cineMode==='compartida'?'misala':'compartida')" style="position:relative;width:44px;height:26px;background:#2a2a3e;border-radius:999px;cursor:pointer;transition:background 0.3s;flex-shrink:0;" id="cine-mode-track">
-            <div id="cine-mode-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>
-          </div>
-          <span id="cine-mode-label" style="font-size:14px;font-weight:800;color:white;font-family:var(--font-body);transition:opacity 0.2s;">Compartida</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <span id="cine-mode-label" style="font-size:15px;font-weight:800;color:white;font-family:var(--font-body);">Compartida</span>
+          <button onclick="setCineMode(_cineMode==='compartida'?'misala':'compartida')" id="cine-mode-track" style="position:relative;width:48px;height:28px;background:#2a2a3e;border-radius:999px;cursor:pointer;transition:background 0.3s;flex-shrink:0;border:none;padding:0;outline:none;">
+            <div id="cine-mode-knob" style="position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:white;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 2px 6px rgba(0,0,0,0.4);pointer-events:none;"></div>
+          </button>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
           <button class="cine-tab active" onclick="setCineTab('viendo')" id="ctab-viendo">Viendo</button>
@@ -3742,13 +3742,7 @@ function renderCineList() {
 
   // ─── VISTO: vista estilo ranking (lista compacta visual) ───
   if(_cineTab === 'visto') {
-    var sortHtml = '<div style="display:flex;gap:6px;margin-bottom:12px;align-items:center;">'
-      + '<span style="font-size:11px;color:#666;flex-shrink:0;">Ordenar:</span>'
-      + '<button onclick="setVistoSort(&apos;reciente&apos;)" style="padding:4px 10px;border:1px solid '+(_vistoSort==='reciente'?'#f0c040':'#2a2a3e')+';border-radius:999px;background:'+(_vistoSort==='reciente'?'rgba(240,192,64,0.15)':'transparent')+';color:'+(_vistoSort==='reciente'?'#f0c040':'#555')+';font-size:11px;font-weight:700;font-family:var(--font-body);">Reciente</button>'
-      + '<button onclick="setVistoSort(&apos;mayor&apos;)" style="padding:4px 10px;border:1px solid '+(_vistoSort==='mayor'?'#f0c040':'#2a2a3e')+';border-radius:999px;background:'+(_vistoSort==='mayor'?'rgba(240,192,64,0.15)':'transparent')+';color:'+(_vistoSort==='mayor'?'#f0c040':'#555')+';font-size:11px;font-weight:700;font-family:var(--font-body);">&#8593; Mayor nota</button>'
-      + '<button onclick="setVistoSort(&apos;menor&apos;)" style="padding:4px 10px;border:1px solid '+(_vistoSort==='menor'?'#f0c040':'#2a2a3e')+';border-radius:999px;background:'+(_vistoSort==='menor'?'rgba(240,192,64,0.15)':'transparent')+';color:'+(_vistoSort==='menor'?'#f0c040':'#555')+';font-size:11px;font-weight:700;font-family:var(--font-body);">&#8595; Menor nota</button>'
-      + '</div>';
-    el.insertAdjacentHTML('beforebegin', sortHtml);
+        // sort handled by pending chips
     var pendingChips = '<div id="cine-pending-chips-inner"></div>';
     var html = '';
     items.forEach(function(item, idx){
@@ -4264,6 +4258,21 @@ window.closeCineRanking = function() {
 };
 
 
+
+window.toggleSortDropdown = function() {
+  var dd = document.getElementById('sort-dropdown');
+  if(dd) dd.style.display = dd.style.display==='block' ? 'none' : 'block';
+  // Close on outside click
+  setTimeout(function(){
+    document.addEventListener('click', function handler(e){
+      var dd2 = document.getElementById('sort-dropdown');
+      if(dd2 && !dd2.contains(e.target) && !e.target.closest('button[onclick*="toggleSort"]')){
+        dd2.style.display='none'; document.removeEventListener('click',handler);
+      }
+    });
+  },100);
+};
+
 window.setVistoSort = function(sort) {
   _vistoSort = sort;
   renderCineList();
@@ -4344,14 +4353,8 @@ window.renderMiSalaList = function() {
   var perfilHtml='';
   if(_cineTab==='visto') {
     // Sort chips
-    var sortChipsHtml = '<div style="display:flex;gap:6px;margin-bottom:12px;align-items:center;">'
-      + '<span style="font-size:11px;color:#666;flex-shrink:0;">Ordenar:</span>'
-      + '<button onclick="setVistoSort(&apos;reciente&apos;)" class="visto-sort-btn'+(window._vistoSort==='reciente'?' active':'')+'" style="padding:4px 10px;border:1px solid '+(_vistoSort==='reciente'?'#a78bfa':'#2a2a3e')+';border-radius:999px;background:'+(_vistoSort==='reciente'?'rgba(124,58,237,0.2)':'transparent')+';color:'+(_vistoSort==='reciente'?'#a78bfa':'#555')+';font-size:11px;font-weight:700;font-family:var(--font-body);">Reciente</button>'
-      + '<button onclick="setVistoSort(&apos;mayor&apos;)" style="padding:4px 10px;border:1px solid '+(_vistoSort==='mayor'?'#a78bfa':'#2a2a3e')+';border-radius:999px;background:'+(_vistoSort==='mayor'?'rgba(124,58,237,0.2)':'transparent')+';color:'+(_vistoSort==='mayor'?'#a78bfa':'#555')+';font-size:11px;font-weight:700;font-family:var(--font-body);">&#8593; Mayor nota</button>'
-      + '<button onclick="setVistoSort(&apos;menor&apos;)" style="padding:4px 10px;border:1px solid '+(_vistoSort==='menor'?'#a78bfa':'#2a2a3e')+';border-radius:999px;background:'+(_vistoSort==='menor'?'rgba(124,58,237,0.2)':'transparent')+';color:'+(_vistoSort==='menor'?'#a78bfa':'#555')+';font-size:11px;font-weight:700;font-family:var(--font-body);">&#8595; Menor nota</button>'
-      + '</div>';
-    perfilHtml = sortChipsHtml + perfilHtml;
-    var rated=_miSalaData.filter(function(x){return x.myRating;});
+    var sortChipsHtml = ''; // sort handled by pending chips
+        var rated=_miSalaData.filter(function(x){return x.myRating;});
     var avgR=rated.length?(rated.reduce(function(a,x){return a+parseInt(x.myRating);},0)/rated.length).toFixed(1):'—';
     var gc={};
     _miSalaData.forEach(function(x){(x.genres||'').split(',').forEach(function(g){var gn=g.trim();if(gn)gc[gn]=(gc[gn]||0)+1;});});
@@ -4373,7 +4376,7 @@ window.renderMiSalaList = function() {
   }
   var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
   var who=isDavid?'david':'maria';
-  var html=(perfilHtml||'')+sortChipsHtml;
+  var html=(perfilHtml||'');
   items.forEach(function(item){
     var typeIcon=item.tipo==='pelicula'?'&#127871;':'&#128250;';
     var platBadge=item.platform?(PLATFORM_BADGES[item.platform]||PLATFORM_BADGES.otro):'';
@@ -4555,6 +4558,16 @@ window.renderPendingChips = function() {
   var el = safe('cine-pending-chips');
   if(!el) return;
   var html = '';
+  // Sort dropdown - only in visto
+  if(_cineTab === 'visto') {
+    var labels = {reciente:'Reciente',mayor:'&#8593; Mayor nota',menor:'&#8595; Menor nota'};
+    var accent = _cineMode==='misala' ? '#a78bfa' : '#f0c040';
+    html += '<div style="display:flex;justify-content:flex-end;margin-bottom:10px;position:relative;">'
+      + '<button onclick="toggleSortDropdown()" style="display:flex;align-items:center;gap:6px;background:transparent;border:1px solid #2a2a3e;border-radius:999px;padding:5px 12px;color:#888;font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;">Ordenar: <span style="color:'+accent+';">'+labels[_vistoSort]+'</span> &#9662;</button>'
+      + '<div id="sort-dropdown" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#13131f;border:1px solid #2a2a3e;border-radius:12px;padding:6px;z-index:100;min-width:150px;box-shadow:0 8px 24px rgba(0,0,0,0.6);">'
+      + ['reciente','mayor','menor'].map(function(s){ return '<button onclick="setVistoSort(\''+s+'\')" style="display:block;width:100%;text-align:left;padding:8px 12px;border:none;background:'+(_vistoSort===s?'rgba(240,192,64,0.12)':'transparent')+';color:'+(_vistoSort===s?accent:'#aaa')+';font-family:var(--font-body);font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;">'+labels[s]+'</button>'; }).join('')
+      + '</div></div>';
+  }
   // Solo mostrar en la pestaña relevante
   if(_cineTab === 'visto') {
     var pendVote = getPendingRatings();
@@ -4919,10 +4932,17 @@ window.shuffleCards = function() {
   if(_tarotShuffling) return;
   if(!_tarotItems.length) return;
   _tarotShuffling = true;
-  // Vibración táctil (3 pulsos cortos)
   if(navigator.vibrate) navigator.vibrate([60,40,60,40,80]);
   var stage = safe('cards-stage'); if(!stage) return;
   var cards = stage.querySelectorAll('.tarot-card');
+  // Reset ALL cards: opacity, transform, ready state
+  cards.forEach(function(card){
+    card.style.transition = 'opacity 0.25s,transform 0.25s';
+    card.style.opacity = '1';
+    card.style.transform = '';
+    card.style.zIndex = '1';
+    card.classList.remove('tarot-ready');
+  });
   var n = cards.length;
   var btn = safe('cards-shuffle-btn');
   if(btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.textContent = 'Barajando...'; }
