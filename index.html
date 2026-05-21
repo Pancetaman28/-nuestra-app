@@ -69,9 +69,10 @@ button{cursor:pointer;}
 /* ── CONTENT ── */
 .app-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:32px;}
 .app-content.cine-active{padding:0;}
-.misala-modal .modal-content,.misala-modal .cine-modal-dark{border-color:#3b1f6e !important;}
-.misala-modal .pcheck.on{background:linear-gradient(135deg,#7c3aed,#5b21b6) !important;color:white !important;border-color:#7c3aed !important;}
-.misala-modal .modal-submit-btn{background:linear-gradient(135deg,#7c3aed,#5b21b6) !important;box-shadow:0 4px 16px rgba(124,58,237,0.4) !important;}
+#modal-add-cine.misala-modal .modal-card,#modal-add-cine.misala-modal .modal-content{border:1.5px solid #3b1f6e !important;}
+#modal-add-cine.misala-modal .pcheck.on{background:linear-gradient(135deg,#7c3aed,#5b21b6) !important;color:white !important;border-color:#7c3aed !important;}
+#modal-add-cine.misala-modal .btn-save{background:linear-gradient(135deg,#7c3aed,#5b21b6) !important;box-shadow:0 4px 16px rgba(124,58,237,0.4) !important;color:white !important;}
+#modal-add-cine.misala-modal label{color:#a78bfa !important;}
 .mi-sala-mode #tab-cine{background:#0a0818 !important;}
 @keyframes slideDown{0%{opacity:0;transform:translateY(-12px);}100%{opacity:1;transform:translateY(0);}}
 .cine-slide-in{animation:slideDown 0.3s cubic-bezier(0.34,1.2,0.64,1) both;}
@@ -598,7 +599,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
             <div id="cine-header-title" style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
-            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v15</span></div>
+            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v16</span></div>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:12px;">
@@ -3673,6 +3674,8 @@ window.openEditCine = function(id) {
   } else if(prev) { prev.style.display='none'; }
   setCineType(item.tipo||'pelicula');
   setCineState(item.estado||'proximo');
+  var algBtn=safe('cstate-algund\u00eda'); if(algBtn) algBtn.style.display=(_cineMode==='misala')?'':'none';
+  var modal=safe('modal-add-cine'); if(modal){ if(_cineMode==='misala') modal.classList.add('misala-modal'); else modal.classList.remove('misala-modal'); }
   openModal('modal-add-cine');
 };
 
@@ -4291,8 +4294,7 @@ window.updateRankFAB = function() {
   var icon = safe('cine-rank-fab-icon');
   if(_cineMode==='misala') {
     if(fab) fab.style.display='none';
-    var msTotal = _miSalaData.filter(function(x){ return x.estado==='visto'; });
-    if(mfab) mfab.style.display = msTotal.length>=1 ? 'flex' : 'none';
+    if(mfab) mfab.style.display = (_miSalaData && _miSalaData.length>=1) ? 'flex' : 'none';
   } else {
     if(mfab) mfab.style.display='none';
     var rated2 = (appData.cine||[]).filter(function(x){ return x.estado==='visto' && x.ratings && (x.ratings.david||x.ratings.maria); });
@@ -4358,6 +4360,12 @@ window.renderMiSalaList = function() {
   var perfilHtml = '';
   var items = _miSalaData.filter(function(x){ return x.estado===_cineTab; });
   if(_cineFilter!=='all') items = items.filter(function(x){ return x.tipo===_cineFilter; });
+  // Sort visto by _vistoSort
+  if(_cineTab==='visto') {
+    if(_vistoSort==='mayor') items=items.slice().sort(function(a,b){return (parseInt(b.myRating)||0)-(parseInt(a.myRating)||0);});
+    else if(_vistoSort==='menor') items=items.slice().sort(function(a,b){return (parseInt(a.myRating)||11)-(parseInt(b.myRating)||11);});
+    else items=items.slice().sort(function(a,b){return (b.watchedAt||0)-(a.watchedAt||0);});
+  }
   // Perfil cinéfilo header (solo en Mi Sala, pestaña visto)
   if(_cineTab==='visto') {
     // Sort chips
@@ -4372,6 +4380,13 @@ window.renderMiSalaList = function() {
       +'<div><div style="font-size:22px;font-weight:900;color:#a78bfa;">'+avgR+'</div><div style="font-size:10px;color:#666;margin-top:2px;">tu media</div></div>'
       +'<div><div style="font-size:13px;font-weight:800;color:#a78bfa;line-height:1.2;margin-top:4px;">'+topG+'</div><div style="font-size:10px;color:#666;margin-top:2px;">tu g\u00e9nero</div></div>'
       +'</div>';
+    // Sort dropdown for Mi Sala visto
+    var msLabels = {reciente:'Reciente',mayor:'&#8593; Mayor nota',menor:'&#8595; Menor nota'};
+    perfilHtml += '<div style="display:flex;justify-content:flex-end;margin-bottom:10px;position:relative;">'
+      + '<button onclick="toggleSortDropdown()" style="display:flex;align-items:center;gap:6px;background:transparent;border:1px solid #2a1a4e;border-radius:999px;padding:5px 12px;color:#888;font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;">Ordenar: <span style="color:#a78bfa;">'+msLabels[_vistoSort]+'</span> &#9662;</button>'
+      + '<div id="sort-dropdown" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#1a0a30;border:1px solid #3b1f6e;border-radius:12px;padding:6px;z-index:100;min-width:150px;box-shadow:0 8px 24px rgba(0,0,0,0.6);">'
+      + ['reciente','mayor','menor'].map(function(s){ return '<button onclick="setVistoSort(\''+s+'\')" style="display:block;width:100%;text-align:left;padding:8px 12px;border:none;background:'+(_vistoSort===s?'rgba(124,58,237,0.2)':'transparent')+';color:'+(_vistoSort===s?'#a78bfa':'#aaa')+';font-family:var(--font-body);font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;">'+msLabels[s]+'</button>'; }).join('')
+      + '</div></div>';
   }
   if(!items.length) {
     var msgs = {
