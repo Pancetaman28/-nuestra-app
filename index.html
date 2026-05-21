@@ -69,6 +69,9 @@ button{cursor:pointer;}
 /* ── CONTENT ── */
 .app-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:32px;}
 .app-content.cine-active{padding:0;}
+.misala-modal .modal-content,.misala-modal .cine-modal-dark{border-color:#3b1f6e !important;}
+.misala-modal .pcheck.on{background:linear-gradient(135deg,#7c3aed,#5b21b6) !important;color:white !important;border-color:#7c3aed !important;}
+.misala-modal .modal-submit-btn{background:linear-gradient(135deg,#7c3aed,#5b21b6) !important;box-shadow:0 4px 16px rgba(124,58,237,0.4) !important;}
 .mi-sala-mode #tab-cine{background:#0a0818 !important;}
 @keyframes slideDown{0%{opacity:0;transform:translateY(-12px);}100%{opacity:1;transform:translateY(0);}}
 .cine-slide-in{animation:slideDown 0.3s cubic-bezier(0.34,1.2,0.64,1) both;}
@@ -612,7 +615,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
         </div>
       </div>
       <div style="padding:18px 16px 100px;">
-        <div style="font-size:10px;color:rgba(240,192,64,0.5);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px;padding-left:4px;">Filtrar por tipo</div>
+        
         <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
           <button class="cine-filter active" onclick="setCineFilter('all')" id="cfil-all">Todos</button>
           <button class="cine-filter" onclick="setCineFilter('pelicula')" id="cfil-pelicula"><img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FwYV8xIiBkYXRhLW5hbWU9IkNhcGEgMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMzAwIDMwMCI+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5jbHMtMSB7CiAgICAgICAgZmlsbDogI2ZmZWI5OTsKICAgICAgfQoKICAgICAgLmNscy0yIHsKICAgICAgICBmaWxsOiAjYzYwNjE5OwogICAgICB9CgogICAgICAuY2xzLTMgewogICAgICAgIGZpbGw6ICNmZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtNCB7CiAgICAgICAgZmlsbDogI2ZmZWNjMDsKICAgICAgfQoKICAgICAgLmNscy01IHsKICAgICAgICBmaWxsOiAjZDNkM2QzOwogICAgICB9CgogICAgICAuY2xzLTYgewogICAgICAgIGZpbGw6ICNkYjUyNTI7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9kZWZzPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTc5Ljg4LDEwMC43NWgtMjIuODdjMTEuMDMsNDguMTcsMjIuMDYsOTYuMzUsMzMuMDksMTQ0LjUyaDEzLjY1Yy03Ljk2LTQ4LjE3LTE1LjkxLTk2LjM1LTIzLjg2LTE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTYiIGQ9Ik0xMDAuNjYsMTAwLjc1aC0yMC43MmM3Ljk1LDQ4LjE3LDE1LjksOTYuMzUsMjMuODQsMTQ0LjUyaDEyLjM2Yy01LjE2LTQ4LjE3LTEwLjMyLTk2LjM1LTE1LjQ4LTE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMDAuNjYsMTAwLjc1YzUuMTYsNDguMTcsMTAuMzIsOTYuMzUsMTUuNDgsMTQ0LjUyaDExLjYxYy0yLjU0LTQ4LjE3LTUuMDktOTYuMzUtNy42My0xNDQuNTJoLTE5LjQ2WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNiIgZD0iTTEzOS4wNCwxMDAuNzVoLTE4Ljg3YzIuNTQsNDguMTcsNS4wOCw5Ni4zNSw3LjYyLDE0NC41MmgxMS4yNWMwLTQ4LjE4LDAtOTYuMzQsMC0xNDQuNTJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTM5LjA0LDEwMC43NWMwLDQ4LjE3LDAsOTYuMzQsMCwxNDQuNTJoMTEuMjVjMi41NC00OC4xNyw1LjA3LTk2LjM1LDcuNjEtMTQ0LjUyaC0xOC44NloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik0xMzkuMDQsMjQ1LjI3YzAtNDguMTgsMC05Ni4zNCwwLTE0NC41MiwwLDQ4LjE3LDAsOTYuMzQsMCwxNDQuNTJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMTc3LjQyLDEwMC43NWgtMTkuNDZjLTIuNTUsNDguMTctNS4wOSw5Ni4zNS03LjYzLDE0NC41MmgxMS42MWM1LjE2LTQ4LjE3LDEwLjMyLTk2LjM1LDE1LjQ4LTE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTUiIGQ9Ik0xNzcuNDIsMTAwLjc1Yy01LjE2LDQ4LjE3LTEwLjMzLDk2LjM0LTE1LjQ4LDE0NC41MmgxMi4zNmM3Ljk0LTQ4LjE3LDE1Ljg5LTk2LjM1LDIzLjg0LTE0NC41MmgtMjAuNzJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTYxLjk0LDI0NS4yN2M1LjE2LTQ4LjE3LDEwLjMyLTk2LjM1LDE1LjQ4LTE0NC41Mi01LjE2LDQ4LjE3LTEwLjMzLDk2LjM0LTE1LjQ4LDE0NC41MloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik0xOTguMjEsMTAwLjc0Yy03Ljk2LDQ4LjE4LTE1LjkyLDk2LjM1LTIzLjg3LDE0NC41MmgxMy42NGMxMS4wMy00OC4xNywyMi4wNi05Ni4zNSwzMy4wOS0xNDQuNTJoLTIyLjg3WiIvPgogIDxyZWN0IGNsYXNzPSJjbHMtMyIgeD0iNTEuMiIgeT0iOTAuMTYiIHdpZHRoPSI4Ny44NCIgaGVpZ2h0PSIxMC41OSIvPgogIDxyZWN0IGNsYXNzPSJjbHMtNSIgeD0iMTM5LjA0IiB5PSI5MC4xNiIgd2lkdGg9Ijg3LjgzIiBoZWlnaHQ9IjEwLjU5Ii8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNOTEuNzUsNzMuMTZjLTQuNDYuMzgtOC4yMiwyLjkxLTEwLjM2LDYuNDgtMi0zLjUyLTUuOTEtNS43NS0xMC4yLTUuMzgtNS44OS41LTEwLjI1LDUuNjgtOS43NSwxMS41Ni41MSw1Ljg4LDUuNjgsMTAuMjUsMTEuNTYsOS43NCwzLjA1LS4yNiw1LjY4LTEuNzgsNy40NC00LDIuMTYsNS4zMSw3LjU3LDguODQsMTMuNTgsOC4zMiw3LjM4LS42MiwxMi44NS03LjEyLDEyLjIyLTE0LjUxLS42My03LjM4LTcuMTMtMTIuODYtMTQuNTEtMTIuMjNaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNOTguODgsNjcuNDJjLjcxLDguMzQtNS40NywxNS42OC0xMy44MiwxNi40LTguMzUuNzEtMTUuNjktNS40OC0xNi40LTEzLjgyLS43MS04LjM0LDUuNDgtMTUuNjgsMTMuODItMTYuNCw4LjM0LS43MSwxNS42OCw1LjQ4LDE2LjQsMTMuODJaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTIzLjgsMzcuNDFjLTQuNDYuMzgtOC4yMiwyLjkxLTEwLjM2LDYuNDgtMi0zLjUxLTUuOTEtNS43NC0xMC4yLTUuMzgtNS44OC41LTEwLjI0LDUuNjgtOS43NCwxMS41Ni41LDUuODgsNS42OCwxMC4yNCwxMS41Niw5Ljc0LDMuMDUtLjI2LDUuNjgtMS43OCw3LjQ1LTQsMi4xNSw1LjMxLDcuNTcsOC44MywxMy41OCw4LjMyLDcuMzgtLjYzLDEyLjg1LTcuMTMsMTIuMjItMTQuNTEtLjYzLTcuMzktNy4xMy0xMi44Ni0xNC41MS0xMi4yM1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMjguMTgsMTQuNzhjOS4yNC0uNzksMTcuMzcsNi4wNywxOC4xNiwxNS4zMS43OSw5LjI0LTYuMDcsMTcuMzctMTUuMzEsMTguMTYtOS4yNC43OS0xNy4zNy02LjA2LTE4LjE2LTE1LjMtLjc4LTkuMjUsNi4wNy0xNy4zNywxNS4zMS0xOC4xNiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE5NS4zNyw3My4yOWMtMi42NCwyLjYzLTMuNjgsNi4yNC0zLjE0LDkuNjYtMy4xNS0xLjE3LTYuODQtLjUtOS4zNywyLjAyLTMuNDksMy40Ni0zLjUsOS4wOS0uMDQsMTIuNTgsMy40NywzLjQ4LDkuMDksMy41LDEyLjU3LjAzLDEuODEtMS43OSwyLjY3LTQuMTcsMi42MS02LjUyLDQuMjEsMi4yNCw5LjU1LDEuNiwxMy4xMS0xLjk1LDQuMzctNC4zNCw0LjM4LTExLjQxLjA0LTE1Ljc3LTQuMzQtNC4zNy0xMS40MS00LjM5LTE1Ljc4LS4wNVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0yMDAuNTgsNjIuOTNjNC40LDUuMzksMy42LDEzLjM0LTEuNzksMTcuNzQtNS4zOSw0LjQtMTMuMzQsMy42MS0xNy43NS0xLjc5LTQuNC01LjQtMy42LTEzLjM0LDEuNzktMTcuNzQsNS40LTQuNCwxMy4zNC0zLjYsMTcuNzUsMS43OVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMjcuOTUsNjUuOThjLTUuMDEsMy42OS03LjYyLDkuNDEtNy41NywxNS4xOS00LjkyLTIuNzEtMTEuMTctMi41Mi0xNS45OSwxLjAzLTYuNjEsNC44Ni04LjAyLDE0LjE1LTMuMTcsMjAuNzYsNC44Niw2LjYxLDE0LjE2LDguMDIsMjAuNzcsMy4xNiwzLjQyLTIuNTIsNS40NC02LjIzLDUuOTItMTAuMTMsNi40LDQuNzMsMTUuMzgsNC45OCwyMi4xMy4wMiw4LjI5LTYuMSwxMC4wNi0xNy43NywzLjk2LTI2LjA2LTYuMS04LjI5LTE3Ljc2LTEwLjA3LTI2LjA2LTMuOTdaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTMyLjIzLDU0LjAxYzYuOSw5LjM3LDQuODksMjIuNTUtNC40OCwyOS40NS05LjM3LDYuODktMjIuNTYsNC44OS0yOS40NS00LjQ5LTYuOS05LjM3LTQuODktMjIuNTUsNC40OC0yOS40NSw5LjM3LTYuODksMjIuNTYtNC44OSwyOS40NSw0LjQ5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE1OC44Myw3Mi45NmMyLjc2LDMuNTMsNi45Myw1LjMsMTEuMDksNS4xNC0xLjg2LDMuNi0xLjU5LDguMDksMS4wNSwxMS40OCwzLjYzLDQuNjYsMTAuMzUsNS40OSwxNSwxLjg2LDQuNjYtMy42NCw1LjQ5LTEwLjM1LDEuODYtMTUuMDEtMS44OC0yLjQxLTQuNTktMy43OS03LjQxLTQuMDYsMy4yNy00LjcsMy4yNy0xMS4xNy0uNDMtMTUuOTItNC41Ni01Ljg1LTEyLjk5LTYuODktMTguODMtMi4zMy01Ljg0LDQuNTYtNi44OSwxMi45OS0yLjMzLDE4LjgzWiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE1MC4xMyw3MC4xMmM2LjYtNS4xNSwxNi4xMy0zLjk2LDIxLjI5LDIuNjQsNS4xNSw2LjYxLDMuOTYsMTYuMTMtMi42NCwyMS4yOC02LjYsNS4xNS0xNi4xMywzLjk3LTIxLjI4LTIuNjMtNS4xNC02LjYtMy45Ny0xNi4xMywyLjYzLTIxLjI4WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTEzOC4zMSw2MS45NmMzLjczLTIuNDgsNS44MS02LjUsNS45OC0xMC42NywzLjQ0LDIuMTMsNy45NCwyLjIsMTEuNTMtLjE4LDQuOTItMy4yNiw2LjI2LTkuOSwyLjk5LTE0LjgyLTMuMjctNC45Mi05LjktNi4yNi0xNC44MS0yLjk5LTIuNTUsMS42OS00LjEzLDQuMjktNC42MSw3LjA4LTQuNDQtMy42Mi0xMC44OC00LjEyLTE1LjkxLS43OC02LjE3LDQuMS03Ljg1LDEyLjQzLTMuNzUsMTguNiw0LjA5LDYuMTcsMTIuNDIsNy44NiwxOC41OSwzLjc2WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTEzNC44Myw3MC40MmMtNC42My02Ljk4LTIuNzMtMTYuMzksNC4yNS0yMS4wMiw2Ljk4LTQuNjMsMTYuMzktMi43MywyMS4wMiw0LjI1LDQuNjMsNi45OCwyLjczLDE2LjM4LTQuMjUsMjEuMDItNi45Nyw0LjYzLTE2LjM5LDIuNzMtMjEuMDItNC4yNVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNTMuMiwyMC41MWMtMi41MSwxLjc1LTQuMDIsNC4zOC00LjQ0LDcuMTktNC41My0zLjUxLTEwLjk4LTMuODUtMTUuOTItLjQtNi4wOCw0LjI1LTcuNTYsMTIuNjEtMy4zMSwxOC42OCw0LjI0LDYuMDcsMTIuNjEsNy41NiwxOC42OCwzLjMxLDMuNjctMi41Nyw1LjY1LTYuNjQsNS43Mi0xMC44LDMuNDksMi4wNCw3Ljk5LDIuMDEsMTEuNTItLjQ1LDQuODUtMy4zOSw2LjAzLTEwLjA1LDIuNjQtMTQuOSIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTE0NC45Miw1Ny44NGMtNC44LTYuODYtMy4xMi0xNi4zMiwzLjc0LTIxLjEyLDYuODctNC44LDE2LjMyLTMuMTIsMjEuMTIsMy43NCw0LjgsNi44NywzLjEyLDE2LjMyLTMuNzQsMjEuMTItNi44Nyw0Ljc5LTE2LjMyLDMuMTItMjEuMTItMy43NFoiLz4KPC9zdmc+" width="18" height="18">Cine</button>
@@ -1079,8 +1082,8 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
     <label>Estado</label>
     <div style="display:flex;gap:8px;margin-bottom:10px;">
       <button class="pcheck on" id="cstate-proximo" onclick="setCineState('proximo')">&#128197; Pr&#243;ximo</button>
+      <button class="pcheck" id="cstate-algundía" onclick="setCineState('algundía')" style="display:none;">&#10024; Alg&#250;n d&#237;a</button>
       <button class="pcheck" id="cstate-viendo" onclick="setCineState('viendo')">&#127902; Viendo</button>
-      <button class="pcheck" id="cstate-algundía" onclick="setCineState('algund\u00eda')" style="display:none;">&#10024; Alg&#250;n d&#237;a</button>
     </div>
     <label>Propuesta por</label>
     <div style="display:flex;gap:6px;margin-bottom:10px;">
@@ -3606,7 +3609,9 @@ window.selectTMDB = async function(id, mediaType) {
 
 window.openAddCineModal = function() {
   _proposerChoice = 'yo';
-  setTimeout(function(){ setProposer('yo'); var algBtn=safe('cstate-algund\u00eda'); if(algBtn) algBtn.style.display=(_cineMode==='misala')?'':'none'; }, 50);
+  var modal = safe('modal-add-cine');
+  if(modal){ if(_cineMode==='misala') modal.classList.add('misala-modal'); else modal.classList.remove('misala-modal'); }
+  setTimeout(function(){ setProposer('yo'); var algBtn=safe('cstate-algundía'); if(algBtn) algBtn.style.display=(_cineMode==='misala')?'':'none'; }, 50);
   _tmdbSelected = null; _cineEditId = null;
   if(safe('cine-search-inp')) safe('cine-search-inp').value='';
   if(safe('cine-search-results')) safe('cine-search-results').innerHTML='';
@@ -4248,11 +4253,14 @@ window.openCineRanking = function() {
 };
 
 window.openMiSalaRanking = function() {
-  // Reuse ranking screen but with Mi Sala data
   var screen = safe('cine-ranking-screen');
-  if(screen) screen.style.display = 'block';
-  // Temporarily swap data source
+  if(screen){ screen.style.display='block'; screen.setAttribute('data-misala','1'); }
   _rankingFromMiSala = true;
+  renderCineRanking();
+};
+window.openCineRanking = function() {
+  var screen = safe('cine-ranking-screen');
+  if(screen){ screen.style.display='block'; screen.removeAttribute('data-misala'); }
   renderCineRanking();
 };
 
@@ -4287,8 +4295,8 @@ window.updateRankFAB = function() {
   var icon = safe('cine-rank-fab-icon');
   if(_cineMode==='misala') {
     if(fab) fab.style.display='none';
-    var rated = _miSalaData.filter(function(x){ return x.estado==='visto' && x.myRating; });
-    if(mfab) mfab.style.display = rated.length>=3 ? 'flex' : 'none';
+    var msTotal = _miSalaData.filter(function(x){ return x.estado==='visto'; });
+    if(mfab) mfab.style.display = msTotal.length>=1 ? 'flex' : 'none';
   } else {
     if(mfab) mfab.style.display='none';
     var rated2 = (appData.cine||[]).filter(function(x){ return x.estado==='visto' && x.ratings && (x.ratings.david||x.ratings.maria); });
@@ -4342,7 +4350,7 @@ window.loadMiSalaData = async function() {
     _miSalaData = snap.exists() ? (snap.data().items||[]) : [];
     renderMiSalaList();
     renderPendingChips();
-    updateRankFAB();
+    if(typeof updateRankFAB==='function') updateRankFAB();
   } catch(e){ console.error('loadMiSalaData',e); }
 };
 
@@ -4351,6 +4359,7 @@ var loadMiCartelera = window.loadMiSalaData;
 
 window.renderMiSalaList = function() {
   var el = safe('cine-list'); if(!el) return;
+  var perfilHtml = ''; // declared at top so accessible throughout
   var items = _miSalaData.filter(function(x){ return x.estado===_cineTab; });
   if(_cineFilter!=='all') items = items.filter(function(x){ return x.tipo===_cineFilter; });
   // Perfil cinéfilo header (solo en Mi Sala, pestaña visto)
@@ -4781,15 +4790,25 @@ function attachSwipeHandlers() {
 
 window.renderCineRanking = function() {
   var el=safe('cine-ranking-list'); if(!el) return;
-  var items=(appData.cine||[]).filter(function(x){
+  var isMiSala = _rankingFromMiSala || _cineMode==='misala';
+  var accent = isMiSala ? '#a78bfa' : '#f0c040';
+  var accentGrad = isMiSala ? 'linear-gradient(135deg,#7c3aed,#5b21b6)' : 'linear-gradient(135deg,#f0c040,#e8a020)';
+  _rankingFromMiSala = false;
+  // Update ranking screen header colors
+  var rankTitle = document.querySelector('[data-rank-title]');
+  if(rankTitle){ rankTitle.style.color=accent; rankTitle.textContent=isMiSala?'Mi Ranking Personal':'Ranking Patitos Deluxe'; }
+  var mejor=safe('rbtn-mejor');
+  if(mejor){ mejor.style.background=accentGrad; mejor.style.color=isMiSala?'white':'#13131f'; mejor.style.boxShadow='0 4px 12px rgba('+(isMiSala?'124,58,237':'240,192,64')+',0.3)'; }
+  var sourceData = isMiSala ? _miSalaData : (appData.cine||[]);
+  var items=sourceData.filter(function(x){
     if(x.estado!=='visto') return false;
-    if(!x.ratings||(!x.ratings.david&&!x.ratings.maria)) return false;
+    if(isMiSala){ if(!x.myRating) return false; }
+    else { if(!x.ratings||(!x.ratings.david&&!x.ratings.maria)) return false; }
     if(_rankFiltro!=='all'&&x.tipo!==_rankFiltro) return false;
     if(_rankYear!=='all'&&(x.watchedYear||x.year)!==_rankYear) return false;
     return true;
   }).map(function(x){
-    var d=parseInt(x.ratings.david||0),m=parseInt(x.ratings.maria||0);
-    var cnt=(d?1:0)+(m?1:0),avg=cnt>0?(d+m)/cnt:0;
+    var avg = isMiSala ? parseInt(x.myRating||0) : (function(){ var d=parseInt(x.ratings.david||0),m=parseInt(x.ratings.maria||0),cnt=(d?1:0)+(m?1:0); return cnt>0?(d+m)/cnt:0; })();
     return Object.assign({},x,{avg:avg});
   });
   items.sort(function(a,b){return _rankTipo==='mejor'?b.avg-a.avg:a.avg-b.avg;});
@@ -5345,7 +5364,7 @@ window.openNotifPanel = function() {
   <div style="padding:16px;max-width:600px;margin:0 auto;padding-bottom:60px;">
     <button onclick="closeCineRanking()" style="background:none;border:none;color:#888;font-size:15px;font-family:var(--font-body);margin-bottom:16px;padding:0;">&#8249; Volver</button>
     <div style="text-align:center;margin-bottom:24px;">
-      <div style="font-size:28px;font-weight:900;color:#f0c040;font-family:var(--font-title);">Ranking Patitos Deluxe</div>
+      <div data-rank-title style="font-size:28px;font-weight:900;color:#f0c040;font-family:var(--font-title);">Ranking Patitos Deluxe</div>
     </div>
     <div style="display:flex;background:#0a0a14;border:1px solid #2a2a3e;border-radius:999px;padding:5px;margin-bottom:24px;position:relative;box-shadow:inset 0 2px 6px rgba(0,0,0,0.5);">
       <button id="rbtn-mejor" onclick="setRankTipo('mejor')" style="flex:1;padding:12px;border:none;border-radius:999px;background:linear-gradient(135deg,#f0c040 0%,#e8a020 100%);color:#13131f;font-family:var(--font-body);font-weight:800;font-size:14px;box-shadow:0 4px 12px rgba(240,192,64,0.3);">&#127942; Mejor</button>
