@@ -11,7 +11,93 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js">
+// ─── MI SALA: REORDENAR VIENDO (drag + pin) ───
+var _msdrg = {active:false, id:null, origY:0, el:null, listEl:null, cardH:0};
+
+window.dragStartMiSala = function(e, id) {
+  e.preventDefault();
+  var card = document.getElementById('mvc-'+id);
+  if(!card) return;
+  var rect = card.getBoundingClientRect();
+  _msdrg = {active:true, id:id, origY:e.touches[0].clientY, el:card, listEl:card.parentElement, cardH:rect.height};
+  card.classList.add('dragging');
+  document.addEventListener('touchmove', _msDragMove, {passive:false});
+  document.addEventListener('touchend', _msDragEnd);
+};
+
+function _msDragMove(e) {
+  if(!_msdrg.active) return;
+  e.preventDefault();
+  var dy = e.touches[0].clientY - _msdrg.origY;
+  _msdrg.el.style.transform = 'translateY('+dy+'px)';
+  // Highlight target card
+  var y = e.touches[0].clientY;
+  Array.from(_msdrg.listEl.querySelectorAll('.ms-drag-card')).forEach(function(c){
+    if(c===_msdrg.el){c.classList.remove('drag-over');return;}
+    var r=c.getBoundingClientRect();
+    if(y>=r.top && y<=r.bottom) c.classList.add('drag-over');
+    else c.classList.remove('drag-over');
+  });
+}
+
+function _msDragEnd(e) {
+  if(!_msdrg.active) return;
+  document.removeEventListener('touchmove',_msDragMove);
+  document.removeEventListener('touchend',_msDragEnd);
+  _msdrg.el.classList.remove('dragging');
+  _msdrg.el.style.transform='';
+  var y = e.changedTouches[0].clientY;
+  var cards = Array.from(_msdrg.listEl.querySelectorAll('.ms-drag-card'));
+  cards.forEach(function(c){c.classList.remove('drag-over');});
+  // Find target position
+  var targetId = null;
+  var before = true;
+  cards.forEach(function(c){
+    if(c===_msdrg.el) return;
+    var r=c.getBoundingClientRect();
+    if(y>=r.top && y<=r.bottom){
+      targetId=c.getAttribute('data-id');
+      before=(y < r.top+r.height/2);
+    }
+  });
+  _msdrg.active=false;
+  if(targetId) reorderMiSalaViendo(_msdrg.id, targetId, before);
+  else renderMiSalaList();
+}
+
+window.reorderMiSalaViendo = async function(dragId, targetId, before) {
+  var items=JSON.parse(JSON.stringify(_miSalaData));
+  var viendo=items.filter(function(x){return x.estado==='viendo';});
+  var dragIdx=viendo.findIndex(function(x){return x.id===dragId;});
+  var targetIdx=viendo.findIndex(function(x){return x.id===targetId;});
+  if(dragIdx<0||targetIdx<0){renderMiSalaList();return;}
+  var dragged=viendo.splice(dragIdx,1)[0];
+  var newIdx=viendo.findIndex(function(x){return x.id===targetId;});
+  viendo.splice(before?newIdx:newIdx+1,0,dragged);
+  viendo.forEach(function(x,i){x.miOrder=i;});
+  viendo.forEach(function(vi){var idx=items.findIndex(function(x){return x.id===vi.id;});if(idx>=0)items[idx].miOrder=vi.miOrder;});
+  await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
+  _miSalaData=items;
+  renderMiSalaList();
+};
+
+window.pinToTopMiSala = async function(id) {
+  var items=JSON.parse(JSON.stringify(_miSalaData));
+  var viendo=items.filter(function(x){return x.estado==='viendo';}).sort(function(a,b){return (a.miOrder||0)-(b.miOrder||0);});
+  var idx=viendo.findIndex(function(x){return x.id===id;});
+  if(idx<=0){renderMiSalaList();return;}
+  var item=viendo.splice(idx,1)[0];
+  viendo.unshift(item);
+  viendo.forEach(function(x,i){x.miOrder=i;});
+  viendo.forEach(function(vi){var iIdx=items.findIndex(function(x){return x.id===vi.id;});if(iIdx>=0)items[iIdx].miOrder=vi.miOrder;});
+  await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
+  _miSalaData=items;
+  renderMiSalaList();
+};
+
+
+</script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -75,6 +161,9 @@ button{cursor:pointer;}
 #modal-add-cine.misala-modal label{color:#a78bfa !important;}
 .mi-sala-mode #tab-cine{background:#0a0818 !important;}
 @keyframes slideDown{0%{opacity:0;transform:translateY(-12px);}100%{opacity:1;transform:translateY(0);}}
+.ms-drag-card{touch-action:none;transition:transform 0.15s,opacity 0.15s;cursor:grab;}
+.ms-drag-card.dragging{opacity:0.4;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.5);}
+.ms-drag-card.drag-over{border-color:#a78bfa !important;background:rgba(124,58,237,0.1) !important;}
 .cine-slide-in{animation:slideDown 0.3s cubic-bezier(0.34,1.2,0.64,1) both;}
 .mi-sala-mode .cine-tab{background:#1a0a30 !important;}
 .mi-sala-mode .cine-tab.active{background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%) !important;box-shadow:0 4px 12px rgba(124,58,237,0.4) !important;}
@@ -599,7 +688,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
             <div id="cine-header-title" style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
-            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v17</span></div>
+            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v18</span></div>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:12px;">
@@ -630,7 +719,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
       <!-- FAB Ranking (only visible when enough data) -->
       <button id="cine-rank-fab" onclick="openCineRanking()" aria-label="Ranking" style="display:none;position:fixed;bottom:96px;right:24px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#2a2a3e 0%,#1a1a2e 100%);border:2px solid rgba(240,192,64,0.5);padding:0;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.5);z-index:99;cursor:pointer;"><img src="" id="cine-rank-fab-icon" width="32" height="32"></button>
       <button id="misala-rank-fab" onclick="openMiSalaRanking()" aria-label="Mi Ranking" style="display:none;position:fixed;bottom:96px;right:24px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#5b21b6);border:none;padding:0;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(124,58,237,0.4);z-index:99;cursor:pointer;"><img id="misala-rank-icon" src="" width="30" height="30"></button>
-      <button id="algundial-fab" onclick="showAlgundíaList()" aria-label="Algún día" style="display:none;position:fixed;bottom:162px;right:24px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#4c1d95,#3b0764);border:1.5px solid rgba(167,139,250,0.4);padding:0;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(124,58,237,0.3);z-index:99;cursor:pointer;font-size:18px;">&#10024;</button>
+      <button id="algundial-fab" onclick="showAlgundialList()" aria-label="Algún día" style="display:none;position:fixed;bottom:162px;right:24px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#4c1d95,#3b0764);border:1.5px solid rgba(167,139,250,0.4);padding:0;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(124,58,237,0.3);z-index:99;cursor:pointer;font-size:18px;">&#10024;</button>
       <button id="cine-add-fab" onclick="openAddCineModal()" aria-label="A&#241;adir" style="position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#f0c040 0%,#e8a020 100%);border:none;color:#13131f;font-size:32px;font-weight:300;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 6px 20px rgba(240,192,64,0.4);z-index:100;cursor:pointer;">+</button>
     </div>
     <div id="tab-perros" class="tab-section">
@@ -1289,7 +1378,7 @@ var _vistoSort = 'reciente'; // 'reciente' | 'mayor' | 'menor'
 var _rankingFromMiSala = false;
 
 
-window.showAlgundíaList = function() {
+window.showAlgundialList = function() {
   setCineTab('proximo');
   // Scroll to algundía section
   setTimeout(function(){
@@ -3730,6 +3819,8 @@ function renderCineList() {
   var unEl=safe('cine-username'); if(unEl) unEl.textContent=isDavid?'David':'Mar&#237;a';
   var items = appData.cine.filter(function(x){ return x.estado===_cineTab; });
   if(_cineFilter!=='all') items=items.filter(function(x){return x.tipo===_cineFilter;});
+  // Sort viendo by miOrder
+  if(_cineTab==='viendo') items=items.slice().sort(function(a,b){return (a.miOrder||0)-(b.miOrder||0);});
   if(_cineTab==='visto') {
     if(_vistoSort==='mayor') {
       items = items.slice().sort(function(a,b){
@@ -4375,6 +4466,8 @@ window.renderMiSalaList = function() {
   var items = _miSalaData.filter(function(x){ return x.estado===_cineTab; });
   if(_cineFilter!=='all') items = items.filter(function(x){ return x.tipo===_cineFilter; });
   // Sort visto by _vistoSort
+  // Sort viendo by miOrder
+  if(_cineTab==='viendo') items=items.slice().sort(function(a,b){return (a.miOrder||0)-(b.miOrder||0);});
   if(_cineTab==='visto') {
     if(_vistoSort==='mayor') items=items.slice().sort(function(a,b){return (parseInt(b.myRating)||0)-(parseInt(a.myRating)||0);});
     else if(_vistoSort==='menor') items=items.slice().sort(function(a,b){return (parseInt(a.myRating)||11)-(parseInt(b.myRating)||11);});
@@ -4385,6 +4478,17 @@ window.renderMiSalaList = function() {
     // Sort chips
     var sortChipsHtml = ''; // sort handled by pending chips
         var rated=_miSalaData.filter(function(x){return x.myRating;});
+    // Cinéfilo pills state (Todo by default)
+    var _perfilMode = window._perfilMode || 'todo';
+    window._perfilMode = _perfilMode;
+    function calcPerfilStats(data) {
+      var r=data.filter(function(x){return x.myRating;});
+      var avg=r.length?(r.reduce(function(a,x){return a+parseInt(x.myRating);},0)/r.length).toFixed(1):'—';
+      var gc2={};
+      data.forEach(function(x){(x.genres||'').split(',').forEach(function(g){var gn=g.trim();if(gn)gc2[gn]=(gc2[gn]||0)+1;});});
+      var top=Object.keys(gc2).sort(function(a,b){return gc2[b]-gc2[a];})[0]||'—';
+      return {total:data.length, avg:avg, top:top};
+    }
     function calcPerfilBlock(data, label, icon) {
       var r=data.filter(function(x){return x.myRating;});
       var avg=r.length?(r.reduce(function(a,x){return a+parseInt(x.myRating);},0)/r.length).toFixed(1):'—';
@@ -4401,9 +4505,21 @@ window.renderMiSalaList = function() {
     }
     var pelisD=_miSalaData.filter(function(x){return x.tipo==='pelicula';});
     var seriesD=_miSalaData.filter(function(x){return x.tipo==='serie';});
-    perfilHtml='<div style="display:flex;gap:8px;margin-bottom:12px;">'
-      +calcPerfilBlock(pelisD,'Cine','&#127871;')
-      +calcPerfilBlock(seriesD,'Series','&#128250;')
+    var todosD=_miSalaData;
+    var pm=window._perfilMode||'todo';
+    var activeData = pm==='cine'?pelisD : pm==='series'?seriesD : todosD;
+    var ps = calcPerfilStats(activeData);
+    perfilHtml='<div style="background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(91,33,182,0.06));border:1px solid rgba(124,58,237,0.25);border-radius:14px;padding:12px;margin-bottom:12px;">'
+      // Pills
+      +'<div style="display:flex;gap:6px;margin-bottom:12px;">'
+      +['todo','cine','series'].map(function(m){var isA=pm===m;return '<button onclick="window._perfilMode=\''+m+'\';renderMiSalaList()" style="padding:5px 12px;border:1px solid '+(isA?'#7c3aed':'#2a1a4e')+';border-radius:999px;background:'+(isA?'rgba(124,58,237,0.3)':'transparent')+';color:'+(isA?'#a78bfa':'#555')+';font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;">'+{todo:'Todo',cine:'&#127871; Cine',series:'&#128250; Series'}[m]+'</button>';}).join('')
+      +'</div>'
+      // Stats grid
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">'
+      +'<div><div style="font-size:24px;font-weight:900;color:#a78bfa;">'+ps.total+'</div><div style="font-size:10px;color:#555;margin-top:2px;">total</div></div>'
+      +'<div><div style="font-size:24px;font-weight:900;color:#a78bfa;">'+ps.avg+'</div><div style="font-size:10px;color:#555;margin-top:2px;">tu media</div></div>'
+      +'<div><div style="font-size:12px;font-weight:800;color:#a78bfa;line-height:1.2;padding-top:4px;">'+ps.top+'</div><div style="font-size:10px;color:#555;margin-top:2px;">género</div></div>'
+      +'</div>'
       +'</div>';
     // Sort dropdown for Mi Sala visto
     var msLabels = {reciente:'Reciente',mayor:'&#8593; Mayor nota',menor:'&#8595; Menor nota'};
@@ -4416,7 +4532,7 @@ window.renderMiSalaList = function() {
   if(!items.length) {
     var msgs = {
       viendo: '&#127902; Nada en tu sala ahora mismo',
-      proximo: '&#127820; Tu lista de deseos est&#225; vac&#237;a',
+      proximo: '&#10024; Tu lista de deseos est&#225; vac&#237;a',
       visto: '&#127871; A&#250;n no has registrado nada aqu&#237;'
     };
     el.innerHTML = perfilHtml + '<div style="text-align:center;padding:50px 20px;color:#4a3a6e;font-size:14px;">'+(msgs[_cineTab]||'Vac&#237;o')+'</div>';
@@ -4448,20 +4564,53 @@ window.renderMiSalaList = function() {
       return;
     }
 
-    // OTROS ESTADOS: card normal
+    // OTROS ESTADOS: Viendo (hero + drag) / Próximo (card normal)
     var platClass=item.platform?' plat-'+item.platform:'';
-    html+='<div class="cine-card'+platClass+'" onclick="openMiSalaDetail(\''+item.id+'\')" style="cursor:pointer;">'
-      +'<div class="cine-card-top">'
-      +(item.poster?'<img src="'+esc(item.poster)+'" class="cine-poster">':'<div class="cine-poster-ph">'+typeIcon+'</div>')
-      +'<div class="cine-info">'
-      +'<div class="cine-title-dk">'+esc(item.title)+' '+typeIcon+'</div>'
-      +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:11px;">'+platBadge+'</div>'
-      +(item.genres?'<div style="font-size:11px;color:#666;margin-top:3px;">'+esc(item.genres)+'</div>':'')
-      +(item.nota?'<div style="font-size:11px;color:#7c5ac2;font-style:italic;margin-top:4px;line-height:1.4;">&#128203; '+esc(item.nota)+'</div>':'')
-      +'</div>'
-      +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="background:none;border:none;color:#333;font-size:18px;cursor:pointer;padding:6px;flex-shrink:0;align-self:flex-start;">&#215;</button>'
-      +'</div></div>';
-  });
+    var sortedViendo = _miSalaData.filter(function(x){return x.estado==='viendo';}).sort(function(a,b){return (a.miOrder||0)-(b.miOrder||0);});
+    var isFirst = item.estado==='viendo' && sortedViendo[0] && sortedViendo[0].id===item.id;
+    if(item.estado==='viendo') {
+      // Hero card for first item
+      if(isFirst) {
+        html+='<div id="mvc-'+item.id+'" data-id="'+item.id+'" class="ms-drag-card" style="position:relative;border-radius:20px;overflow:hidden;margin-bottom:16px;height:200px;">'
+          +(item.poster?'<img src="'+esc(item.poster)+'" style="width:100%;height:100%;object-fit:cover;display:block;">':'<div style="width:100%;height:100%;background:#1a0a30;display:flex;align-items:center;justify-content:center;font-size:48px;">'+typeIcon+'</div>')
+          +'<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.9) 0%,transparent 60%);"></div>'
+          +'<div style="position:absolute;bottom:0;left:0;right:0;padding:16px;">'
+          +'<div style="font-family:var(--font-title);font-style:italic;font-size:22px;font-weight:900;color:white;line-height:1.2;">'+esc(item.title)+'</div>'
+          +(item.genres?'<div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:4px;">'+esc(item.genres)+'</div>':'')
+          +(platBadge?'<div style="margin-top:6px;">'+platBadge+'</div>':'')
+          +'<div style="display:flex;gap:8px;margin-top:10px;">'
+          +'<button onclick="event.stopPropagation();openMiSalaDetail(\''+item.id+'\')" style="flex:1;padding:8px;background:rgba(124,58,237,0.8);border:none;border-radius:10px;color:white;font-weight:700;font-size:12px;font-family:var(--font-body);">Ver ficha</button>'
+          +'</div></div>'
+          +'<div ontouchstart="event.stopPropagation();dragStartMiSala(event,\''+item.id+'\')" style="position:absolute;top:10px;left:10px;width:32px;height:32px;background:rgba(0,0,0,0.5);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:white;cursor:grab;">&#8801;</div>'
+          +'</div>';
+      } else {
+        // Compact Viendo card with drag handle
+        html+='<div id="mvc-'+item.id+'" data-id="'+item.id+'" class="ms-drag-card cine-card'+platClass+'" style="display:flex;align-items:center;gap:0;cursor:pointer;" onclick="openMiSalaDetail(\''+item.id+'\')">'
+          +'<div ontouchstart="event.stopPropagation();dragStartMiSala(event,\''+item.id+'\')" style="padding:12px 8px;font-size:18px;color:#555;cursor:grab;flex-shrink:0;">&#8801;</div>'
+          +(item.poster?'<img src="'+esc(item.poster)+'" style="width:44px;height:66px;object-fit:cover;border-radius:8px;flex-shrink:0;">':'<div style="width:44px;height:66px;background:#1a0a30;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+typeIcon+'</div>')
+          +'<div style="flex:1;padding:8px 10px;min-width:0;">'
+          +'<div style="font-family:var(--font-title);font-style:italic;font-size:15px;font-weight:800;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(item.title)+'</div>'
+          +(item.genres?'<div style="font-size:11px;color:#666;margin-top:2px;">'+esc(item.genres)+'</div>':'')
+          +(item.nota?'<div style="font-size:11px;color:#7c5ac2;font-style:italic;margin-top:3px;">'+esc(item.nota)+'</div>':'')
+          +'</div>'
+          +'<button onclick="event.stopPropagation();pinToTopMiSala(\''+item.id+'\')" style="background:none;border:none;color:#555;font-size:16px;cursor:pointer;padding:8px;flex-shrink:0;" title="Subir al top">&#128204;</button>'
+          +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="background:none;border:none;color:#333;font-size:16px;cursor:pointer;padding:8px;flex-shrink:0;">&#215;</button>'
+          +'</div>';
+      }
+    } else {
+      // Próximo/Algún día: card normal
+      html+='<div class="cine-card'+platClass+'" onclick="openMiSalaDetail(\''+item.id+'\')" style="cursor:pointer;">'
+        +'<div class="cine-card-top">'
+        +(item.poster?'<img src="'+esc(item.poster)+'" class="cine-poster">':'<div class="cine-poster-ph">'+typeIcon+'</div>')
+        +'<div class="cine-info">'
+        +'<div class="cine-title-dk">'+esc(item.title)+' '+typeIcon+'</div>'
+        +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:11px;">'+platBadge+'</div>'
+        +(item.genres?'<div style="font-size:11px;color:#666;margin-top:3px;">'+esc(item.genres)+'</div>':'')
+        +(item.nota?'<div style="font-size:11px;color:#7c5ac2;font-style:italic;margin-top:4px;line-height:1.4;">&#128203; '+esc(item.nota)+'</div>':'')
+        +'</div>'
+        +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="background:none;border:none;color:#333;font-size:18px;cursor:pointer;padding:6px;flex-shrink:0;align-self:flex-start;">&#215;</button>'
+        +'</div></div>';
+    }  });
   el.innerHTML=html;
 };
 
@@ -4485,7 +4634,7 @@ window.openMiSalaDetail = function(id) {
     +'</div>'
     // Mi puntuacion
     +(item.estado==='visto'?'<div style="margin-bottom:16px;"><div style="font-size:11px;color:#9d7ae8;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:8px;">Mi puntuaci&oacute;n</div><div id="misala-duck-row" style="display:flex;gap:4px;flex-wrap:wrap;">'
-    +Array.from({length:10},function(_,n){return '<button onclick="setMiSalaRating(\''+item.id+'\','+(n+1)+')" style="background:none;border:none;cursor:pointer;padding:2px;"><img src="'+(n<myRating?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey)+'" width="28" height="28" id="misala-duck-'+(n+1)+'"></button>';}).join('')
+    +Array.from({length:10},function(_,n){return '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;"><span style="font-size:9px;color:#555;font-weight:700;">'+(n+1)+'</span><button onclick="setMiSalaRating(\''+item.id+'\','+(n+1)+')" style="background:none;border:none;cursor:pointer;padding:2px;"><img src="'+(n<myRating?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey)+'" width="28" height="28" id="misala-duck-'+(n+1)+'"></button></div>';}).join('')
     +'</div></div>':'')
     // Estado buttons
     +'<div style="display:flex;gap:8px;margin-bottom:12px;">'
@@ -5185,7 +5334,7 @@ function checkHitosMiSala() {
   var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
   var who=isDavid?'david':'maria';
   var hitos=[
-    {key:'sala_5',n:5,titulo:'5 en Mi Sala',sub:'Tu sala empieza a llenarse. ¡Buen ojo!',icon:'&#127820;'},
+    {key:'sala_5',n:5,titulo:'5 en Mi Sala',sub:'Tu sala empieza a llenarse. ¡Buen ojo!',icon:'&#127902;'},
     {key:'sala_20',n:20,titulo:'20 en Mi Sala',sub:'20 pelis guardadas. Eres todo un curador.',icon:'&#127902;'},
     {key:'sala_rated_10',n:10,titulo:'10 valoradas',sub:'Ya tienes 10 puntuaciones propias. ¡Eres un crítico!',icon:'&#128020;',tipo:'rated'}
   ];
