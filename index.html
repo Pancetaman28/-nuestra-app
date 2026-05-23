@@ -11,94 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js">
-// ─── MI SALA: REORDENAR VIENDO (drag + pin) ───
-var _msdrg = {active:false, id:null, origY:0, el:null, listEl:null, cardH:0};
-
-window.dragStartMiSala = function(e, id, estado) {
-  if(e.cancelable) e.preventDefault();
-  e.stopPropagation();
-  var card = document.getElementById('mvc-'+id);
-  if(!card) return;
-  var rect = card.getBoundingClientRect();
-  _msdrg = {active:true, id:id, estado:estado, origY:e.touches[0].clientY, el:card, listEl:card.parentElement, cardH:rect.height, moved:false};
-  card.classList.add('dragging');
-  document.addEventListener('touchmove', _msDragMove, {passive:false});
-  document.addEventListener('touchend', _msDragEnd);
-};
-
-function _msDragMove(e) {
-  if(!_msdrg.active) return;
-  e.preventDefault();
-  var dy = e.touches[0].clientY - _msdrg.origY;
-  _msdrg.el.style.transform = 'translateY('+dy+'px)';
-  // Highlight target card
-  var y = e.touches[0].clientY;
-  Array.from(_msdrg.listEl.querySelectorAll('.ms-drag-card')).forEach(function(c){
-    if(c===_msdrg.el){c.classList.remove('drag-over');return;}
-    var r=c.getBoundingClientRect();
-    if(y>=r.top && y<=r.bottom) c.classList.add('drag-over');
-    else c.classList.remove('drag-over');
-  });
-}
-
-function _msDragEnd(e) {
-  if(!_msdrg.active) return;
-  document.removeEventListener('touchmove',_msDragMove);
-  document.removeEventListener('touchend',_msDragEnd);
-  _msdrg.el.classList.remove('dragging');
-  _msdrg.el.style.transform='';
-  var y = e.changedTouches[0].clientY;
-  var cards = Array.from(_msdrg.listEl.querySelectorAll('.ms-drag-card'));
-  cards.forEach(function(c){c.classList.remove('drag-over');});
-  // Find target position
-  var targetId = null;
-  var before = true;
-  cards.forEach(function(c){
-    if(c===_msdrg.el) return;
-    var r=c.getBoundingClientRect();
-    if(y>=r.top && y<=r.bottom){
-      targetId=c.getAttribute('data-id');
-      before=(y < r.top+r.height/2);
-    }
-  });
-  _msdrg.active=false;
-  if(targetId) reorderMiSalaViendo(_msdrg.id, targetId, before, _msdrg.estado);
-  else renderMiSalaList();
-}
-
-window.reorderMiSalaViendo = async function(dragId, targetId, before, estado) {
-  var items=JSON.parse(JSON.stringify(_miSalaData));
-  var viendo=items.filter(function(x){return x.estado===(estado||'viendo');});
-  var dragIdx=viendo.findIndex(function(x){return x.id===dragId;});
-  var targetIdx=viendo.findIndex(function(x){return x.id===targetId;});
-  if(dragIdx<0||targetIdx<0){renderMiSalaList();return;}
-  var dragged=viendo.splice(dragIdx,1)[0];
-  var newIdx=viendo.findIndex(function(x){return x.id===targetId;});
-  viendo.splice(before?newIdx:newIdx+1,0,dragged);
-  viendo.forEach(function(x,i){x.miOrder=i;});
-  viendo.forEach(function(vi){var idx=items.findIndex(function(x){return x.id===vi.id;});if(idx>=0)items[idx].miOrder=vi.miOrder;});
-  await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
-  _miSalaData=items;
-  renderMiSalaList();
-};
-
-window.pinToTopMiSala = async function(id, estado) {
-  var items=JSON.parse(JSON.stringify(_miSalaData));
-  var viendo=items.filter(function(x){return x.estado===(estado||'viendo');}).sort(function(a,b){return (a.miOrder||0)-(b.miOrder||0);});
-  var idx=viendo.findIndex(function(x){return x.id===id;});
-  if(idx<=0){renderMiSalaList();return;}
-  var item=viendo.splice(idx,1)[0];
-  viendo.unshift(item);
-  viendo.forEach(function(x,i){x.miOrder=i;});
-  viendo.forEach(function(vi){var iIdx=items.findIndex(function(x){return x.id===vi.id;});if(iIdx>=0)items[iIdx].miOrder=vi.miOrder;});
-  await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
-  _miSalaData=items;
-  renderMiSalaList();
-};
-
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -162,7 +75,10 @@ button{cursor:pointer;}
 #modal-add-cine.misala-modal label{color:#a78bfa !important;}
 .mi-sala-mode #tab-cine{background:#0a0818 !important;}
 @keyframes slideDown{0%{opacity:0;transform:translateY(-12px);}100%{opacity:1;transform:translateY(0);}}
-.ms-drag-card{touch-action:none;transition:transform 0.15s,opacity 0.15s;cursor:grab;}
+.ms-drag-card{transition:transform 0.15s,opacity 0.15s;}
+.drag-handle{touch-action:none;cursor:grab;}
+.sortable-ghost-card{opacity:0.3;}
+.sortable-chosen-card{box-shadow:0 8px 24px rgba(0,0,0,0.5);}
 .ms-drag-card.dragging{opacity:0.4;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.5);}
 .ms-drag-card.drag-over{border-color:#a78bfa !important;background:rgba(124,58,237,0.1) !important;}
 .cine-slide-in{animation:slideDown 0.3s cubic-bezier(0.34,1.2,0.64,1) both;}
@@ -689,7 +605,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
             <div id="cine-header-title" style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
-            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v20</span></div>
+            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v21</span></div>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:12px;">
@@ -3623,6 +3539,7 @@ const PLATFORM_BADGES = {
 };
 
 window.setCineTab = function(tab) {
+  window._platformFilter='all';
   if(!appData.cine) appData.cine = [];
   _cineTab = tab;
   var algTab=safe('ctab-algund\u00eda'); if(algTab) algTab.style.display=(_cineMode==='misala')?'':'none';
@@ -3818,6 +3735,7 @@ function renderCineList() {
   var unEl=safe('cine-username'); if(unEl) unEl.textContent=isDavid?'David':'Mar&#237;a';
   var items = appData.cine.filter(function(x){ return x.estado===_cineTab; });
   if(_cineFilter!=='all') items=items.filter(function(x){return x.tipo===_cineFilter;});
+  if((_cineTab==='viendo'||_cineTab==='proximo')&&window._platformFilter&&window._platformFilter!=='all') items=items.filter(function(x){return x.platform===window._platformFilter;});
   // Sort viendo/proximo by miOrder
   if(_cineTab==='viendo'||_cineTab==='proximo') items=items.slice().sort(function(a,b){return (a.miOrder||0)-(b.miOrder||0);});
   if(_cineTab==='visto') {
@@ -3955,7 +3873,9 @@ function renderCineList() {
     if(isHero) {
       // HERO CARD - first card in viendo tab
       var heroPropEmoji = item.proposedBy==='david'?'&#x1F435;':item.proposedBy==='maria'?'&#x1F437;':'&#x1F435;&#x1F437;';
-      return '<div class="cine-card cine-hero-card" onclick="openCineDetail(\''+item.id+'\')" style="cursor:pointer;position:relative;height:380px;border-radius:22px;overflow:hidden;margin-bottom:28px;border:1px solid #2a2a3e;box-shadow:0 12px 36px rgba(0,0,0,0.6),0 0 60px rgba(240,192,64,0.08);">'
+      return '<div data-drag-id="'+item.id+'" class="cine-card cine-hero-card" style="position:relative;height:380px;border-radius:22px;overflow:hidden;margin-bottom:16px;border:1px solid #2a2a3e;box-shadow:0 12px 36px rgba(0,0,0,0.6),0 0 60px rgba(240,192,64,0.08);">'
+        +'<div class="drag-handle" style="position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:5;width:44px;height:30px;background:rgba(0,0,0,0.5);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(255,255,255,0.7);">&#8801;</div>'
+        +'<div onclick="openCineDetail(\''+item.id+'\')" style="position:absolute;inset:0;cursor:pointer;">'
         +(item.poster?'<img src="'+esc(item.poster)+'" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">':'<div style="width:100%;height:100%;background:#1c1c2e;"></div>')
         +'<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,18,0) 0%,rgba(10,10,18,0.2) 40%,rgba(10,10,18,0.85) 70%,rgba(10,10,18,0.98) 100%);"></div>'
         +'<div style="position:absolute;top:14px;left:14px;background:rgba(0,0,0,0.5);backdrop-filter:blur(10px);color:#f0c040;padding:5px 12px;border-radius:999px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;border:1px solid rgba(240,192,64,0.4);">&#127902; Viendo ahora</div>'
@@ -3968,11 +3888,14 @@ function renderCineList() {
         +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">'+platBadge+'<span style="color:#fff;font-size:13px;">'+heroPropEmoji+'</span>'+(item.genres?'<span style="color:#aaa;font-size:12px;">'+esc(item.genres)+'</span>':'')+'<span style="color:#888;font-size:12px;">'+(item.year||'')+'</span></div>'
         +'<button onclick="event.stopPropagation();setCineEstado(\''+item.id+'\',\'visto\')" style="margin-top:6px;padding:10px 20px;background:rgba(240,192,64,0.95);border:none;border-radius:999px;color:#13131f;font-family:var(--font-body);font-size:13px;font-weight:800;">Marcar como visto</button>'
         +'</div>'
+        +'</div>'
         +'</div>';
     }
     var platClass = item.platform ? ' plat-'+item.platform : '';
-    return '<div class="cine-card'+platClass+'">'
-      +'<div class="cine-card-top" onclick="openCineDetail(\''+item.id+'\')" style="cursor:pointer;">'
+    var dragHandle = (_cineTab==='viendo'||_cineTab==='proximo') ? '<div class="drag-handle" style="padding:0 10px;font-size:20px;color:#444;flex-shrink:0;align-self:center;">&#8801;</div>' : '';
+    return '<div data-drag-id="'+item.id+'" class="cine-card'+platClass+'" style="display:flex;align-items:stretch;">'
+      +dragHandle
+      +'<div class="cine-card-top" onclick="openCineDetail(\''+item.id+'\')" style="cursor:pointer;flex:1;">'
       +(item.poster?'<img class="cine-poster" src="'+esc(item.poster)+'" alt="">':'<div class="cine-poster-ph">'+typeIcon+'</div>')
       +'<div class="cine-info">'
       +'<div class="cine-title-dk">'+esc(item.title)+' '+typeIcon+'</div>'
@@ -3990,6 +3913,7 @@ function renderCineList() {
       +'</div>';
   }).join('');
   if(_cineTab==='visto') renderCineRanking();
+  if(typeof initCineSortable==='function') setTimeout(initCineSortable,50);
   if(typeof renderPendingChips === 'function') renderPendingChips();
   if(typeof updateRankFAB === 'function') updateRankFAB();
   if(typeof checkHitos === 'function') checkHitos();
@@ -4427,6 +4351,47 @@ window.getPendingReactions = function() {
   });
 };
 
+
+// ─── SORTABLE (drag reorder) con SortableJS ───
+var _sortableInstances = [];
+function destroySortables() {
+  _sortableInstances.forEach(function(s){ try{ s.destroy(); }catch(e){} });
+  _sortableInstances = [];
+}
+window.initCineSortable = function() {
+  destroySortables();
+  if(typeof Sortable === 'undefined') return;
+  if(_cineTab !== 'viendo' && _cineTab !== 'proximo') return;
+  var listEl = safe('cine-list');
+  if(!listEl) return;
+  var inst = Sortable.create(listEl, {
+    handle: '.drag-handle',
+    animation: 160,
+    delay: 0,
+    ghostClass: 'sortable-ghost-card',
+    chosenClass: 'sortable-chosen-card',
+    onEnd: function(evt) {
+      var ids = Array.from(listEl.querySelectorAll('[data-drag-id]')).map(function(el){return el.getAttribute('data-drag-id');});
+      saveDragOrder(ids);
+    }
+  });
+  _sortableInstances.push(inst);
+};
+
+window.saveDragOrder = async function(orderedIds) {
+  if(_cineMode === 'misala') {
+    var items = JSON.parse(JSON.stringify(_miSalaData));
+    orderedIds.forEach(function(id, i){ var it=items.find(function(x){return x.id===id;}); if(it) it.miOrder=i; });
+    await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
+    _miSalaData = items;
+  } else {
+    var sitems = JSON.parse(JSON.stringify(appData.cine||[]));
+    orderedIds.forEach(function(id, i){ var it=sitems.find(function(x){return x.id===id;}); if(it) it.cineOrder=i; });
+    await setDoc(doc(db,'app_data','cine'),{items:sitems});
+    appData.cine = sitems;
+  }
+};
+
 // ─── MI SALA (espacio privado) ───
 var _miSalaData = [];
 
@@ -4463,6 +4428,7 @@ window.renderMiSalaList = function() {
   var perfilHtml = '';
   var items = _miSalaData.filter(function(x){ return x.estado===_cineTab; });
   if(_cineFilter!=='all') items = items.filter(function(x){ return x.tipo===_cineFilter; });
+  if((_cineTab==='viendo'||_cineTab==='proximo')&&window._platformFilter&&window._platformFilter!=='all') items = items.filter(function(x){ return x.platform===window._platformFilter; });
   // Sort visto by _vistoSort
   // Sort viendo/proximo by miOrder
   if(_cineTab==='viendo'||_cineTab==='proximo') items=items.slice().sort(function(a,b){return (a.miOrder||0)-(b.miOrder||0);});
@@ -4571,20 +4537,36 @@ window.renderMiSalaList = function() {
     var platClass=item.platform?' plat-'+item.platform:'';
     var isDraggable = item.estado==='viendo' || item.estado==='proximo';
     if(isDraggable) {
-      html+='<div id="mvc-'+item.id+'" data-id="'+item.id+'" class="ms-drag-card cine-card'+platClass+'" style="display:flex;align-items:center;gap:0;margin-bottom:6px;">'
-        +'<div class="ms-drag-handle" ontouchstart="dragStartMiSala(event,\''+item.id+'\',\''+item.estado+'\')" style="padding:18px 10px;font-size:20px;color:#555;flex-shrink:0;touch-action:none;cursor:grab;">&#8801;</div>'
-        +'<div style="display:flex;align-items:center;flex:1;min-width:0;cursor:pointer;" onclick="openMiSalaDetail(\''+item.id+'\')">'
-        +(item.poster?'<img src="'+esc(item.poster)+'" style="width:42px;height:63px;object-fit:cover;border-radius:8px;flex-shrink:0;">':'<div style="width:42px;height:63px;background:#1a0a30;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+typeIcon+'</div>')
-        +'<div style="flex:1;padding:6px 10px;min-width:0;">'
-        +'<div style="font-family:var(--font-title);font-style:italic;font-size:15px;font-weight:800;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(item.title)+'</div>'
-        +(item.genres?'<div style="font-size:11px;color:#666;margin-top:2px;">'+esc(item.genres)+'</div>':'')
-        +(platBadge?'<div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;">'+platBadge+'</div>':'')
-        +(item.nota?'<div style="font-size:11px;color:#7c5ac2;font-style:italic;margin-top:3px;">'+esc(item.nota)+'</div>':'')
-        +'</div></div>'
-        +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="background:none;border:none;color:#333;font-size:16px;cursor:pointer;padding:10px 8px;flex-shrink:0;">&#215;</button>'
-        +'</div>';
-    } else if(item.estado==='visto') {
-      // Already handled above (early return)
+      var isHeroMs = (idx===0);
+      if(isHeroMs) {
+        // Hero card (first item, bigger)
+        html+='<div data-drag-id="'+item.id+'" class="ms-drag-card" style="position:relative;border-radius:18px;overflow:hidden;margin-bottom:10px;height:170px;">'
+          +'<div class="drag-handle" style="position:absolute;top:10px;left:10px;z-index:3;width:34px;height:34px;background:rgba(0,0,0,0.55);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;color:white;">&#8801;</div>'
+          +'<div onclick="openMiSalaDetail(\''+item.id+'\')" style="position:absolute;inset:0;cursor:pointer;">'
+          +(item.poster?'<img src="'+esc(item.poster)+'" style="width:100%;height:100%;object-fit:cover;display:block;">':'<div style="width:100%;height:100%;background:#1a0a30;display:flex;align-items:center;justify-content:center;font-size:44px;">'+typeIcon+'</div>')
+          +'<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.9) 0%,transparent 55%);"></div>'
+          +'<div style="position:absolute;bottom:0;left:0;right:0;padding:14px;">'
+          +'<div style="font-family:var(--font-title);font-style:italic;font-size:20px;font-weight:900;color:white;line-height:1.15;">'+esc(item.title)+'</div>'
+          +(item.genres?'<div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:3px;">'+esc(item.genres)+'</div>':'')
+          +(platBadge?'<div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">'+platBadge+'</div>':'')
+          +'</div></div>'
+          +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="position:absolute;top:10px;right:10px;z-index:3;background:rgba(0,0,0,0.5);border:none;color:white;font-size:16px;cursor:pointer;width:30px;height:30px;border-radius:8px;">&#215;</button>'
+          +'</div>';
+      } else {
+        // Compact draggable card
+        html+='<div data-drag-id="'+item.id+'" class="ms-drag-card cine-card'+platClass+'" style="display:flex;align-items:center;gap:0;margin-bottom:6px;">'
+          +'<div class="drag-handle" style="padding:18px 10px;font-size:20px;color:#555;flex-shrink:0;">&#8801;</div>'
+          +'<div style="display:flex;align-items:center;flex:1;min-width:0;cursor:pointer;" onclick="openMiSalaDetail(\''+item.id+'\')">'
+          +(item.poster?'<img src="'+esc(item.poster)+'" style="width:42px;height:63px;object-fit:cover;border-radius:8px;flex-shrink:0;">':'<div style="width:42px;height:63px;background:#1a0a30;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+typeIcon+'</div>')
+          +'<div style="flex:1;padding:6px 10px;min-width:0;">'
+          +'<div style="font-family:var(--font-title);font-style:italic;font-size:15px;font-weight:800;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(item.title)+'</div>'
+          +(item.genres?'<div style="font-size:11px;color:#666;margin-top:2px;">'+esc(item.genres)+'</div>':'')
+          +(platBadge?'<div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;">'+platBadge+'</div>':'')
+          +(item.nota?'<div style="font-size:11px;color:#7c5ac2;font-style:italic;margin-top:3px;">'+esc(item.nota)+'</div>':'')
+          +'</div></div>'
+          +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="background:none;border:none;color:#333;font-size:16px;cursor:pointer;padding:10px 8px;flex-shrink:0;">&#215;</button>'
+          +'</div>';
+      }
     } else {
       // Any other state: simple card
       html+='<div class="cine-card'+platClass+'" onclick="openMiSalaDetail(\''+item.id+'\')" style="cursor:pointer;">'
@@ -4600,6 +4582,7 @@ window.renderMiSalaList = function() {
         +'</div></div>';
     }  });
   el.innerHTML=html;
+  if(typeof initCineSortable==='function') setTimeout(initCineSortable,50);
 };
 
 window.openMiSalaDetail = function(id) {
@@ -4751,10 +4734,36 @@ var _savingToPrivate = false;
 
 
 
+
+window._platformFilter = 'all';
+window.setPlatformFilter = function(p) {
+  window._platformFilter = p;
+  if(_cineMode==='misala') renderMiSalaList(); else renderCineList();
+};
+
 window.renderPendingChips = function() {
   var el = safe('cine-pending-chips');
   if(!el) return;
   var html = '';
+  // Platform filter - only in viendo/proximo
+  if(_cineTab === 'viendo' || _cineTab === 'proximo') {
+    var srcData = _cineMode==='misala' ? _miSalaData : (appData.cine||[]);
+    var tabData = srcData.filter(function(x){return x.estado===_cineTab;});
+    var platsPresent = [];
+    tabData.forEach(function(x){ if(x.platform && platsPresent.indexOf(x.platform)<0) platsPresent.push(x.platform); });
+    if(platsPresent.length > 1) {
+      var accentP = _cineMode==='misala' ? '#a78bfa' : '#f0c040';
+      var pfActive = window._platformFilter || 'all';
+      html += '<div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;">'
+        + '<button onclick="setPlatformFilter(\'all\')" style="flex-shrink:0;padding:5px 12px;border:1px solid '+(pfActive==='all'?accentP:'#2a2a3e')+';border-radius:999px;background:'+(pfActive==='all'?(_cineMode==='misala'?'rgba(124,58,237,0.2)':'rgba(240,192,64,0.15)'):'transparent')+';color:'+(pfActive==='all'?accentP:'#888')+';font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;white-space:nowrap;">Todas</button>'
+        + platsPresent.map(function(p){
+            var pinfo = PLATFORM_BADGES[p]||PLATFORM_BADGES.otro;
+            var pname = p.charAt(0).toUpperCase()+p.slice(1);
+            return '<button onclick="setPlatformFilter(\''+p+'\')" style="flex-shrink:0;padding:5px 12px;border:1px solid '+(pfActive===p?accentP:'#2a2a3e')+';border-radius:999px;background:'+(pfActive===p?(_cineMode==='misala'?'rgba(124,58,237,0.2)':'rgba(240,192,64,0.15)'):'transparent')+';color:'+(pfActive===p?accentP:'#888')+';font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;white-space:nowrap;">'+pname+'</button>';
+          }).join('')
+        + '</div>';
+    }
+  }
   // Sort dropdown - only in visto
   if(_cineTab === 'visto') {
     var labels = {reciente:'Reciente',mayor:'&#8593; Mayor nota',menor:'&#8595; Menor nota'};
@@ -5080,6 +5089,7 @@ var _tarotItems = [], _tarotShuffling = false;
 window.openRuleta = function() {
   var items=(appData.cine||[]).filter(function(x){return x.estado==='proximo';});
   if(_cineFilter!=='all') items=items.filter(function(x){return x.tipo===_cineFilter;});
+  if((_cineTab==='viendo'||_cineTab==='proximo')&&window._platformFilter&&window._platformFilter!=='all') items=items.filter(function(x){return x.platform===window._platformFilter;});
   if(items.length < 2){
     appConfirm('Poco material','A\u00f1ade al menos 2 t\u00edtulos a Pr\u00f3ximo para jugar.',function(){},false);
     return;
