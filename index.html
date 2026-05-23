@@ -605,7 +605,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
             <div id="cine-header-title" style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
-            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v22</span></div>
+            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v23</span></div>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:12px;">
@@ -3610,9 +3610,25 @@ window.searchTMDB = function(q) {
 
 window.selectTMDB = async function(id, mediaType) {
   try {
-    var url = TMDB_BASE+'/'+(mediaType==='movie'?'movie':'tv')+'/'+id+'?api_key='+TMDB_API_KEY+'&language=es-ES&append_to_response=credits';
+    var url = TMDB_BASE+'/'+(mediaType==='movie'?'movie':'tv')+'/'+id+'?api_key='+TMDB_API_KEY+'&language=es-ES&append_to_response=credits,watch/providers';
     var res = await fetch(url);
     var data = await res.json();
+    // Auto-detect platform (region ES)
+    var detectedPlat = '';
+    try {
+      var wp = data['watch/providers'] && data['watch/providers'].results && data['watch/providers'].results.ES;
+      if(wp && wp.flatrate && wp.flatrate.length){
+        var provName = wp.flatrate[0].provider_name.toLowerCase();
+        if(provName.indexOf('netflix')>=0) detectedPlat='netflix';
+        else if(provName.indexOf('hbo')>=0||provName.indexOf('max')>=0) detectedPlat='hbo';
+        else if(provName.indexOf('disney')>=0) detectedPlat='disney';
+        else if(provName.indexOf('prime')>=0||provName.indexOf('amazon')>=0) detectedPlat='prime';
+        else if(provName.indexOf('apple')>=0) detectedPlat='apple';
+        else if(provName.indexOf('movistar')>=0) detectedPlat='movistar';
+        else if(provName.indexOf('skyshowtime')>=0) detectedPlat='skyshowtime';
+        else detectedPlat='otro';
+      }
+    } catch(e){}
     // Extract director + main cast
     var director = '', cast = '';
     if(data.credits) {
@@ -3624,13 +3640,14 @@ window.selectTMDB = async function(id, mediaType) {
       }
       cast = (data.credits.cast||[]).slice(0,4).map(function(p){return p.name;}).join(', ');
     }
-    _tmdbSelected = { tmdbId: id, tipo: mediaType==='movie'?'pelicula':'serie', title: data.title||data.name||'', year: (data.release_date||data.first_air_date||'').split('-')[0], overview: (data.overview||'').slice(0,150), poster: data.poster_path ? TMDB_IMG+data.poster_path : '', genres: (data.genres||[]).map(function(g){return g.name;}).join(', '), director: director, cast: cast };
+    _tmdbSelected = { tmdbId: id, tipo: mediaType==='movie'?'pelicula':'serie', title: data.title||data.name||'', year: (data.release_date||data.first_air_date||'').split('-')[0], overview: (data.overview||'').slice(0,150), poster: data.poster_path ? TMDB_IMG+data.poster_path : '', genres: (data.genres||[]).map(function(g){return g.name;}).join(', '), director: director, cast: cast, platform: detectedPlat };
     if(safe('cine-title-inp')) safe('cine-title-inp').value = _tmdbSelected.title;
+    if(detectedPlat && safe('cine-platform')) safe('cine-platform').value = detectedPlat;
     setCineType(_tmdbSelected.tipo);
     var prev = safe('cine-selected-preview');
     if(prev) {
       prev.style.display = 'flex';
-      prev.innerHTML = (_tmdbSelected.poster?'<img src="'+_tmdbSelected.poster+'" style="width:50px;height:75px;object-fit:cover;border-radius:4px;flex-shrink:0;">':'')+'<div><div style="font-size:13px;font-weight:700;color:var(--text);">'+esc(_tmdbSelected.title)+'</div><div style="font-size:11px;color:var(--text2);">'+_tmdbSelected.year+' \u00b7 '+esc(_tmdbSelected.genres)+'</div>'+(director?'<div style="font-size:11px;color:var(--text2);margin-top:2px;">&#127916; '+esc(director)+'</div>':'')+(cast?'<div style="font-size:11px;color:var(--text2);">&#127914; '+esc(cast)+'</div>':'')+'</div>';
+      prev.innerHTML = (_tmdbSelected.poster?'<img src="'+_tmdbSelected.poster+'" style="width:50px;height:75px;object-fit:cover;border-radius:4px;flex-shrink:0;">':'')+'<div><div style="font-size:13px;font-weight:700;color:var(--text);">'+esc(_tmdbSelected.title)+'</div><div style="font-size:11px;color:var(--text2);">'+_tmdbSelected.year+' \u00b7 '+esc(_tmdbSelected.genres)+'</div>'+(director?'<div style="font-size:11px;color:var(--text2);margin-top:2px;">&#127916; '+esc(director)+'</div>':'')+(cast?'<div style="font-size:11px;color:var(--text2);">&#127914; '+esc(cast)+'</div>':'')+(detectedPlat?'<div style="font-size:11px;color:#4ade80;margin-top:3px;">&#9989; Disponible en '+(detectedPlat.charAt(0).toUpperCase()+detectedPlat.slice(1))+'</div>':'')+'</div>';
     }
     if(safe('cine-search-results')) safe('cine-search-results').innerHTML = '';
   } catch(e){}
@@ -3657,7 +3674,7 @@ window.saveCineItem = async function() {
   var title = ((safe('cine-title-inp')||{}).value||'').trim();
   if(!title) return;
   var isDavid = (window._currentUserEmail||'').indexOf('david')>=0;
-  var item = { id: _cineEditId || Date.now()+'', title: title, tipo: _cineType, estado: _cineState, platform: (safe('cine-platform')||{}).value||'', link: ((safe('cine-link-inp')||{}).value||'').trim(), proposedBy: (function(){
+  var item = { id: _cineEditId || Date.now()+'', title: title, tipo: _cineType, estado: _cineState, platform: ((safe('cine-platform')||{}).value)||(_tmdbSelected?_tmdbSelected.platform:'')||'', link: ((safe('cine-link-inp')||{}).value||'').trim(), proposedBy: (function(){
     if(_proposerChoice === 'ambos') return 'ambos';
     if(_proposerChoice === 'otro') return isDavid?'maria':'david';
     return isDavid?'david':'maria';
@@ -3903,24 +3920,27 @@ function renderCineList() {
         +'</div>';
     }
     var platClass = item.platform ? ' plat-'+item.platform : '';
-    var dragHandle = (_cineTab==='viendo'||_cineTab==='proximo') ? '<div class="drag-handle" style="padding:0 10px;font-size:20px;color:#444;flex-shrink:0;align-self:center;">&#8801;</div>' : '';
+    var dragHandle = (_cineTab==='viendo'||_cineTab==='proximo') ? '<div class="drag-handle" style="display:flex;align-items:center;padding:0 8px;font-size:20px;color:#444;flex-shrink:0;">&#8801;</div>' : '';
     return '<div data-drag-id="'+item.id+'" class="cine-card'+platClass+'">'
-      +'<div style="display:flex;align-items:stretch;">'
+      +'<div style="display:flex;align-items:flex-start;padding:14px;gap:12px;">'
       +dragHandle
-      +'<div class="cine-card-top" onclick="openCineDetail(\''+item.id+'\')" style="cursor:pointer;flex:1;min-width:0;">'
-      +(item.poster?'<img class="cine-poster" src="'+esc(item.poster)+'" alt="">':'<div class="cine-poster-ph">'+typeIcon+'</div>')
-      +'<div class="cine-info">'
-      +'<div class="cine-title-dk">'+esc(item.title)+' '+typeIcon+'</div>'
-      +'<div class="cine-meta-dk">'+platBadge+'<span>'+propEmoji+'</span>'+(item.genres?'<span>'+esc(item.genres)+'</span>':'')+'<span>'+(item.year||'')+'</span></div>'
+      +'<div onclick="openCineDetail(\''+item.id+'\')" style="cursor:pointer;flex-shrink:0;">'
+      +(item.poster?'<img src="'+esc(item.poster)+'" style="width:64px;height:96px;object-fit:cover;border-radius:10px;display:block;">':'<div style="width:64px;height:96px;background:#1c1c2e;border-radius:10px;display:flex;align-items:center;justify-content:center;">'+typeIcon+'</div>')
       +'</div>'
-      +'<div style="display:flex;flex-direction:column;gap:6px;" onclick="event.stopPropagation()">'
+      +'<div onclick="openCineDetail(\''+item.id+'\')" style="flex:1;min-width:0;cursor:pointer;">'
+      +'<div style="font-size:16px;font-weight:800;color:white;line-height:1.25;margin-bottom:5px;">'+esc(item.title)+' '+typeIcon+'</div>'
+      +'<div style="font-size:12px;color:#999;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">'+platBadge+'<span>'+propEmoji+'</span>'+(item.year?'<span>'+item.year+'</span>':'')+'</div>'
+      +(item.genres?'<div style="font-size:11px;color:#666;margin-bottom:5px;">'+esc(item.genres)+'</div>':'')
+      +(item.overview?'<div style="font-size:12px;color:#999;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+esc(item.overview)+'</div>':'')
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;" onclick="event.stopPropagation()">'
       +'<button onclick="event.stopPropagation();delCineItem(\''+item.id+'\')" style="background:none;border:none;color:#444;font-size:18px;padding:2px;line-height:1;">&#xD7;</button>'
       +'<button onclick="event.stopPropagation();openEditCine(\''+item.id+'\')" style="background:none;border:none;color:#444;font-size:14px;padding:2px;line-height:1;">&#x270E;</button>'
-      +'</div></div>'
-      +(item.overview?'<div class="cine-synopsis-dk">'+esc(item.overview)+'</div>':'')
+      +'</div>'
+      +'</div>'
       +reactionBtns
       +ratingsHtml
-      +(estadoBtns?'<div style="padding:10px 16px 14px;display:flex;gap:8px;flex-wrap:wrap;">'+estadoBtns+'</div>':'')
+      +(estadoBtns?'<div style="padding:0 16px 14px;display:flex;gap:8px;flex-wrap:wrap;">'+estadoBtns+'</div>':'')
       +linkBtn
       +'</div>';
   }).join('');
@@ -4598,6 +4618,7 @@ window.renderMiSalaList = function() {
         +'</div></div>';
     }  });
   el.innerHTML=html;
+  if(typeof renderPendingChips==='function') renderPendingChips();
   if(typeof initCineSortable==='function') setTimeout(initCineSortable,50);
 };
 
@@ -4805,8 +4826,8 @@ window.renderPendingChips = function() {
       + ['reciente','mayor','menor'].map(function(s){ return '<button onclick="setVistoSort(\''+s+'\')" style="display:block;width:100%;text-align:left;padding:8px 12px;border:none;background:'+(_vistoSort===s?'rgba(240,192,64,0.12)':'transparent')+';color:'+(_vistoSort===s?accent:'#aaa')+';font-family:var(--font-body);font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;">'+labels[s]+'</button>'; }).join('')
       + '</div></div>';
   }
-  // Solo mostrar en la pestaña relevante
-  if(_cineTab === 'visto') {
+  // Avisos de pendientes solo en compartida
+  if(_cineMode!=='misala' && _cineTab === 'visto') {
     var pendVote = getPendingRatings();
     if(pendVote.length > 0) {
       html += '<button onclick="openSwipeMode(\'vote\')" style="width:100%;padding:14px 16px;margin-bottom:14px;background:linear-gradient(135deg,rgba(240,192,64,0.18) 0%,rgba(240,192,64,0.08) 100%);border:1.5px solid rgba(240,192,64,0.5);border-radius:14px;color:#f0c040;font-family:var(--font-body);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;animation:chipPulse 2s ease-in-out infinite;">'
@@ -4815,7 +4836,7 @@ window.renderPendingChips = function() {
         + '</button>';
     }
   }
-  if(_cineTab === 'proximo') {
+  if(_cineMode!=='misala' && _cineTab === 'proximo') {
     var pendReact = getPendingReactions();
     if(pendReact.length > 0) {
       html += '<button onclick="openSwipeMode(\'react\')" style="width:100%;padding:14px 16px;margin-bottom:14px;background:linear-gradient(135deg,rgba(255,68,136,0.18) 0%,rgba(255,68,136,0.08) 100%);border:1.5px solid rgba(255,68,136,0.5);border-radius:14px;color:#ff7aa8;font-family:var(--font-body);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;animation:chipPulse 2s ease-in-out infinite;">'
