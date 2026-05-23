@@ -16,11 +16,12 @@
 var _msdrg = {active:false, id:null, origY:0, el:null, listEl:null, cardH:0};
 
 window.dragStartMiSala = function(e, id, estado) {
-  e.preventDefault();
+  if(e.cancelable) e.preventDefault();
+  e.stopPropagation();
   var card = document.getElementById('mvc-'+id);
   if(!card) return;
   var rect = card.getBoundingClientRect();
-  _msdrg = {active:true, id:id, estado:estado, origY:e.touches[0].clientY, el:card, listEl:card.parentElement, cardH:rect.height};
+  _msdrg = {active:true, id:id, estado:estado, origY:e.touches[0].clientY, el:card, listEl:card.parentElement, cardH:rect.height, moved:false};
   card.classList.add('dragging');
   document.addEventListener('touchmove', _msDragMove, {passive:false});
   document.addEventListener('touchend', _msDragEnd);
@@ -688,7 +689,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
             <div id="cine-header-title" style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
-            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v19</span></div>
+            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v20</span></div>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:12px;">
@@ -1173,12 +1174,12 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
       <button class="pcheck on" id="cstate-proximo" onclick="setCineState('proximo')">&#128197; Pr&#243;ximo</button>
       <button class="pcheck" id="cstate-viendo" onclick="setCineState('viendo')">&#127902; Viendo</button>
     </div>
-    <label>Propuesta por</label>
+    <div id="proposer-section"><label>Propuesta por</label>
     <div style="display:flex;gap:6px;margin-bottom:10px;">
       <button class="pcheck" id="prop-yo" onclick="setProposer('yo')">&#x1F435; Yo</button>
       <button class="pcheck" id="prop-otro" onclick="setProposer('otro')">&#x1F437; El otro</button>
       <button class="pcheck" id="prop-ambos" onclick="setProposer('ambos')">&#x1F435;&#x1F437; Ambos</button>
-    </div>
+    </div></div>
     <label>Plataforma</label>
     <select id="cine-platform" style="margin-bottom:10px;">
       <option value="">Sin especificar</option>
@@ -3711,6 +3712,7 @@ window.openAddCineModal = function() {
   _proposerChoice = 'yo';
   var modal = safe('modal-add-cine');
   if(modal){ if(_cineMode==='misala') modal.classList.add('misala-modal'); else modal.classList.remove('misala-modal'); }
+  var propSec=safe('proposer-section'); if(propSec) propSec.style.display=(_cineMode==='misala')?'none':'';
   setTimeout(function(){ setProposer('yo'); }, 50);
   _tmdbSelected = null; _cineEditId = null;
   if(safe('cine-search-inp')) safe('cine-search-inp').value='';
@@ -4544,23 +4546,23 @@ window.renderMiSalaList = function() {
 
     // VISTO: compact list like compartida
     if(item.estado==='visto') {
-      // Compact row like compartida
-      var ducks='';
+      // Same structure as compartida visto
+      var dateStr2='';
+      if(item.watchedAt){ var d2=new Date(item.watchedAt); var mo2=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']; dateStr2=d2.getDate()+' '+mo2[d2.getMonth()]+' '+d2.getFullYear(); }
+      var ratingR;
       if(myRating>0){
-        for(var di=0;di<myRating;di++) ducks+='<img src="'+CINE_ICONS.duck_gold+'" width="14" height="14">';
+        ratingR='<div style="display:flex;align-items:center;gap:4px;font-size:15px;color:#a78bfa;font-weight:800;white-space:nowrap;"><img src="'+CINE_ICONS.duck_gold+'" width="18" height="18">'+myRating+'</div>';
+      } else {
+        ratingR='<button onclick="event.stopPropagation();openMiSalaRating(\''+item.id+'\')" style="background:rgba(124,58,237,0.12);border:1.5px solid rgba(124,58,237,0.4);border-radius:999px;padding:6px 12px;color:#a78bfa;font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;display:flex;align-items:center;gap:5px;"><img src="'+CINE_ICONS.duck_gold+'" width="14" height="14">Votar</button>';
       }
-      var ratingDisplay = myRating>0
-        ? '<div style="display:flex;align-items:center;gap:1px;">'+ducks+'<span style="font-size:11px;color:#a78bfa;font-weight:800;margin-left:4px;">'+myRating+'/10</span></div>'
-        : '<button onclick="event.stopPropagation();openMiSalaRating(\''+item.id+'\')" style="background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.4);border-radius:999px;padding:4px 10px;color:#a78bfa;font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;">Votar &#128020;</button>';
-      html+='<div onclick="openMiSalaDetail(\''+item.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #1a0a30;cursor:pointer;">'
-        +'<span style="font-size:11px;color:#555;font-weight:700;min-width:18px;text-align:center;">'+(idx+1)+'</span>'
-        +(item.poster?'<img src="'+esc(item.poster)+'" style="width:40px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0;">':'<div style="width:40px;height:60px;background:#1a0a30;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">'+typeIcon+'</div>')
+      var tIcon2 = item.tipo==='pelicula' ? '<img src="'+CINE_ICONS.popcorn+'" width="14" height="14" style="vertical-align:middle;">' : '<img src="'+CINE_ICONS.tv+'" width="14" height="14" style="vertical-align:middle;">';
+      html+='<div onclick="openMiSalaDetail(\''+item.id+'\')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #1e1e30;cursor:pointer;">'
+        +(item.poster?'<img src="'+esc(item.poster)+'" style="width:50px;height:75px;object-fit:cover;border-radius:8px;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.4);">':'<div style="width:50px;height:75px;background:#1c1c2e;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+tIcon2+'</div>')
         +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-size:14px;font-weight:800;color:white;font-family:var(--font-title);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(item.title)+'</div>'
-        +(item.genres?'<div style="font-size:10px;color:#555;margin-top:1px;">'+esc(item.genres)+'</div>':'')
-        +'<div style="margin-top:5px;">'+ratingDisplay+'</div>'
+        +'<div style="font-family:var(--font-title);font-style:italic;font-size:15px;font-weight:800;color:white;line-height:1.2;margin-bottom:4px;">'+esc(item.title)+' '+tIcon2+'</div>'
+        +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11px;color:#888;">'+platBadge+(dateStr2?'<span>&#183; '+dateStr2+'</span>':'')+'</div>'
         +'</div>'
-        +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="background:none;border:none;color:#333;font-size:16px;cursor:pointer;padding:4px;flex-shrink:0;">&#215;</button>'
+        +'<div style="flex-shrink:0;">'+ratingR+'</div>'
         +'</div>';
       return;
     }
@@ -4569,17 +4571,17 @@ window.renderMiSalaList = function() {
     var platClass=item.platform?' plat-'+item.platform:'';
     var isDraggable = item.estado==='viendo' || item.estado==='proximo';
     if(isDraggable) {
-      html+='<div id="mvc-'+item.id+'" data-id="'+item.id+'" class="ms-drag-card cine-card'+platClass+'" style="display:flex;align-items:center;gap:0;" onclick="openMiSalaDetail(\''+item.id+'\')">'
-        +'<div ontouchstart="event.stopPropagation();dragStartMiSala(event,\''+item.id+'\',\''+item.estado+'\')" style="padding:14px 8px;font-size:20px;color:#444;cursor:grab;flex-shrink:0;" title="Arrastrar">&#8801;</div>'
-        +(item.poster?'<img src="'+esc(item.poster)+'" style="width:44px;height:66px;object-fit:cover;border-radius:8px;flex-shrink:0;">':'<div style="width:44px;height:66px;background:#1a0a30;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+typeIcon+'</div>')
-        +'<div style="flex:1;padding:8px 10px;min-width:0;">'
+      html+='<div id="mvc-'+item.id+'" data-id="'+item.id+'" class="ms-drag-card cine-card'+platClass+'" style="display:flex;align-items:center;gap:0;margin-bottom:6px;">'
+        +'<div class="ms-drag-handle" ontouchstart="dragStartMiSala(event,\''+item.id+'\',\''+item.estado+'\')" style="padding:18px 10px;font-size:20px;color:#555;flex-shrink:0;touch-action:none;cursor:grab;">&#8801;</div>'
+        +'<div style="display:flex;align-items:center;flex:1;min-width:0;cursor:pointer;" onclick="openMiSalaDetail(\''+item.id+'\')">'
+        +(item.poster?'<img src="'+esc(item.poster)+'" style="width:42px;height:63px;object-fit:cover;border-radius:8px;flex-shrink:0;">':'<div style="width:42px;height:63px;background:#1a0a30;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+typeIcon+'</div>')
+        +'<div style="flex:1;padding:6px 10px;min-width:0;">'
         +'<div style="font-family:var(--font-title);font-style:italic;font-size:15px;font-weight:800;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(item.title)+'</div>'
         +(item.genres?'<div style="font-size:11px;color:#666;margin-top:2px;">'+esc(item.genres)+'</div>':'')
         +(platBadge?'<div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;">'+platBadge+'</div>':'')
         +(item.nota?'<div style="font-size:11px;color:#7c5ac2;font-style:italic;margin-top:3px;">'+esc(item.nota)+'</div>':'')
-        +'</div>'
-        +'<button onclick="event.stopPropagation();pinToTopMiSala(\''+item.id+'\',\''+item.estado+'\')" title="Subir al top" style="background:none;border:none;color:#555;font-size:16px;cursor:pointer;padding:8px;flex-shrink:0;">&#128204;</button>'
-        +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="background:none;border:none;color:#333;font-size:16px;cursor:pointer;padding:8px;flex-shrink:0;">&#215;</button>'
+        +'</div></div>'
+        +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="background:none;border:none;color:#333;font-size:16px;cursor:pointer;padding:10px 8px;flex-shrink:0;">&#215;</button>'
         +'</div>';
     } else if(item.estado==='visto') {
       // Already handled above (early return)
@@ -4704,7 +4706,7 @@ window.saveToMiSala = async function(item) {
     var snap=await getDoc(doc(db,'app_data',getMiSalaKey()));
     var myItems=snap.exists()?(snap.data().items||[]):[];
     var exists=myItems.find(function(x){return x.title.toLowerCase()===item.title.toLowerCase();});
-    if(!exists){ myItems.push(item); await setDoc(doc(db,'app_data',getMiSalaKey()),{items:myItems}); _miSalaData=myItems; }
+    if(!exists){ myItems.push(item); await setDoc(doc(db,'app_data',getMiSalaKey()),{items:myItems}); _miSalaData=myItems; if(!_cineEditId){ setCineTab(item.estado||'proximo'); } }
     // Check coincidence
     var otroSnap=await getDoc(doc(db,'app_data',getOtroSalaKey()));
     var otroItems=otroSnap.exists()?(otroSnap.data().items||[]):[];
