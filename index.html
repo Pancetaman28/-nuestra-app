@@ -605,7 +605,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
             <div id="cine-header-title" style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
-            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v24</span></div>
+            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v25</span></div>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:12px;">
@@ -1126,7 +1126,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
   <div id="rating-subtitle" style="color:#aaa;font-size:16px;margin-bottom:20px;">&#191;Cu&#225;ntos patitos le das?</div>
   <div id="duck-selector" style="display:flex;justify-content:center;gap:3px;margin-bottom:32px;width:100%;padding:0 8px;box-sizing:border-box;flex-wrap:nowrap;"></div>
   <div id="rating-reveal" style="display:none;text-align:center;margin-bottom:24px;"></div>
-  <button id="rating-confirm-btn" onclick="confirmRating()" style="background:#3b6e9e;color:white;border:none;border-radius:999px;padding:16px 60px;font-size:17px;font-weight:700;font-family:var(--font-body);width:80%;max-width:340px;">Confirmar</button>
+  <button id="rating-confirm-btn" onclick="confirmRating()" style="background:linear-gradient(135deg,#f0c040,#e8a020);color:#13131f;border:none;border-radius:999px;padding:16px 60px;font-size:17px;font-weight:800;font-family:var(--font-body);width:80%;max-width:340px;">Votar</button>
 </div>
 
 <!-- RULETA MODAL -->
@@ -3640,7 +3640,7 @@ window.selectTMDB = async function(id, mediaType) {
       }
       cast = (data.credits.cast||[]).slice(0,4).map(function(p){return p.name;}).join(', ');
     }
-    _tmdbSelected = { tmdbId: id, tipo: mediaType==='movie'?'pelicula':'serie', title: data.title||data.name||'', year: (data.release_date||data.first_air_date||'').split('-')[0], overview: (data.overview||'').slice(0,150), poster: data.poster_path ? TMDB_IMG+data.poster_path : '', genres: (data.genres||[]).map(function(g){return g.name;}).join(', '), director: director, cast: cast, platform: detectedPlat };
+    _tmdbSelected = { tmdbId: id, tipo: mediaType==='movie'?'pelicula':'serie', title: data.title||data.name||'', year: (data.release_date||data.first_air_date||'').split('-')[0], overview: (data.overview||'').slice(0,150), poster: data.poster_path ? TMDB_IMG+data.poster_path : '', genres: (data.genres||[]).map(function(g){return g.name;}).join(', '), director: director, cast: cast, platform: detectedPlat, totalSeasons: data.number_of_seasons||0, tmdbId: id };
     if(safe('cine-title-inp')) safe('cine-title-inp').value = _tmdbSelected.title;
     if(detectedPlat && safe('cine-platform')) safe('cine-platform').value = detectedPlat;
     setCineType(_tmdbSelected.tipo);
@@ -3674,7 +3674,11 @@ window.saveCineItem = async function() {
   var title = ((safe('cine-title-inp')||{}).value||'').trim();
   if(!title) return;
   var isDavid = (window._currentUserEmail||'').indexOf('david')>=0;
-  var item = { id: _cineEditId || Date.now()+'', title: title, tipo: _cineType, estado: _cineState, platform: ((safe('cine-platform')||{}).value)||(_tmdbSelected?_tmdbSelected.platform:'')||'', link: ((safe('cine-link-inp')||{}).value||'').trim(), proposedBy: (function(){
+  var item = { id: _cineEditId || Date.now()+'', title: title, tipo: _cineType, estado: _cineState, platform: ((safe('cine-platform')||{}).value)||(_tmdbSelected?_tmdbSelected.platform:'')||'',
+    totalSeasons: _tmdbSelected?_tmdbSelected.totalSeasons||0:0,
+    tmdbId: _tmdbSelected?_tmdbSelected.tmdbId||'':'',
+    seasons: {},
+    seriesFinished: false, link: ((safe('cine-link-inp')||{}).value||'').trim(), proposedBy: (function(){
     if(_proposerChoice === 'ambos') return 'ambos';
     if(_proposerChoice === 'otro') return isDavid?'maria':'david';
     return isDavid?'david':'maria';
@@ -3766,6 +3770,14 @@ function renderCineList() {
   if((_cineTab==='viendo'||_cineTab==='proximo')&&window._platformFilter&&window._platformFilter!=='all') items=items.filter(function(x){return x.platform===window._platformFilter;});
   // Sort viendo/proximo by miOrder
   if(_cineTab==='viendo'||_cineTab==='proximo') items=items.slice().sort(function(a,b){return (a.miOrder||0)-(b.miOrder||0);});
+  // Series en progreso (Viendo con temporadas) también en Visto compartida
+  if(_cineTab==='visto'){
+    (appData.cine||[]).forEach(function(x){
+      if(x.estado==='viendo' && x.tipo==='serie' && x.seasons && Object.keys(x.seasons).length>0 && !x.seriesFinished){
+        if(!items.find(function(y){return y.id===x.id;})) items.push(Object.assign({},x,{_inProgress:true}));
+      }
+    });
+  }
   if(_cineTab==='visto') {
     if(_vistoSort==='mayor') {
       items = items.slice().sort(function(a,b){
@@ -3915,6 +3927,7 @@ function renderCineList() {
     }
     var platClass = item.platform ? ' plat-'+item.platform : '';
     var dragHandle = (_cineTab==='viendo'||_cineTab==='proximo') ? '<div class="drag-handle" style="display:flex;align-items:center;padding:0 8px;font-size:20px;color:#444;flex-shrink:0;">&#8801;</div>' : '';
+    var isViendoTab = (_cineTab==='viendo');
     return '<div data-drag-id="'+item.id+'" class="cine-card'+platClass+'">'
       +'<div style="display:flex;align-items:flex-start;padding:14px;gap:12px;">'
       +dragHandle
@@ -3925,17 +3938,17 @@ function renderCineList() {
       +'<div style="font-size:16px;font-weight:800;color:white;line-height:1.25;margin-bottom:5px;">'+esc(item.title)+' '+typeIcon+'</div>'
       +'<div style="font-size:12px;color:#999;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">'+platBadge+'<span>'+propEmoji+'</span>'+(item.year?'<span>'+item.year+'</span>':'')+'</div>'
       +(item.genres?'<div style="font-size:11px;color:#666;margin-bottom:5px;">'+esc(item.genres)+'</div>':'')
-      +(item.overview?'<div style="font-size:12px;color:#999;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+esc(item.overview)+'</div>':'')
+      +(!isViendoTab && item.overview?'<div style="font-size:12px;color:#999;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+esc(item.overview)+'</div>':'')
       +'</div>'
       +'<div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;" onclick="event.stopPropagation()">'
       +'<button onclick="event.stopPropagation();delCineItem(\''+item.id+'\')" style="background:none;border:none;color:#444;font-size:18px;padding:2px;line-height:1;">&#xD7;</button>'
       +'<button onclick="event.stopPropagation();openEditCine(\''+item.id+'\')" style="background:none;border:none;color:#444;font-size:14px;padding:2px;line-height:1;">&#x270E;</button>'
       +'</div>'
       +'</div>'
-      +reactionBtns
+      +(isViendoTab ? '' : (reactionBtns
       +ratingsHtml
       +(estadoBtns?'<div style="padding:0 16px 14px;display:flex;gap:8px;flex-wrap:wrap;">'+estadoBtns+'</div>':'')
-      +linkBtn
+      +linkBtn))
       +'</div>';
   }).join('');
   if(_cineTab==='visto') renderCineRanking();
@@ -3960,6 +3973,7 @@ window.setCineProposer = async function(id, who) {
 
 window.openCineDetail = async function(id) {
   var item = (appData.cine||[]).find(function(x){return x.id===id;}); if(!item) return;
+  if(item.tipo==='serie' && typeof checkNewSeasons==='function'){ item = await checkNewSeasons(item, false) || item; }
   var el = safe('cine-detail-content'); if(!el) return;
   var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
   var who=isDavid?'david':'maria', other=isDavid?'maria':'david';
@@ -4017,6 +4031,7 @@ window.openCineDetail = async function(id) {
     + (item.cast?'<div style="color:#888;font-size:12px;">&#127914; '+esc(item.cast)+'</div>':'')
     + '</div>'
     + (item.overview ? '<div style="background:#13131f;border:1px solid #2a2a3e;border-radius:14px;padding:16px;margin-bottom:14px;color:#bbb;font-size:14px;line-height:1.6;">'+esc(item.overview)+'</div>' : '')
+    + (item.tipo==='serie' ? seasonsSectionHtml(item, false) : '')
     + reactBlock
     + ratingsBlock
     + estadoBlock
@@ -4206,12 +4221,16 @@ window.openRatingScreen = function(id) {
         var lbl=document.createElement('span'); lbl.style.cssText='color:#555;font-size:11px;font-weight:700;'; lbl.textContent=n;
         btn.appendChild(img); btn.appendChild(lbl);
         btn.onclick=function(){
+          if(_myRating===n) n=n-1;
           _myRating=n;
+          var nn=n;
           Array.from(ds.children).forEach(function(b,idx){
             var im=b.querySelector('img'); var sp=b.querySelector('span');
-            if(idx<n){ im.src=CINE_ICONS.duck_gold; sp.style.color='#f0c040'; }
+            if(idx<nn){ im.src=CINE_ICONS.duck_gold; sp.style.color='#f0c040'; }
             else{ im.src=CINE_ICONS.duck_grey; sp.style.color='#555'; }
           });
+          var cb=safe('rating-confirm-btn'); if(cb) cb.style.opacity=nn>0?'1':'0.5';
+          n=nn;
         };
         ds.appendChild(btn);
       })(i);
@@ -4226,6 +4245,10 @@ window.closeRatingScreen = function() { var rs=safe('rating-screen'); if(rs) rs.
 
 window.confirmRating = async function() {
   if(!_myRating||!_ratingItemId) return;
+  // Glow animation on selected ducks
+  var ds0=safe('duck-selector');
+  if(ds0){ Array.from(ds0.children).forEach(function(b,idx){ if(idx<_myRating){ var im=b.querySelector('img'); if(im){ im.style.transition='transform 0.2s'; im.style.transform='scale(1.3)'; (function(x){setTimeout(function(){x.style.transform='scale(1)';},200);})(im); } } }); }
+  if(navigator.vibrate) navigator.vibrate(40);
   var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
   var who=isDavid?'david':'maria';
   var items=JSON.parse(JSON.stringify(appData.cine||[]));
@@ -4422,6 +4445,181 @@ window.saveDragOrder = async function(orderedIds) {
   }
 };
 
+
+// ─── TEMPORADAS DE SERIES ───
+var _seasonSelectedRating = {}; // {seasonNum: rating} pending selection
+
+// Calcula la media de temporadas puntuadas
+function seasonsAverage(seasons) {
+  if(!seasons) return 0;
+  var vals = Object.keys(seasons).map(function(k){return parseInt(seasons[k]);}).filter(function(v){return v>0;});
+  if(!vals.length) return 0;
+  return (vals.reduce(function(a,b){return a+b;},0)/vals.length);
+}
+
+// Auto-comprobar temporadas nuevas (máx 1 vez/mes) al abrir ficha de serie
+window.checkNewSeasons = async function(item, isMiSala) {
+  if(item.tipo!=='serie' || !item.tmdbId) return item;
+  var last = item.lastSeasonCheck || 0;
+  if(Date.now() - last < 30*86400000) return item; // ya comprobado este mes
+  try {
+    var res = await fetch(TMDB_BASE+'/tv/'+item.tmdbId+'?api_key='+TMDB_API_KEY+'&language=es-ES');
+    var data = await res.json();
+    var newTotal = data.number_of_seasons||item.totalSeasons;
+    item.lastSeasonCheck = Date.now();
+    if(newTotal > (item.totalSeasons||0)) {
+      item.totalSeasons = newTotal;
+    }
+    // Persist the updated check date
+    if(isMiSala){
+      var mi=JSON.parse(JSON.stringify(_miSalaData));
+      var it=mi.find(function(x){return x.id===item.id;});
+      if(it){ it.totalSeasons=item.totalSeasons; it.lastSeasonCheck=item.lastSeasonCheck; await setDoc(doc(db,'app_data',getMiSalaKey()),{items:mi}); _miSalaData=mi; }
+    } else {
+      var sh=JSON.parse(JSON.stringify(appData.cine||[]));
+      var sit=sh.find(function(x){return x.id===item.id;});
+      if(sit){ sit.totalSeasons=item.totalSeasons; sit.lastSeasonCheck=item.lastSeasonCheck; await setDoc(doc(db,'app_data','cine'),{items:sh}); appData.cine=sh; }
+    }
+  } catch(e){}
+  return item;
+};
+
+// Genera el HTML de la sección Temporadas
+function seasonsSectionHtml(item, isMiSala) {
+  if(item.tipo!=='serie') return '';
+  var total = item.totalSeasons || 0;
+  var seasons = item.seasons || {};
+  var accent = isMiSala ? '#a78bfa' : '#f0c040';
+  var accentBg = isMiSala ? 'rgba(124,58,237,0.12)' : 'rgba(240,192,64,0.12)';
+  var accentBorder = isMiSala ? '#3b1f6e' : 'rgba(240,192,64,0.3)';
+  var ratedCount = Object.keys(seasons).filter(function(k){return seasons[k];}).length;
+  var avg = seasonsAverage(seasons);
+  var fnPrefix = isMiSala ? 'MiSala' : 'Shared';
+  var html = '<div style="margin-bottom:16px;background:'+accentBg+';border:1px solid '+accentBorder+';border-radius:14px;padding:14px;">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+    + '<div style="font-size:11px;color:'+accent+';text-transform:uppercase;letter-spacing:1.5px;font-weight:800;">&#128250; Temporadas</div>'
+    + (ratedCount>0?'<div style="font-size:12px;color:'+accent+';font-weight:800;">Media: '+avg.toFixed(1)+'</div>':'')
+    + '</div>';
+  if(total > 0) {
+    html += '<div style="font-size:11px;color:#888;margin-bottom:12px;">Has puntuado '+ratedCount+' de '+total+' temporadas</div>';
+    for(var s=1; s<=total; s++) {
+      var sr = seasons[s] ? parseInt(seasons[s]) : 0;
+      html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid '+(isMiSala?'rgba(124,58,237,0.15)':'rgba(255,255,255,0.05)')+';">'
+        + '<span style="font-size:12px;font-weight:800;color:white;min-width:32px;">T'+s+'</span>'
+        + '<div style="flex:1;display:flex;gap:1px;flex-wrap:wrap;" id="'+fnPrefix+'-season-'+s+'">'
+        + Array.from({length:10},function(_,n){return '<button onclick="selectSeasonDuck'+fnPrefix+'('+s+','+(n+1)+')" style="background:none;border:none;cursor:pointer;padding:1px;"><img id="'+fnPrefix+'-s'+s+'-d'+(n+1)+'" src="'+(n<sr?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey)+'" width="18" height="18"></button>';}).join('')
+        + '</div>'
+        + '<button onclick="voteSeason'+fnPrefix+'(\''+item.id+'\','+s+')" id="'+fnPrefix+'-votebtn-'+s+'" style="background:'+accent+';border:none;border-radius:999px;padding:4px 10px;color:'+(isMiSala?'white':'#13131f')+';font-size:10px;font-weight:800;font-family:var(--font-body);cursor:pointer;flex-shrink:0;">'+(sr>0?'&#10003;':'Votar')+'</button>'
+        + '</div>';
+    }
+    // Botón añadir temporada manual
+    html += '<button onclick="addSeasonManual'+fnPrefix+'(\''+item.id+'\')" style="width:100%;margin-top:8px;padding:8px;background:transparent;border:1px dashed '+accentBorder+';border-radius:10px;color:'+accent+';font-size:12px;font-weight:700;font-family:var(--font-body);cursor:pointer;">+ Temporada</button>';
+    // Botón serie terminada (solo si está en viendo)
+    if(item.estado==='viendo' && !item.seriesFinished) {
+      html += '<button onclick="finishSeries'+fnPrefix+'(\''+item.id+'\')" style="width:100%;margin-top:8px;padding:10px;background:'+accent+';border:none;border-radius:10px;color:'+(isMiSala?'white':'#13131f')+';font-size:13px;font-weight:800;font-family:var(--font-body);cursor:pointer;">&#127881; Serie terminada</button>';
+    }
+  } else {
+    html += '<div style="font-size:12px;color:#888;text-align:center;padding:8px;">No hay info de temporadas. <button onclick="addSeasonManual'+fnPrefix+'(\''+item.id+'\')" style="background:none;border:none;color:'+accent+';font-weight:700;cursor:pointer;text-decoration:underline;">A&#241;adir una</button></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+
+// Selección de patitos por temporada (Mi Sala)
+window.selectSeasonDuckMiSala = function(season, n) {
+  if(_seasonSelectedRating[season]===n) n=n-1;
+  _seasonSelectedRating[season]=n;
+  for(var i=1;i<=10;i++){ var d=document.getElementById('MiSala-s'+season+'-d'+i); if(d) d.src=i<=n?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey; }
+};
+window.selectSeasonDuckShared = function(season, n) {
+  if(_seasonSelectedRating[season]===n) n=n-1;
+  _seasonSelectedRating[season]=n;
+  for(var i=1;i<=10;i++){ var d=document.getElementById('Shared-s'+season+'-d'+i); if(d) d.src=i<=n?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey; }
+};
+
+// Votar temporada (Mi Sala)
+window.voteSeasonMiSala = async function(id, season) {
+  var n = _seasonSelectedRating[season];
+  if(n===undefined || n<=0) { var it0=_miSalaData.find(function(x){return x.id===id;}); if(it0&&it0.seasons&&it0.seasons[season]) n=parseInt(it0.seasons[season]); else return; }
+  if(navigator.vibrate) navigator.vibrate(40);
+  var items=JSON.parse(JSON.stringify(_miSalaData));
+  var item=items.find(function(x){return x.id===id;}); if(!item) return;
+  item.seasons = item.seasons||{};
+  item.seasons[season] = n+'';
+  item.myRating = seasonsAverage(item.seasons).toFixed(1);
+  // Al puntuar primera temporada: aparece también en Visto (sin salir de Viendo)
+  if(!item.watchedAt) item.watchedAt = Date.now();
+  await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
+  _miSalaData=items;
+  openMiSalaDetail(id);
+};
+
+// Votar temporada (Compartida)
+window.voteSeasonShared = async function(id, season) {
+  var n = _seasonSelectedRating[season];
+  var isDavid=(window._currentUserEmail||'').indexOf('david')>=0;
+  var who=isDavid?'david':'maria';
+  if(n===undefined || n<=0){ var it0=(appData.cine||[]).find(function(x){return x.id===id;}); if(it0&&it0.seasonsRatings&&it0.seasonsRatings[who]&&it0.seasonsRatings[who][season]) n=parseInt(it0.seasonsRatings[who][season]); else return; }
+  if(navigator.vibrate) navigator.vibrate(40);
+  var items=JSON.parse(JSON.stringify(appData.cine||[]));
+  var item=items.find(function(x){return x.id===id;}); if(!item) return;
+  item.seasonsRatings = item.seasonsRatings||{};
+  item.seasonsRatings[who] = item.seasonsRatings[who]||{};
+  item.seasonsRatings[who][season] = n+'';
+  // Media de mis temporadas → mi rating compartido
+  item.ratings = item.ratings||{};
+  item.ratings[who] = seasonsAverage(item.seasonsRatings[who]).toFixed(1);
+  item.seasons = item.seasons || {}; item.seasons[season]='1'; // marca que existe esa temporada
+  if(!item.watchedAt) item.watchedAt = Date.now();
+  await setDoc(doc(db,'app_data','cine'),{items:items});
+  appData.cine=items;
+  openCineDetail(id);
+};
+
+// Añadir temporada manual
+window.addSeasonManualMiSala = async function(id) {
+  var items=JSON.parse(JSON.stringify(_miSalaData));
+  var item=items.find(function(x){return x.id===id;}); if(!item) return;
+  item.totalSeasons = (item.totalSeasons||0)+1;
+  await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
+  _miSalaData=items;
+  openMiSalaDetail(id);
+};
+window.addSeasonManualShared = async function(id) {
+  var items=JSON.parse(JSON.stringify(appData.cine||[]));
+  var item=items.find(function(x){return x.id===id;}); if(!item) return;
+  item.totalSeasons = (item.totalSeasons||0)+1;
+  await setDoc(doc(db,'app_data','cine'),{items:items});
+  appData.cine=items;
+  openCineDetail(id);
+};
+
+// Serie terminada → sale de Viendo, se queda en Visto
+window.finishSeriesMiSala = async function(id) {
+  var items=JSON.parse(JSON.stringify(_miSalaData));
+  var item=items.find(function(x){return x.id===id;}); if(!item) return;
+  item.seriesFinished = true;
+  item.estado = 'visto';
+  item.watchedAt = item.watchedAt || Date.now();
+  await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
+  _miSalaData=items;
+  closeCineDetail();
+  setCineTab('visto');
+};
+window.finishSeriesShared = async function(id) {
+  var items=JSON.parse(JSON.stringify(appData.cine||[]));
+  var item=items.find(function(x){return x.id===id;}); if(!item) return;
+  item.seriesFinished = true;
+  item.estado = 'visto';
+  item.watchedAt = item.watchedAt || Date.now();
+  await setDoc(doc(db,'app_data','cine'),{items:items});
+  appData.cine=items;
+  closeCineDetail();
+  setCineTab('visto');
+};
+
+
 // ─── MI SALA (espacio privado) ───
 var _miSalaData = [];
 
@@ -4457,6 +4655,14 @@ window.renderMiSalaList = function() {
   var el = safe('cine-list'); if(!el) return;
   var perfilHtml = '';
   var items = _miSalaData.filter(function(x){ return x.estado===_cineTab; });
+  // Series en progreso (Viendo con temporadas puntuadas) también salen en Visto
+  if(_cineTab==='visto') {
+    _miSalaData.forEach(function(x){
+      if(x.estado==='viendo' && x.tipo==='serie' && x.seasons && Object.keys(x.seasons).filter(function(k){return x.seasons[k];}).length>0 && !x.seriesFinished){
+        if(!items.find(function(y){return y.id===x.id;})) items.push(Object.assign({},x,{_inProgress:true}));
+      }
+    });
+  }
   // Sync: compartida items I've rated appear in Mi Sala Visto (Option A)
   if(_cineTab==='visto') {
     var isDavidMs=(window._currentUserEmail||'').indexOf('david')>=0;
@@ -4511,18 +4717,13 @@ window.renderMiSalaList = function() {
         +'<div><div style="font-size:10px;font-weight:800;color:#a78bfa;line-height:1.2;padding-top:3px;">'+top+'</div><div style="font-size:9px;color:#555;">g\u00e9nero</div></div>'
         +'</div></div>';
     }
-    var pelisD=_miSalaData.filter(function(x){return x.tipo==='pelicula';});
-    var seriesD=_miSalaData.filter(function(x){return x.tipo==='serie';});
-    var todosD=_miSalaData;
-    var pm=window._perfilMode||'todo';
-    var activeData = pm==='cine'?pelisD : pm==='series'?seriesD : todosD;
-    var ps = calcPerfilStats(activeData);
-    perfilHtml='<div style="background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(91,33,182,0.06));border:1px solid rgba(124,58,237,0.25);border-radius:14px;padding:12px;margin-bottom:12px;">'
-      // Pills
-      +'<div style="display:flex;gap:6px;margin-bottom:12px;">'
-      +['todo','cine','series'].map(function(m){var isA=pm===m;return '<button onclick="window._perfilMode=\''+m+'\';renderMiSalaList()" style="padding:5px 12px;border:1px solid '+(isA?'#7c3aed':'#2a1a4e')+';border-radius:999px;background:'+(isA?'rgba(124,58,237,0.3)':'transparent')+';color:'+(isA?'#a78bfa':'#555')+';font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;">'+{todo:'Todo',cine:'&#127871; Cine',series:'&#128250; Series'}[m]+'</button>';}).join('')
-      +'</div>'
-      // Stats grid
+    var perfData = _miSalaData;
+    if(_cineFilter==='pelicula') perfData=_miSalaData.filter(function(x){return x.tipo==='pelicula';});
+    else if(_cineFilter==='serie') perfData=_miSalaData.filter(function(x){return x.tipo==='serie';});
+    var ps = calcPerfilStats(perfData);
+    var perfLabel = _cineFilter==='pelicula'?'&#127871; Tu perfil de cine':_cineFilter==='serie'?'&#128250; Tu perfil de series':'&#127902; Tu perfil cinéfilo';
+    perfilHtml='<div style="background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(91,33,182,0.06));border:1px solid rgba(124,58,237,0.25);border-radius:14px;padding:14px;margin-bottom:12px;">'
+      +'<div style="font-size:11px;color:#9d7ae8;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:12px;">'+perfLabel+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">'
       +'<div><div style="font-size:24px;font-weight:900;color:#a78bfa;">'+ps.total+'</div><div style="font-size:10px;color:#555;margin-top:2px;">total</div></div>'
       +'<div><div style="font-size:24px;font-weight:900;color:#a78bfa;">'+ps.avg+'</div><div style="font-size:10px;color:#555;margin-top:2px;">tu media</div></div>'
@@ -4652,6 +4853,7 @@ window.openMiSalaDetail = function(id) {
     +(item.genres?'<div style="color:#888;font-size:13px;margin-bottom:6px;">'+esc(item.genres)+(item.year?' &middot; '+item.year:'')+'</div>':'')
     +(item.director?'<div style="color:#7c5ac2;font-size:12px;margin-bottom:3px;">&#127916; '+esc(item.director)+'</div>':'')
     +(item.cast?'<div style="color:#7c5ac2;font-size:12px;margin-bottom:10px;">&#127914; '+esc(item.cast)+'</div>':'')
+    +(item.tipo==='serie' && !item.fromShared ? seasonsSectionHtml(item, true) : '')
     +(item.overview?'<div style="color:#aaa;font-size:13px;line-height:1.6;margin-bottom:16px;">'+esc(item.overview)+'</div>':'')
     // Mi Critica
     +'<div style="margin-bottom:16px;">'
