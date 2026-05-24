@@ -306,7 +306,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
 .cine-tab.active{background:linear-gradient(135deg,#f0c040 0%,#e8a020 100%);color:#13131f;box-shadow:0 4px 12px rgba(240,192,64,0.3);}
 .cine-filter{padding:6px 14px;border:1.5px solid #2a2a3e;border-radius:999px;background:transparent;font-family:var(--font-body);font-size:12px;font-weight:600;color:#777;display:inline-flex;align-items:center;gap:6px;}
 .cine-filter.active{background:transparent;color:#f0c040;border-color:#f0c040;}
-.cine-card{background:linear-gradient(135deg,#1a1a2e 0%,#13131f 60%,#0d0d18 100%);border-radius:18px;margin-bottom:24px;overflow:hidden;border:1px solid #1f1f2e;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+.cine-card{background:linear-gradient(135deg,#1a1a2e 0%,#13131f 60%,#0d0d18 100%);border-radius:18px;margin-bottom:10px;overflow:hidden;border:1px solid #1f1f2e;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
 .cine-card.plat-netflix{background:linear-gradient(135deg,rgba(229,9,20,0.22) 0%,#13131f 55%,#0d0d18 100%);border-color:rgba(229,9,20,0.3);}
 .cine-card.plat-hbo{background:linear-gradient(135deg,rgba(185,47,255,0.22) 0%,#13131f 55%,#0d0d18 100%);border-color:rgba(185,47,255,0.3);}
 .cine-card.plat-disney{background:linear-gradient(135deg,rgba(17,60,207,0.22) 0%,#13131f 55%,#0d0d18 100%);border-color:rgba(17,60,207,0.3);}
@@ -605,7 +605,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
             <div id="cine-header-title" style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
-            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v27</span></div>
+            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v28</span></div>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:12px;">
@@ -3926,7 +3926,7 @@ function renderCineList() {
         +'</div>';
     }
     var platClass = item.platform ? ' plat-'+item.platform : '';
-    var dragHandle = (_cineTab==='viendo'||_cineTab==='proximo') ? '<div class="drag-handle" style="display:flex;align-items:center;padding:0 8px;font-size:20px;color:#444;flex-shrink:0;">&#8801;</div>' : '';
+    var dragHandle = (_cineTab==='viendo') ? '<div class="drag-handle" style="display:flex;align-items:center;padding:0 8px;font-size:20px;color:#444;flex-shrink:0;">&#8801;</div>' : '';
     var isViendoTab = (_cineTab==='viendo');
     // VIENDO: compact card like Mi Sala (small poster, tight spacing)
     if(isViendoTab) {
@@ -4426,7 +4426,7 @@ function destroySortables() {
 window.initCineSortable = function() {
   destroySortables();
   if(typeof Sortable === 'undefined') return;
-  if(_cineTab !== 'viendo' && _cineTab !== 'proximo') return;
+  if(_cineTab !== 'viendo') return;
   var listEl = safe('cine-list');
   if(!listEl) return;
   var inst = Sortable.create(listEl, {
@@ -4489,8 +4489,8 @@ window.openSeasonVote = function(id, season, isMiSala) {
   modal.innerHTML = '<div style="background:'+(isMiSala?'#1a0a30':'#13131f')+';border:1px solid '+(isMiSala?'#3b1f6e':'#2a2a3e')+';border-radius:20px;padding:24px;max-width:360px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.7);">'
     + '<div style="text-align:center;font-size:18px;font-weight:900;color:white;font-family:var(--font-title);margin-bottom:4px;">Temporada '+season+'</div>'
     + '<div style="text-align:center;font-size:12px;color:#888;margin-bottom:20px;">&iquest;Cu&aacute;ntos patitos le das?</div>'
-    + '<div id="sv-ducks" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:20px;">'
-    + Array.from({length:10},function(_,n){return '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;"><span style="font-size:10px;color:#666;font-weight:700;">'+(n+1)+'</span><button onclick="svSelectDuck('+(n+1)+')" style="background:none;border:none;cursor:pointer;padding:2px;"><img id="sv-duck-'+(n+1)+'" src="'+(n<cur?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey)+'" width="26" height="26"></button></div>';}).join('')
+    + '<div id="sv-ducks" style="display:flex;flex-wrap:nowrap;gap:1px;justify-content:center;margin-bottom:20px;">'
+    + Array.from({length:10},function(_,n){return '<div style="display:flex;flex-direction:column;align-items:center;gap:1px;flex:1;min-width:0;"><span style="font-size:9px;color:#666;font-weight:700;">'+(n+1)+'</span><button onclick="svSelectDuck('+(n+1)+')" style="background:none;border:none;cursor:pointer;padding:0;width:100%;"><img id="sv-duck-'+(n+1)+'" src="'+(n<cur?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey)+'" style="width:100%;max-width:26px;height:auto;"></button></div>';}).join('')
     + '</div>'
     + '<button id="sv-vote-btn" onclick="svConfirm()" style="width:100%;padding:13px;background:'+accentBtn+';border:none;border-radius:12px;color:'+(isMiSala?'white':'#13131f')+';font-family:var(--font-body);font-weight:800;font-size:14px;cursor:pointer;opacity:'+(cur>0?'1':'0.5')+';margin-bottom:8px;">Votar temporada</button>'
     + '<button onclick="closeSeasonVote()" style="width:100%;padding:11px;background:transparent;border:1px solid '+(isMiSala?'#3b1f6e':'#2a2a3e')+';border-radius:12px;color:#888;font-family:var(--font-body);font-weight:700;font-size:13px;cursor:pointer;">Cancelar</button>'
@@ -4878,7 +4878,7 @@ window.renderMiSalaList = function() {
 
     // ALL STATES: draggable card for Viendo+Próximo
     var platClass=item.platform?' plat-'+item.platform:'';
-    var isDraggable = item.estado==='viendo' || item.estado==='proximo';
+    var isDraggable = item.estado==='viendo';
     if(isDraggable) {
       var isHeroMs = (idx===0);
       if(isHeroMs) {
@@ -4911,17 +4911,19 @@ window.renderMiSalaList = function() {
           +'</div>';
       }
     } else {
-      // Any other state: simple card
-      html+='<div class="cine-card'+platClass+'" onclick="openMiSalaDetail(\''+item.id+'\')" style="cursor:pointer;">'
-        +'<div class="cine-card-top">'
-        +(item.poster?'<img src="'+esc(item.poster)+'" class="cine-poster">':'<div class="cine-poster-ph">'+typeIcon+'</div>')
-        +'<div class="cine-info">'
-        +'<div class="cine-title-dk">'+esc(item.title)+' '+typeIcon+'</div>'
-        +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:11px;">'+platBadge+'</div>'
-        +(item.genres?'<div style="font-size:11px;color:#666;margin-top:3px;">'+esc(item.genres)+'</div>':'')
-        +(item.nota?'<div style="font-size:11px;color:#7c5ac2;font-style:italic;margin-top:4px;line-height:1.4;">&#128203; '+esc(item.nota)+'</div>':'')
+      // PRÓXIMO (y otros): card como compartida próximo (póster, título, género, plataforma, sinopsis)
+      html+='<div class="cine-card'+platClass+'" onclick="openMiSalaDetail(\''+item.id+'\')" style="cursor:pointer;margin-bottom:6px;">'
+        +'<div style="display:flex;align-items:flex-start;padding:14px;gap:12px;">'
+        +'<div style="flex-shrink:0;">'
+        +(item.poster?'<img src="'+esc(item.poster)+'" style="width:64px;height:96px;object-fit:cover;border-radius:10px;display:block;">':'<div style="width:64px;height:96px;background:#1c1c2e;border-radius:10px;display:flex;align-items:center;justify-content:center;">'+typeIcon+'</div>')
         +'</div>'
-        +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="background:none;border:none;color:#333;font-size:18px;cursor:pointer;padding:6px;flex-shrink:0;align-self:flex-start;">&#215;</button>'
+        +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:16px;font-weight:800;color:white;line-height:1.25;margin-bottom:5px;">'+esc(item.title)+' '+typeIcon+'</div>'
+        +'<div style="font-size:12px;color:#999;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">'+platBadge+(item.year?'<span>'+item.year+'</span>':'')+'</div>'
+        +(item.genres?'<div style="font-size:11px;color:#666;margin-bottom:5px;">'+esc(item.genres)+'</div>':'')
+        +(item.overview?'<div style="font-size:12px;color:#999;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+esc(item.overview)+'</div>':(item.nota?'<div style="font-size:11px;color:#7c5ac2;font-style:italic;">&#128203; '+esc(item.nota)+'</div>':''))
+        +'</div>'
+        +'<button onclick="event.stopPropagation();delMiSalaItem(\''+item.id+'\')" style="background:none;border:none;color:#444;font-size:18px;cursor:pointer;padding:2px;flex-shrink:0;">&#215;</button>'
         +'</div></div>';
     }  });
   el.innerHTML=html;
