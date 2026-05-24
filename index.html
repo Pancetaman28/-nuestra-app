@@ -605,7 +605,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
             <div id="cine-header-title" style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
-            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v25</span></div>
+            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v26</span></div>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:12px;">
@@ -3935,7 +3935,7 @@ function renderCineList() {
       +(item.poster?'<img src="'+esc(item.poster)+'" style="width:64px;height:96px;object-fit:cover;border-radius:10px;display:block;">':'<div style="width:64px;height:96px;background:#1c1c2e;border-radius:10px;display:flex;align-items:center;justify-content:center;">'+typeIcon+'</div>')
       +'</div>'
       +'<div onclick="openCineDetail(\''+item.id+'\')" style="flex:1;min-width:0;cursor:pointer;">'
-      +'<div style="font-size:16px;font-weight:800;color:white;line-height:1.25;margin-bottom:5px;">'+esc(item.title)+' '+typeIcon+'</div>'
+      +'<div style="font-size:16px;font-weight:800;color:white;line-height:1.25;margin-bottom:5px;">'+esc(item.title)+(_cineTab==='visto'?'':' '+typeIcon)+'</div>'
       +'<div style="font-size:12px;color:#999;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">'+platBadge+'<span>'+propEmoji+'</span>'+(item.year?'<span>'+item.year+'</span>':'')+'</div>'
       +(item.genres?'<div style="font-size:11px;color:#666;margin-bottom:5px;">'+esc(item.genres)+'</div>':'')
       +(!isViendoTab && item.overview?'<div style="font-size:12px;color:#999;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+esc(item.overview)+'</div>':'')
@@ -4446,6 +4446,88 @@ window.saveDragOrder = async function(orderedIds) {
 };
 
 
+
+// ─── POPUP VOTAR TEMPORADA (mini ventana limpia) ───
+var _svCtx = { id:null, season:null, isMiSala:false, rating:0 };
+
+window.openSeasonVote = function(id, season, isMiSala) {
+  _svCtx = { id:id, season:season, isMiSala:isMiSala, rating:0 };
+  // Get current rating if exists
+  var cur = 0;
+  if(isMiSala){
+    var it=_miSalaData.find(function(x){return x.id===id;});
+    if(it&&it.seasons&&it.seasons[season]) cur=parseInt(it.seasons[season]);
+  } else {
+    var isD=(window._currentUserEmail||'').indexOf('david')>=0;
+    var it2=(appData.cine||[]).find(function(x){return x.id===id;});
+    if(it2&&it2.seasonsRatings&&it2.seasonsRatings[isD?'david':'maria']&&it2.seasonsRatings[isD?'david':'maria'][season]) cur=parseInt(it2.seasonsRatings[isD?'david':'maria'][season]);
+  }
+  _svCtx.rating = cur;
+  var accent = isMiSala ? '#a78bfa' : '#f0c040';
+  var accentBtn = isMiSala ? 'linear-gradient(135deg,#7c3aed,#5b21b6)' : 'linear-gradient(135deg,#f0c040,#e8a020)';
+  var modal = safe('season-vote-modal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'season-vote-modal';
+    document.body.appendChild(modal);
+  }
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;display:flex;align-items:center;justify-content:center;padding:24px;';
+  modal.innerHTML = '<div style="background:'+(isMiSala?'#1a0a30':'#13131f')+';border:1px solid '+(isMiSala?'#3b1f6e':'#2a2a3e')+';border-radius:20px;padding:24px;max-width:360px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.7);">'
+    + '<div style="text-align:center;font-size:18px;font-weight:900;color:white;font-family:var(--font-title);margin-bottom:4px;">Temporada '+season+'</div>'
+    + '<div style="text-align:center;font-size:12px;color:#888;margin-bottom:20px;">&iquest;Cu&aacute;ntos patitos le das?</div>'
+    + '<div id="sv-ducks" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:20px;">'
+    + Array.from({length:10},function(_,n){return '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;"><span style="font-size:10px;color:#666;font-weight:700;">'+(n+1)+'</span><button onclick="svSelectDuck('+(n+1)+')" style="background:none;border:none;cursor:pointer;padding:2px;"><img id="sv-duck-'+(n+1)+'" src="'+(n<cur?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey)+'" width="26" height="26"></button></div>';}).join('')
+    + '</div>'
+    + '<button id="sv-vote-btn" onclick="svConfirm()" style="width:100%;padding:13px;background:'+accentBtn+';border:none;border-radius:12px;color:'+(isMiSala?'white':'#13131f')+';font-family:var(--font-body);font-weight:800;font-size:14px;cursor:pointer;opacity:'+(cur>0?'1':'0.5')+';margin-bottom:8px;">Votar temporada</button>'
+    + '<button onclick="closeSeasonVote()" style="width:100%;padding:11px;background:transparent;border:1px solid '+(isMiSala?'#3b1f6e':'#2a2a3e')+';border-radius:12px;color:#888;font-family:var(--font-body);font-weight:700;font-size:13px;cursor:pointer;">Cancelar</button>'
+    + '</div>';
+  modal.style.display = 'flex';
+};
+
+window.svSelectDuck = function(n) {
+  if(_svCtx.rating === n) n = n - 1; // deselect
+  _svCtx.rating = n;
+  for(var i=1;i<=10;i++){ var d=document.getElementById('sv-duck-'+i); if(d) d.src=i<=n?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey; }
+  var vb=safe('sv-vote-btn'); if(vb) vb.style.opacity = n>0 ? '1' : '0.5';
+};
+
+window.closeSeasonVote = function() {
+  var modal = safe('season-vote-modal');
+  if(modal) modal.style.display = 'none';
+};
+
+window.svConfirm = async function() {
+  var n = _svCtx.rating;
+  if(n<=0) return;
+  // Animation
+  for(var i=1;i<=n;i++){ var d=document.getElementById('sv-duck-'+i); if(d){ d.style.transition='transform 0.2s'; d.style.transform='scale(1.3)'; (function(x){setTimeout(function(){x.style.transform='scale(1)';},200);})(d); } }
+  if(navigator.vibrate) navigator.vibrate(40);
+  var id=_svCtx.id, season=_svCtx.season, isMiSala=_svCtx.isMiSala;
+  if(isMiSala){
+    var items=JSON.parse(JSON.stringify(_miSalaData));
+    var item=items.find(function(x){return x.id===id;}); if(!item) return;
+    item.seasons=item.seasons||{}; item.seasons[season]=n+'';
+    item.myRating=seasonsAverage(item.seasons).toFixed(1);
+    if(!item.watchedAt) item.watchedAt=Date.now();
+    await setDoc(doc(db,'app_data',getMiSalaKey()),{items:items});
+    _miSalaData=items;
+    setTimeout(function(){ closeSeasonVote(); openMiSalaDetail(id); }, 350);
+  } else {
+    var isD=(window._currentUserEmail||'').indexOf('david')>=0; var who=isD?'david':'maria';
+    var items2=JSON.parse(JSON.stringify(appData.cine||[]));
+    var item2=items2.find(function(x){return x.id===id;}); if(!item2) return;
+    item2.seasonsRatings=item2.seasonsRatings||{}; item2.seasonsRatings[who]=item2.seasonsRatings[who]||{};
+    item2.seasonsRatings[who][season]=n+'';
+    item2.ratings=item2.ratings||{}; item2.ratings[who]=seasonsAverage(item2.seasonsRatings[who]).toFixed(1);
+    item2.seasons=item2.seasons||{}; item2.seasons[season]='1';
+    if(!item2.watchedAt) item2.watchedAt=Date.now();
+    await setDoc(doc(db,'app_data','cine'),{items:items2});
+    appData.cine=items2;
+    setTimeout(function(){ closeSeasonVote(); openCineDetail(id); }, 350);
+  }
+};
+
+
 // ─── TEMPORADAS DE SERIES ───
 var _seasonSelectedRating = {}; // {seasonNum: rating} pending selection
 
@@ -4504,12 +4586,12 @@ function seasonsSectionHtml(item, isMiSala) {
     html += '<div style="font-size:11px;color:#888;margin-bottom:12px;">Has puntuado '+ratedCount+' de '+total+' temporadas</div>';
     for(var s=1; s<=total; s++) {
       var sr = seasons[s] ? parseInt(seasons[s]) : 0;
-      html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid '+(isMiSala?'rgba(124,58,237,0.15)':'rgba(255,255,255,0.05)')+';">'
-        + '<span style="font-size:12px;font-weight:800;color:white;min-width:32px;">T'+s+'</span>'
-        + '<div style="flex:1;display:flex;gap:1px;flex-wrap:wrap;" id="'+fnPrefix+'-season-'+s+'">'
-        + Array.from({length:10},function(_,n){return '<button onclick="selectSeasonDuck'+fnPrefix+'('+s+','+(n+1)+')" style="background:none;border:none;cursor:pointer;padding:1px;"><img id="'+fnPrefix+'-s'+s+'-d'+(n+1)+'" src="'+(n<sr?CINE_ICONS.duck_gold:CINE_ICONS.duck_grey)+'" width="18" height="18"></button>';}).join('')
-        + '</div>'
-        + '<button onclick="voteSeason'+fnPrefix+'(\''+item.id+'\','+s+')" id="'+fnPrefix+'-votebtn-'+s+'" style="background:'+accent+';border:none;border-radius:999px;padding:4px 10px;color:'+(isMiSala?'white':'#13131f')+';font-size:10px;font-weight:800;font-family:var(--font-body);cursor:pointer;flex-shrink:0;">'+(sr>0?'&#10003;':'Votar')+'</button>'
+      var srDucks='';
+      if(sr>0) srDucks='<div style="display:flex;align-items:center;gap:3px;font-size:13px;color:'+accent+';font-weight:800;"><img src="'+CINE_ICONS.duck_gold+'" width="16" height="16">'+sr+'</div>';
+      html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid '+(isMiSala?'rgba(124,58,237,0.15)':'rgba(255,255,255,0.05)')+';">'
+        + '<span style="font-size:13px;font-weight:800;color:white;min-width:36px;">T'+s+'</span>'
+        + '<div style="flex:1;">'+(sr>0?srDucks:'<span style="font-size:11px;color:#666;">Sin puntuar</span>')+'</div>'
+        + '<button onclick="openSeasonVote(\''+item.id+'\','+s+','+(isMiSala?'true':'false')+')" style="background:'+(sr>0?'transparent':accent)+';border:'+(sr>0?'1px solid '+accentBorder:'none')+';border-radius:999px;padding:5px 12px;color:'+(sr>0?accent:(isMiSala?'white':'#13131f'))+';font-size:11px;font-weight:800;font-family:var(--font-body);cursor:pointer;flex-shrink:0;">'+(sr>0?'Cambiar':'Votar temporada')+'</button>'
         + '</div>';
     }
     // Botón añadir temporada manual
@@ -4755,23 +4837,25 @@ window.renderMiSalaList = function() {
     var platBadge=item.platform?(PLATFORM_BADGES[item.platform]||PLATFORM_BADGES.otro):'';
     var myRating=item.myRating?parseInt(item.myRating):0;
 
-    // VISTO: compact list like compartida
-    if(item.estado==='visto') {
-      // Same structure as compartida visto
+    // VISTO TAB: compact list for everything (incl. in-progress series)
+    if(_cineTab==='visto') {
+      var isSeries = item.tipo==='serie';
+      var seasonsAvg = (isSeries && item.seasons) ? seasonsAverage(item.seasons) : 0;
+      var showRating = item._inProgress ? seasonsAvg : myRating;
       var dateStr2='';
       if(item.watchedAt){ var d2=new Date(item.watchedAt); var mo2=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']; dateStr2=d2.getDate()+' '+mo2[d2.getMonth()]+' '+d2.getFullYear(); }
       var ratingR;
-      if(myRating>0){
-        ratingR='<div style="display:flex;align-items:center;gap:4px;font-size:15px;color:#a78bfa;font-weight:800;white-space:nowrap;"><img src="'+CINE_ICONS.duck_gold+'" width="18" height="18">'+myRating+'</div>';
+      if(showRating>0){
+        ratingR='<div style="display:flex;align-items:center;gap:4px;font-size:15px;color:#a78bfa;font-weight:800;white-space:nowrap;"><img src="'+CINE_ICONS.duck_gold+'" width="18" height="18">'+(item._inProgress?seasonsAvg.toFixed(1):showRating)+'</div>';
       } else {
         ratingR='<button onclick="event.stopPropagation();openMiSalaRating(\''+item.id+'\')" style="background:rgba(124,58,237,0.12);border:1.5px solid rgba(124,58,237,0.4);border-radius:999px;padding:6px 12px;color:#a78bfa;font-size:11px;font-weight:700;font-family:var(--font-body);cursor:pointer;display:flex;align-items:center;gap:5px;"><img src="'+CINE_ICONS.duck_gold+'" width="14" height="14">Votar</button>';
       }
-      var tIcon2 = item.tipo==='pelicula' ? '<img src="'+CINE_ICONS.popcorn+'" width="14" height="14" style="vertical-align:middle;">' : '<img src="'+CINE_ICONS.tv+'" width="14" height="14" style="vertical-align:middle;">';
+      var progressTag = item._inProgress ? '<span style="font-size:10px;color:#7c5ac2;background:rgba(124,58,237,0.15);padding:2px 6px;border-radius:6px;">En curso</span>' : '';
       html+='<div onclick="openMiSalaDetail(\''+item.id+'\')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #1e1e30;cursor:pointer;">'
-        +(item.poster?'<img src="'+esc(item.poster)+'" style="width:50px;height:75px;object-fit:cover;border-radius:8px;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.4);">':'<div style="width:50px;height:75px;background:#1c1c2e;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+tIcon2+'</div>')
+        +(item.poster?'<img src="'+esc(item.poster)+'" style="width:50px;height:75px;object-fit:cover;border-radius:8px;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.4);">':'<div style="width:50px;height:75px;background:#1c1c2e;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">&#127902;</div>')
         +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-family:var(--font-title);font-style:italic;font-size:15px;font-weight:800;color:white;line-height:1.2;margin-bottom:4px;">'+esc(item.title)+' '+tIcon2+' <span style="font-size:11px;" title="'+(item.fromShared?'De la sala compartida':'Privada')+'">'+(item.fromShared?'&#127902;':'&#128274;')+'</span></div>'
-        +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11px;color:#888;">'+platBadge+(dateStr2?'<span>&#183; '+dateStr2+'</span>':'')+'</div>'
+        +'<div style="font-family:var(--font-title);font-style:italic;font-size:15px;font-weight:800;color:white;line-height:1.2;margin-bottom:4px;">'+esc(item.title)+'</div>'
+        +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11px;color:#888;">'+platBadge+(dateStr2?'<span>&#183; '+dateStr2+'</span>':'')+progressTag+'</div>'
         +'</div>'
         +'<div style="flex-shrink:0;">'+ratingR+'</div>'
         +'</div>';
