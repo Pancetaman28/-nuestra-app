@@ -605,7 +605,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
             <div id="cine-header-title" style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
-            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v28</span></div>
+            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v29</span></div>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:12px;">
@@ -4296,9 +4296,12 @@ window.confirmRating = async function() {
 var _rankTipo='mejor', _rankFiltro='all', _rankYear='all';
 window.setRankTipo=function(v){
   _rankTipo=v;
+  var isMiSala=(_rankingFromMiSala||_cineMode==='misala');
+  var grad=isMiSala?'linear-gradient(135deg,#7c3aed,#5b21b6)':'linear-gradient(135deg,#f0c040 0%,#e8a020 100%)';
+  var col=isMiSala?'white':'#13131f';
   var bm=safe('rbtn-mejor'), bp=safe('rbtn-peor');
-  if(bm){ bm.style.background = v==='mejor' ? 'linear-gradient(135deg,#f0c040 0%,#e8a020 100%)' : 'transparent'; bm.style.color = v==='mejor' ? '#13131f' : '#888'; }
-  if(bp){ bp.style.background = v==='peor' ? 'linear-gradient(135deg,#f0c040 0%,#e8a020 100%)' : 'transparent'; bp.style.color = v==='peor' ? '#13131f' : '#888'; }
+  if(bm){ bm.style.background = v==='mejor' ? grad : 'transparent'; bm.style.color = v==='mejor' ? col : '#888'; }
+  if(bp){ bp.style.background = v==='peor' ? grad : 'transparent'; bp.style.color = v==='peor' ? col : '#888'; }
   renderCineRanking();
 };
 window.setRankFiltro=function(v){_rankFiltro=v;['all','pelicula','serie'].forEach(function(x){var b=safe('rfil-'+x);if(b)b.className='cine-rank-btn'+(x===v?' active':'');});renderCineRanking();};
@@ -5392,9 +5395,13 @@ window.renderCineRanking = function() {
   _rankingFromMiSala = false;
   // Update ranking screen header colors
   var rankTitle = document.querySelector('[data-rank-title]');
-  if(rankTitle){ rankTitle.style.color=accent; rankTitle.textContent=isMiSala?'Mi Ranking Personal':'Ranking Patitos Deluxe'; }
-  var mejor=safe('rbtn-mejor');
-  if(mejor){ mejor.style.background=accentGrad; mejor.style.color=isMiSala?'white':'#13131f'; mejor.style.boxShadow='0 4px 12px rgba('+(isMiSala?'124,58,237':'240,192,64')+',0.3)'; }
+  if(rankTitle){ rankTitle.style.color=accent; rankTitle.textContent=isMiSala?'Mi Ranking Personal':'Los m\u00e1s \u00a1Cuac!'; }
+  var mejor=safe('rbtn-mejor'), peor=safe('rbtn-peor');
+  var onGrad = accentGrad, onCol = isMiSala?'white':'#13131f';
+  if(mejor){ var isM=_rankTipo==='mejor'; mejor.style.background=isM?onGrad:'transparent'; mejor.style.color=isM?onCol:'#888'; mejor.style.boxShadow=isM?'0 4px 12px rgba('+(isMiSala?'124,58,237':'240,192,64')+',0.3)':'none'; }
+  if(peor){ var isP=_rankTipo==='peor'; peor.style.background=isP?onGrad:'transparent'; peor.style.color=isP?onCol:'#888'; peor.style.boxShadow=isP?'0 4px 12px rgba('+(isMiSala?'124,58,237':'240,192,64')+',0.3)':'none'; }
+  // VS Battle solo en compartida
+  var vsb=safe('cine-vs-battle'); if(vsb && isMiSala) vsb.style.display='none';
   var sourceData = isMiSala ? _miSalaData : (appData.cine||[]);
   var items=sourceData.filter(function(x){
     if(x.estado!=='visto') return false;
@@ -5460,7 +5467,8 @@ window.renderCineRanking = function() {
   var dS=0,dC=0,mS=0,mC=0;
   allV.forEach(function(x){var avg=(parseInt(x.ratings.david)+parseInt(x.ratings.maria))/2;if(x.proposedBy==='ambos'){dS+=avg*0.5;dC+=0.5;mS+=avg*0.5;mC+=0.5;}else if(x.proposedBy==='david'){dS+=avg;dC++;}else{mS+=avg;mC++;}});
   var vb=safe('cine-vs-battle'),vt=safe('cine-vs-text');
-  if(vb&&dC>0&&mC>0){
+  if(isMiSala){ if(vb) vb.style.display='none'; }
+  else if(vb&&dC>0&&mC>0){
     vb.style.display='block';
     var dAvg=(dS/dC),mAvg=(mS/mC);
     var dWin=dAvg>mAvg, mWin=mAvg>dAvg, tie=Math.abs(dAvg-mAvg)<0.05;
