@@ -253,22 +253,31 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
 .site-del-btn{background:none;border:1.5px solid var(--border);border-radius:50%;width:20px;height:20px;font-size:11px;color:var(--text2);display:flex;align-items:center;justify-content:center;}
 
 /* ── GASTOS COMPARTIDOS ── */
-.gastos-balance-card{border-radius:var(--radius);padding:22px 20px;margin-bottom:16px;position:relative;overflow:hidden;text-align:center;}
+.gastos-balance-card{border-radius:24px;padding:28px 24px;margin-bottom:20px;position:relative;overflow:hidden;text-align:center;box-shadow:0 16px 40px rgba(0,0,0,0.12);}
 .gastos-anim{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
-.gastos-balance-label{font-size:13px;font-weight:700;color:white;opacity:0.9;margin-bottom:6px;position:relative;z-index:1;}
-.gastos-balance-amount{font-family:var(--font-title);font-size:44px;font-weight:700;color:white;position:relative;z-index:1;}
-.gastos-balance-sub{font-size:13px;color:white;opacity:0.85;margin-top:4px;position:relative;z-index:1;}
-.gastos-btn-add{width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:var(--accent1);color:white;font-family:var(--font-body);font-size:15px;font-weight:700;margin-bottom:10px;}
-.gastos-btn-saldar{width:100%;padding:14px;border:none;border-radius:var(--radius-sm);background:#e74c3c;color:white;font-family:var(--font-body);font-size:15px;font-weight:700;margin-bottom:16px;display:none;}
-.gasto-item{background:var(--card);border-radius:var(--radius-sm);padding:9px 12px;margin-bottom:6px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;}
+.gastos-balance-label{font-size:14px;font-weight:700;color:rgba(255,255,255,0.9);margin-bottom:8px;position:relative;z-index:1;}
+.gastos-balance-amount{font-size:52px;font-weight:900;color:white;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:10px;}
+.gastos-balance-sub{display:inline-block;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.3);border-radius:999px;padding:6px 16px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.95);margin-top:12px;position:relative;z-index:1;}
+.gastos-btns-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.gastos-btn-add{width:100%;padding:16px 12px;border:none;border-radius:16px;background:linear-gradient(135deg,#006b5f,#2dd4bf);color:white;font-family:var(--font-body);font-size:14px;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(0,107,95,0.25);cursor:pointer;}
+.gastos-btn-saldar{width:100%;padding:16px 12px;border:1.5px solid #e0e5f0;border-radius:16px;background:white;color:#a93349;font-family:var(--font-body);font-size:14px;font-weight:800;display:none;flex-direction:column;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;}
+.gastos-section-title{font-size:20px;font-weight:800;color:#111c2d;margin-bottom:12px;}
+.gasto-item{background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:0 4px 16px rgba(0,0,0,0.06);display:flex;align-items:center;gap:14px;cursor:pointer;}
+.gasto-item-icon{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#f0f3ff,#e7eeff);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid rgba(255,255,255,0.8);}
 .gasto-item-info{flex:1;min-width:0;}
-.gasto-item-desc{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.gasto-item-meta{font-size:11px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.gasto-item-notas{display:none;}
-.gasto-item-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
-.gasto-item-amt{font-size:13px;font-weight:700;color:var(--accent1);}
-.gasto-item-del{background:none;border:none;width:22px;height:22px;font-size:14px;color:var(--text2);opacity:0.5;display:flex;align-items:center;justify-content:center;padding:0;}
-.gasto-item-edit{background:none;border:none;width:22px;height:22px;font-size:13px;color:var(--accent1);opacity:0.7;display:flex;align-items:center;justify-content:center;padding:0;}
+.gasto-item-desc{font-size:15px;font-weight:700;color:#111c2d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gasto-item-meta{font-size:12px;color:#6b7a76;margin-top:2px;}
+.gasto-item-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.gasto-item-amt{font-size:16px;font-weight:800;color:#111c2d;}
+.gasto-item-amt-label{font-size:11px;font-weight:600;}
+.gasto-item-del{background:none;border:none;width:24px;height:24px;font-size:14px;color:#aaa;cursor:pointer;padding:0;}
+.gasto-item-edit{background:none;border:none;font-size:12px;color:#aaa;cursor:pointer;padding:0;}
+.gastos-section-bg{background:linear-gradient(135deg,#f9f9ff,#f0f3ff);min-height:100vh;padding:0 0 120px;}
+.gastos-op-card{background:rgba(255,255,255,0.9);border:2px solid #e0e5f0;border-radius:16px;padding:14px;display:flex;align-items:center;gap:14px;margin-bottom:10px;cursor:pointer;transition:all 0.2s;}
+.gastos-op-card.sel{border-color:#006b5f;background:rgba(45,212,191,0.08);transform:translateY(-2px);box-shadow:0 8px 20px rgba(45,212,191,0.15);}
+.gastos-op-emoji{width:44px;height:44px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 2px 8px rgba(0,0,0,0.08);flex-shrink:0;}
+.gastos-op-title{font-size:14px;font-weight:700;color:#111c2d;}
+.gastos-op-sub{font-size:12px;color:#6b7a76;margin-top:2px;}
 .historial-item{background:var(--card);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);opacity:0.65;}
 .gasto-op-btn{width:100%;padding:11px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--bg2);font-family:var(--font-body);text-align:left;display:flex;flex-direction:column;gap:2px;margin-bottom:7px;}
 .gasto-op-btn.sel{background:var(--accent1);border-color:var(--accent1);}
@@ -572,18 +581,29 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
     </div>
 
     <!-- GASTOS COMPARTIDOS -->
-    <div id="tab-gastos" class="tab-section">
-      <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
-      <div class="gastos-balance-card" id="gastos-card">
-        <div class="gastos-anim" id="gastos-anim"></div>
-        <div class="gastos-balance-label" id="gastos-label">Cargando...</div>
-        <div class="gastos-balance-amount" id="gastos-amount">—</div>
-        <div class="gastos-balance-sub" id="gastos-sub"></div>
+    <div id="tab-gastos" class="tab-section gastos-section-bg" style="padding-top:0;">
+      <div style="padding:16px 20px 0;"><button class="back-btn-menu" onclick="showTab('home')" style="background:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.6);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:700;color:#111c2d;backdrop-filter:blur(10px);">&#8249; Men&#250;</button></div>
+      <div style="padding:16px 20px 0;">
+        <div class="gastos-balance-card" id="gastos-card">
+          <div class="gastos-anim" id="gastos-anim"></div>
+          <div class="gastos-balance-label" id="gastos-label">Cargando...</div>
+          <div class="gastos-balance-amount" id="gastos-amount">—</div>
+          <div class="gastos-balance-sub" id="gastos-sub"></div>
+        </div>
+        <div class="gastos-btns-grid">
+          <button class="gastos-btn-add" onclick="openGastoScreen()">
+            <span style="font-size:24px;">&#8853;</span>
+            A&#241;adir gasto
+          </button>
+          <button class="gastos-btn-saldar" id="gastos-saldar-btn" onclick="confirmarSaldar()">
+            <span style="font-size:24px;">&#x2705;</span>
+            Saldar deuda
+          </button>
+        </div>
+        <div class="gastos-section-title">Gastos recientes</div>
+        <div id="gastos-list"></div>
+        <div id="gastos-historial"></div>
       </div>
-      <button class="gastos-btn-add" onclick="openGastoModal()">+ A&#241;adir gasto</button>
-      <button class="gastos-btn-saldar" id="gastos-saldar-btn" onclick="confirmarSaldar()">&#x2705; Saldar deuda</button>
-      <div id="gastos-list"></div>
-      <div id="gastos-historial"></div>
     </div>
 
     <!-- CASA, AGENDA, DESEOS, CINE, PERROS - coming soon -->
@@ -605,7 +625,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <button onclick="showTab('home')" aria-label="Volver" style="width:36px;height:36px;border-radius:50%;background:#1a1a2e;border:1px solid #2a2a3e;color:white;font-size:18px;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">&#8249;</button>
           <div style="flex:1;">
             <div id="cine-header-title" style="font-size:24px;font-weight:900;color:white;font-family:var(--font-title);line-height:1;">Cartelera</div>
-            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v30</span></div>
+            <div id="cine-header-sub" style="font-size:12px;color:#666;margin-top:2px;">vuestras pelis y series &#127909; <span style="color:#f0c040;font-size:11px;font-weight:900;">v31</span></div>
           </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:12px;">
@@ -855,23 +875,41 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
   </div>
 </div>
 
-<!-- Gasto compartido -->
-<div class="modal-bg" id="modal-gasto">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="modal-gasto-title">A&#241;adir gasto</div>
-    <label>Descripci&#243;n</label><input id="mg-desc" type="text" placeholder="Mercadona, Restaurante...">
-    <label>Importe (&#8364;)</label><input id="mg-importe" type="number" min="0" step="0.01" placeholder="0.00" oninput="updateGastoSubs()">
-    <label>Notas (opcional)</label><input id="mg-notas" type="text" placeholder="A&#241;ade m&#225;s detalle...">
-    <label>&#191;C&#243;mo se dividi&#243;?</label>
-    <button class="gasto-op-btn sel" id="gop-0" onclick="selectGastoOp(0)"><span class="gasto-op-title">&#x1F435; Yo pagu&#233; &#183; a medias</span><span class="gasto-op-sub" id="gsub-0"></span></button>
-    <button class="gasto-op-btn" id="gop-1" onclick="selectGastoOp(1)"><span class="gasto-op-title">&#x1F435; Yo pagu&#233; &#183; me debe el total</span><span class="gasto-op-sub" id="gsub-1"></span></button>
-    <button class="gasto-op-btn" id="gop-2" onclick="selectGastoOp(2)"><span class="gasto-op-title">&#x1F437; Mar&#237;a pag&#243; &#183; a medias</span><span class="gasto-op-sub" id="gsub-2"></span></button>
-    <button class="gasto-op-btn" id="gop-3" onclick="selectGastoOp(3)"><span class="gasto-op-title">&#x1F437; Mar&#237;a pag&#243; &#183; le debo el total</span><span class="gasto-op-sub" id="gsub-3"></span></button>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-gasto')">Cancelar</button>
-      <button class="btn-save" onclick="saveGasto()">Guardar</button>
+<!-- Gasto compartido - pantalla completa -->
+<div id="gastos-add-screen" style="display:none;position:fixed;inset:0;z-index:500;background:linear-gradient(135deg,#f9f9ff,#f0f3ff);overflow-y:auto;">
+  <div style="position:sticky;top:0;background:rgba(249,249,255,0.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.6);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;z-index:10;">
+    <button onclick="closeGastoScreen()" style="width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.07);border:none;font-size:18px;color:#111c2d;display:flex;align-items:center;justify-content:center;cursor:pointer;">&#x2715;</button>
+    <span id="gastos-screen-title" style="font-size:17px;font-weight:800;color:#111c2d;">A&#241;adir gasto</span>
+    <div style="width:36px;"></div>
+  </div>
+  <div style="padding:32px 20px 16px;text-align:center;">
+    <div style="font-size:13px;color:#888;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Importe</div>
+    <div style="display:flex;align-items:baseline;justify-content:center;gap:8px;">
+      <span style="font-size:28px;color:#aaa;font-weight:700;">&#8364;</span>
+      <input id="mg-importe" type="number" min="0" step="0.01" placeholder="0,00" oninput="updateGastoSubs()" style="font-size:52px;font-weight:900;border:none;background:transparent;text-align:center;width:220px;color:#111c2d;outline:none;font-family:var(--font-title);">
     </div>
+  </div>
+  <div style="padding:0 20px 16px;">
+    <div style="background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6);border-radius:20px;padding:18px;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+      <div style="position:relative;margin-bottom:14px;">
+        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;">&#128717;</span>
+        <input id="mg-desc" type="text" placeholder="&#191;Qu&#233; habéis gastado? Cena, compra..." style="width:100%;padding:14px 14px 14px 44px;border:1.5px solid #e0e5f0;border-radius:14px;font-size:15px;font-family:var(--font-body);color:#111c2d;background:#f9f9ff;outline:none;box-sizing:border-box;">
+      </div>
+      <div style="position:relative;">
+        <span style="position:absolute;left:14px;top:14px;font-size:18px;">&#128203;</span>
+        <input id="mg-notas" type="text" placeholder="Notas adicionales (opcional)" style="width:100%;padding:14px 14px 14px 44px;border:1.5px solid #e0e5f0;border-radius:14px;font-size:15px;font-family:var(--font-body);color:#111c2d;background:#f9f9ff;outline:none;box-sizing:border-box;">
+      </div>
+    </div>
+  </div>
+  <div style="padding:0 20px 16px;">
+    <div style="background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6);border-radius:20px;padding:18px;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+      <div style="font-size:12px;font-weight:700;color:#6b7a76;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">&#191;C&#243;mo se divide?</div>
+      <div id="gastos-op-cards"></div>
+    </div>
+  </div>
+  <div style="padding:0 20px 48px;display:flex;flex-direction:column;gap:10px;">
+    <button onclick="saveGasto()" style="width:100%;padding:16px;background:linear-gradient(135deg,#006b5f,#2dd4bf);border:none;border-radius:16px;color:white;font-family:var(--font-body);font-size:16px;font-weight:800;box-shadow:0 6px 20px rgba(0,107,95,0.25);cursor:pointer;">&#10003; Guardar gasto</button>
+    <button onclick="closeGastoScreen()" style="width:100%;padding:14px;background:rgba(0,0,0,0.05);border:none;border-radius:16px;color:#6b7a76;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;">Cancelar</button>
   </div>
 </div>
 
@@ -3158,28 +3196,35 @@ function renderGastos() {
   var sub = safe('gastos-sub');
   var saldaBtn = safe('gastos-saldar-btn');
 
-  var funnyOwed = ['¡A cobrar! 😏','Recuerda quién manda 😈','Espera sentad@ 😌','Se agradece la confianza 😇'];
-  var funnyDebt = ['Anda, paga... 😅','El cajón sigue vacío 👀','Toca pasar por caja 😬','Que no se te olvide... ⏰'];
+  var funnyOwed = ['¡A cobrar! 😏','Recuerda quién manda 😈','Espera sentad@ 😌','Se agradece la confianza 😇','Deudor detectado 🔍','A ver cuándo me invitas 😤','El banco de '+myEmoji+' a tu servicio 🏦','Anota esto en tu agenda 📅'];
+  var funnyDebt = ['Anda, paga... 😅','El cajón sigue vacío 👀','Toca pasar por caja 😬','Que no se te olvide... ⏰','El karma lleva la cuenta 🎯','Esto no se olvida fácil 😬','La deuda crece, el amor también 💸','Payaso, paga 🤡'];
   var rand = function(arr){ return arr[Math.floor(Math.random()*arr.length)]; };
 
+  // Decorative overlays for balance card
+  var cardOverlay = '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,0.2),transparent);pointer-events:none;z-index:2;"></div>'
+    + '<div style="position:absolute;inset:0;border:1px solid rgba(255,255,255,0.3);border-radius:24px;pointer-events:none;z-index:2;"></div>'
+    + '<div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(255,255,255,0.1);border-radius:50%;filter:blur(20px);pointer-events:none;z-index:1;"></div>'
+    + '<div style="position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;background:rgba(0,0,0,0.08);border-radius:50%;filter:blur(20px);pointer-events:none;z-index:1;"></div>';
+  var pulse = '<span class="relative" style="display:inline-flex;"><span style="position:absolute;display:inline-flex;width:10px;height:10px;border-radius:50%;background:white;opacity:0.7;animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></span><span style="position:relative;display:inline-flex;width:10px;height:10px;border-radius:50%;background:white;"></span></span>';
+  if(!document.getElementById('gastos-ping-css')){var st=document.createElement('style');st.id='gastos-ping-css';st.textContent='@keyframes ping{75%,100%{transform:scale(2);opacity:0;}}';document.head.appendChild(st);}
   if(Math.abs(myBal) < 0.01) {
-    if(card) card.style.background = 'linear-gradient(135deg,#2ecc71,#27ae60)';
+    if(card){ card.style.background='linear-gradient(135deg,#2ecc71,#1abc9c)'; card.innerHTML='<div class="gastos-anim" id="gastos-anim"></div>'+cardOverlay; }
     if(label) label.innerHTML = myEmoji + ' ' + otherEmoji + ' ¡Estáis en paz!';
-    if(amount) amount.textContent = '0,00 €';
-    if(sub) sub.textContent = '🎉 ¡Bien hecho los dos!';
+    if(amount) amount.innerHTML = '0,00 €';
+    if(sub) sub.textContent = '&#127881; ¡Bien hecho los dos!';
     if(saldaBtn) saldaBtn.style.display = 'none';
     playGastoAnim('paz');
   } else if(myBal > 0) {
-    if(card) card.style.background = 'linear-gradient(135deg,#e74c3c,#c0392b)';
-    if(label) label.innerHTML = myEmoji + ' Debes a ' + otherEmoji + ' ' + other;
-    if(amount) amount.textContent = myBal.toFixed(2).replace('.',',') + ' €';
+    if(card){ card.style.background='linear-gradient(135deg,#ff7488,#a93349)'; card.innerHTML='<div class="gastos-anim" id="gastos-anim"></div>'+cardOverlay; }
+    if(label) label.innerHTML = '<div style="font-size:36px;margin-bottom:8px;position:relative;z-index:3;">'+myEmoji+'</div>Debes a '+otherEmoji+' '+other;
+    if(amount) amount.innerHTML = myBal.toFixed(2).replace('.',',') + ' €&nbsp;' + pulse;
     if(sub) sub.textContent = rand(funnyDebt);
-    if(saldaBtn) saldaBtn.style.display = 'block';
+    if(saldaBtn){ saldaBtn.style.display='flex'; }
     playGastoAnim('deuda');
   } else {
-    if(card) card.style.background = 'linear-gradient(135deg,#27ae60,#1e8449)';
-    if(label) label.innerHTML = otherEmoji + ' ' + other + ' te debe';
-    if(amount) amount.textContent = Math.abs(myBal).toFixed(2).replace('.',',') + ' €';
+    if(card){ card.style.background='linear-gradient(135deg,#006b5f,#2dd4bf)'; card.innerHTML='<div class="gastos-anim" id="gastos-anim"></div>'+cardOverlay; }
+    if(label) label.innerHTML = '<div style="font-size:36px;margin-bottom:8px;position:relative;z-index:3;">'+otherEmoji+'</div>'+other+' te debe';
+    if(amount) amount.innerHTML = Math.abs(myBal).toFixed(2).replace('.',',') + ' €&nbsp;' + pulse;
     if(sub) sub.textContent = rand(funnyOwed);
     if(saldaBtn) saldaBtn.style.display = 'none';
     playGastoAnim('cobrar');
@@ -3308,21 +3353,46 @@ function playGastoAnim(type) {
   }
 }
 
-window.openGastoModal = function() {
-  _editGastoId = null;
-  _gastoOp = 0;
-  if(safe('mg-desc')) safe('mg-desc').value = '';
-  if(safe('mg-importe')) safe('mg-importe').value = '';
-  if(safe('mg-notas')) safe('mg-notas').value = '';
-  for(var i=0;i<4;i++){ var b=safe('gop-'+i); if(b) b.classList.toggle('sel',i===0); }
+window.openGastoScreen = function(gastoId) {
+  var isDavid = (window._currentUserEmail||'').indexOf('david') >= 0;
+  var myEmoji = isDavid ? '&#x1F435;' : '&#x1F437;';
+  var otherEmoji = isDavid ? '&#x1F437;' : '&#x1F435;';
+  var other = isDavid ? 'María' : 'David';
+  var opDefs = [
+    { emoji: myEmoji, title: 'Yo pagué · a medias', sub: '' },
+    { emoji: myEmoji, title: 'Yo pagué · me debe el total', sub: '' },
+    { emoji: otherEmoji, title: other+' pagó · a medias', sub: '' },
+    { emoji: otherEmoji, title: other+' pagó · le debo el total', sub: '' }
+  ];
+  // Build option cards
+  var cardsEl = safe('gastos-op-cards');
+  if(cardsEl) cardsEl.innerHTML = opDefs.map(function(op,i){
+    return '<div class="gastos-op-card'+(i===0?' sel':'')+'" id="gop-'+i+'" onclick="selectGastoOp('+i+')">'
+      +'<div class="gastos-op-emoji">'+op.emoji+'</div>'
+      +'<div><div class="gastos-op-title">'+op.title+'</div>'
+      +'<div class="gastos-op-sub" id="gsub-'+i+'">'+op.sub+'</div></div></div>';
+  }).join('');
+  var g = gastoId ? (appData.gastos||[]).find(function(x){return x.id===gastoId;}) : null;
+  _editGastoId = gastoId||null;
+  _gastoOp = g ? (typeof g.opcion!=='undefined'?g.opcion:0) : 0;
+  if(safe('mg-desc')) safe('mg-desc').value = g?g.desc||'':'';
+  if(safe('mg-importe')) safe('mg-importe').value = g?g.importe||'':'';
+  if(safe('mg-notas')) safe('mg-notas').value = g?g.notas||'':'';
+  for(var i=0;i<4;i++){var b=safe('gop-'+i);if(b)b.classList.toggle('sel',i===_gastoOp);}
   updateGastoSubs();
-  if(safe('modal-gasto-title')) safe('modal-gasto-title').textContent = 'Añadir gasto';
-  openModal('modal-gasto');
+  var t=safe('gastos-screen-title'); if(t) t.textContent=gastoId?'Editar gasto':'Añadir gasto';
+  var scr=safe('gastos-add-screen'); if(scr){scr.style.display='block';window.scrollTo(0,0);}
+};
+window.openGastoModal = window.openGastoScreen; // backward compat
+window.closeGastoScreen = function() {
+  var scr=safe('gastos-add-screen'); if(scr) scr.style.display='none';
 };
 
 window.selectGastoOp = function(idx) {
   _gastoOp = idx;
-  for(var i=0;i<4;i++){ var b=safe('gop-'+i); if(b) b.classList.toggle('sel',i===idx); }
+  for(var i=0;i<4;i++){ var b=safe('gop-'+i); if(b){ b.classList.toggle('sel',i===idx); } }
+  // Jiggle animation on selected card
+  var sel=safe('gop-'+idx); if(sel){ var em=sel.querySelector('.gastos-op-emoji'); if(em&&em.animate){em.animate([{transform:'scale(1)'},{transform:'scale(1.15) rotate(-8deg)'},{transform:'scale(1.15) rotate(8deg)'},{transform:'scale(1)'}],{duration:300,easing:'ease-in-out'});} }
   updateGastoSubs();
 };
 
@@ -3359,7 +3429,7 @@ window.saveGasto = async function() {
   } else {
     await addDoc(collection(db,'gastos_compartidos'), data);
   }
-  closeModal('modal-gasto');
+  closeGastoScreen();
   _animPlayed = '';
 };
 
@@ -3373,7 +3443,7 @@ window.editGasto = function(id) {
   for(var i=0;i<4;i++){ var b=safe('gop-'+i); if(b) b.classList.toggle('sel',i===_gastoOp); }
   updateGastoSubs();
   if(safe('modal-gasto-title')) safe('modal-gasto-title').textContent = 'Editar gasto';
-  openModal('modal-gasto');
+  openGastoScreen(id);
 };
 
 window.delGasto = function(id) {
