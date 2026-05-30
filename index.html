@@ -738,6 +738,13 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
         <div class="back-bar" style="margin:0 -16px 12px;padding:0 16px;"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
         <div class="perros-section-title"><span class="msym" style="color:var(--pr);">pets</span> Nuestros perros</div>
         <div class="perros-cards-grid" id="perros-cards-grid"></div>
+
+        <!-- RECUERDOS COMPARTIDOS -->
+        <div style="margin-top:24px;">
+          <div class="perros-section-title" style="font-size:18px;"><span class="msym" style="color:var(--pr);">photo_library</span> Recuerdos</div>
+          <div class="perros-year-tabs" id="perros-recuerdos-years"></div>
+          <div class="perros-photos-grid" id="perros-recuerdos-grid"></div>
+        </div>
       </div>
 
       <!-- PERFIL PERRO -->
@@ -756,7 +763,6 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
             <button class="perros-ptab active" id="ptab-ficha" onclick="perrosTab('ficha')">Ficha</button>
             <button class="perros-ptab" id="ptab-salud" onclick="perrosTab('salud')">Salud</button>
             <button class="perros-ptab" id="ptab-docs" onclick="perrosTab('docs')">Docs</button>
-            <button class="perros-ptab" id="ptab-recuerdos" onclick="perrosTab('recuerdos')">Recuerdos</button>
           </div>
         </div>
         <div class="perros-perfil-body" id="perros-perfil-body"></div>
@@ -764,67 +770,52 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
 
       <!-- MODAL EDIT FICHA -->
       <div class="modal-bg" id="modal-perros-ficha" style="display:none;">
-        <div class="modal-sheet" style="border-radius:24px 24px 0 0;padding:24px 20px 32px;">
+        <div class="modal">
+          <div class="modal-handle"></div>
           <div class="modal-title" id="modal-perros-ficha-title">Editar ficha</div>
-          <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Raza</label>
-            <input id="pf-raza" class="modal-input" placeholder="p.ej. Jack Russell">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Fecha nacimiento</label>
-            <input id="pf-nacimiento" class="modal-input" type="date">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Peso (kg)</label>
-            <input id="pf-peso" class="modal-input" type="number" step="0.1" placeholder="0.0">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Nº microchip</label>
-            <input id="pf-chip" class="modal-input" placeholder="981000012345678">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Seguro</label>
-            <input id="pf-seguro" class="modal-input" placeholder="p.ej. Mapfre Pet-123">
-          </div>
-          <div style="display:flex;gap:10px;margin-top:18px;">
-            <button class="modal-btn-sec" style="flex:1;" onclick="closeModal('modal-perros-ficha')">Cancelar</button>
-            <button class="modal-btn-prim" style="flex:2;" onclick="perrosSaveFicha()">Guardar</button>
+          <label>Raza</label><input id="pf-raza" placeholder="p.ej. Jack Russell">
+          <label>Fecha nacimiento</label><input id="pf-nacimiento" type="date">
+          <label>Peso (kg)</label><input id="pf-peso" type="number" step="0.1" placeholder="0.0">
+          <label>Nº microchip</label><input id="pf-chip" placeholder="981000012345678">
+          <label>Seguro</label><input id="pf-seguro" placeholder="p.ej. Mapfre Pet-123">
+          <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeModal('modal-perros-ficha')">Cancelar</button>
+            <button class="btn-save" onclick="perrosSaveFicha()">Guardar</button>
           </div>
         </div>
       </div>
 
       <!-- MODAL ADD SALUD ITEM -->
       <div class="modal-bg" id="modal-perros-salud" style="display:none;">
-        <div class="modal-sheet" style="border-radius:24px 24px 0 0;padding:24px 20px 32px;">
+        <div class="modal">
+          <div class="modal-handle"></div>
           <div class="modal-title" id="modal-salud-title">Añadir elemento</div>
-          <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Nombre</label>
-            <input id="ps-nombre" class="modal-input" placeholder="p.ej. Rabia, pipeta...">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Última vez</label>
-            <input id="ps-ultima" class="modal-input" type="date">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Próxima fecha</label>
-            <input id="ps-proxima" class="modal-input" type="date">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Notas</label>
-            <input id="ps-notas" class="modal-input" placeholder="Opcional">
-            <input id="ps-tipo" type="hidden" value="vacuna">
-            <input id="ps-idx" type="hidden" value="-1">
-          </div>
-          <div style="display:flex;gap:10px;margin-top:18px;">
-            <button class="modal-btn-sec" style="flex:1;" onclick="closeModal('modal-perros-salud')">Cancelar</button>
-            <button class="modal-btn-prim" style="flex:2;" onclick="perrosSaveSaludItem()">Guardar</button>
+          <label>Nombre</label><input id="ps-nombre" placeholder="p.ej. Rabia, pipeta...">
+          <label>Última vez</label><input id="ps-ultima" type="date">
+          <label>Próxima fecha</label><input id="ps-proxima" type="date">
+          <label>Notas</label><input id="ps-notas" placeholder="Opcional">
+          <input id="ps-tipo" type="hidden" value="vacuna">
+          <input id="ps-idx" type="hidden" value="-1">
+          <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeModal('modal-perros-salud')">Cancelar</button>
+            <button class="btn-save" onclick="perrosSaveSaludItem()">Guardar</button>
           </div>
         </div>
       </div>
 
       <!-- MODAL ADD DOC -->
       <div class="modal-bg" id="modal-perros-doc" style="display:none;">
-        <div class="modal-sheet" style="border-radius:24px 24px 0 0;padding:24px 20px 32px;">
+        <div class="modal">
+          <div class="modal-handle"></div>
           <div class="modal-title">Añadir documento</div>
-          <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Descripción</label>
-            <input id="pd-desc" class="modal-input" placeholder="p.ej. Factura consulta 12 mayo">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Fecha</label>
-            <input id="pd-fecha" class="modal-input" type="date">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Importe (€) — opcional</label>
-            <input id="pd-importe" class="modal-input" type="number" step="0.01" placeholder="0.00">
-            <label style="font-size:12px;font-weight:600;color:var(--text2);">Carpeta Drive</label>
-            <div style="padding:10px 12px;background:var(--bg2);border-radius:10px;font-size:13px;color:var(--text2);" id="pd-drive-path">Se guardará en: Perros/<span id="pd-dog-folder">—</span>/<span id="pd-year">—</span>/</div>
-          </div>
-          <div style="display:flex;gap:10px;margin-top:18px;">
-            <button class="modal-btn-sec" style="flex:1;" onclick="closeModal('modal-perros-doc')">Cancelar</button>
-            <button class="modal-btn-prim" style="flex:2;" onclick="perrosSaveDoc()">Guardar</button>
+          <label>Descripción</label><input id="pd-desc" placeholder="p.ej. Factura consulta 12 mayo">
+          <label>Fecha</label><input id="pd-fecha" type="date">
+          <label>Importe (€) — opcional</label><input id="pd-importe" type="number" step="0.01" placeholder="0.00">
+          <label>Carpeta Drive</label>
+          <div style="padding:10px 12px;background:var(--bg2);border-radius:var(--radius-sm);font-size:13px;color:var(--text2);" id="pd-drive-path">Perros/<span id="pd-dog-folder">—</span>/<span id="pd-year">—</span>/</div>
+          <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeModal('modal-perros-doc')">Cancelar</button>
+            <button class="btn-save" onclick="perrosSaveDoc()">Guardar</button>
           </div>
         </div>
       </div>
@@ -6225,33 +6216,33 @@ var _perrosCurrent = null; // 'perdigon' | 'tolly'
 var _perrosActiveTab = 'ficha';
 
 var PERROS_DEFAULT = {
+  recuerdos: {},
   perdigon: {
     emoji: '🐾', nombre: 'Perdigón',
     ficha: { raza: '', nacimiento: '', peso: '', chip: '', seguro: '' },
     vacunas: [], tratamientos: [], medicamentos: [],
-    documentos: [],
-    recuerdos: {}
+    documentos: []
   },
   tolly: {
     emoji: '🐶', nombre: 'Tolly',
     ficha: { raza: '', nacimiento: '', peso: '', chip: '', seguro: '' },
     vacunas: [], tratamientos: [], medicamentos: [],
-    documentos: [],
-    recuerdos: {}
+    documentos: []
   }
 };
 
 async function perrosLoadData() {
   try {
-    var r = await window.storage.get('perros-data');
-    return r ? JSON.parse(r.value) : JSON.parse(JSON.stringify(PERROS_DEFAULT));
+    var snap = await getDoc(doc(db, 'app_data', 'perros'));
+    if (snap.exists()) return snap.data();
+    return JSON.parse(JSON.stringify(PERROS_DEFAULT));
   } catch(e) {
     return JSON.parse(JSON.stringify(PERROS_DEFAULT));
   }
 }
 
 async function perrosSaveData(data) {
-  try { await window.storage.set('perros-data', JSON.stringify(data)); } catch(e) {}
+  try { await setDoc(doc(db, 'app_data', 'perros'), data); } catch(e) { console.error('perrosSave:', e); }
 }
 
 function perrosCalcAge(nacimiento) {
@@ -6287,8 +6278,7 @@ async function perrosRenderHome() {
       ? '<img src="' + d.foto + '" style="width:100%;height:100%;object-fit:cover;border-radius:16px 16px 0 0;">'
       : '<span style="font-size:52px;">' + d.emoji + '</span>';
     html += '<div class="perros-dog-card">';
-    // Photo area — cámara para cambiar foto, tap en el resto para abrir perfil
-    html += '<div style="position:relative;" onclick="perrosOpenPerfil(\'' + id + '\')" >';
+    html += '<div style="position:relative;" onclick="perrosOpenPerfil(\'' + id + '\')">';
     html += '<div class="perros-dog-card-photo">' + photoInner + '</div>';
     html += '<label onclick="event.stopPropagation();" style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.45);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;">';
     html += '<input type="file" accept="image/*" style="display:none;" onchange="perrosSubirFotoHome(\'' + id + '\',this)">';
@@ -6301,6 +6291,76 @@ async function perrosRenderHome() {
     html += '</div></div>';
   });
   grid.innerHTML = html;
+  // Load recuerdos
+  perrosRenderRecuerdosHome(data);
+}
+
+function perrosRenderRecuerdosHome(data) {
+  var recuerdos = data.recuerdos || {};
+  var currentYear = new Date().getFullYear().toString();
+  var years = Object.keys(recuerdos).sort(function(a,b){return b-a;});
+  if (!years.includes(currentYear)) years.unshift(currentYear);
+
+  var yearsEl = document.getElementById('perros-recuerdos-years');
+  var gridEl = document.getElementById('perros-recuerdos-grid');
+  if (!yearsEl || !gridEl) return;
+
+  var activeYear = years[0] || currentYear;
+  yearsEl.innerHTML = years.map(function(y) {
+    return '<button class="perros-year-tab' + (y===activeYear?' active':'') + '" onclick="perrosSelectYear(\'' + y + '\')">' + y + '</button>';
+  }).join('') + '<button class="perros-year-tab" onclick="perrosSelectYear(\'' + currentYear + '\')" style="border-style:dashed;">+ Año</button>';
+
+  perrosRenderYearGrid(recuerdos, activeYear);
+}
+
+function perrosSelectYear(year) {
+  document.querySelectorAll('.perros-year-tab').forEach(function(b){
+    b.classList.toggle('active', b.textContent.trim() === year);
+  });
+  perrosLoadData().then(function(data){ perrosRenderYearGrid(data.recuerdos||{}, year); });
+}
+
+function perrosRenderYearGrid(recuerdos, year) {
+  var gridEl = document.getElementById('perros-recuerdos-grid');
+  if (!gridEl) return;
+  var photos = recuerdos[year] || [];
+  var html = photos.map(function(p, i) {
+    return '<div style="position:relative;">' +
+      '<img class="perros-photo-thumb" src="' + p.src + '" onclick="openPhotoViewer(\'' + p.src + '\')">' +
+      '<button onclick="perrosDeleteRecuerdo(\'' + year + '\',' + i + ')" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:20px;height:20px;color:white;font-size:11px;cursor:pointer;">✕</button>' +
+      '</div>';
+  }).join('');
+  html += '<label class="perros-add-photo-btn">' +
+    '<input type="file" accept="image/*" multiple style="display:none;" onchange="perrosAddRecuerdo(\'' + year + '\',this)">' +
+    '<span class="msym" style="font-size:24px;color:var(--pr);">add_photo_alternate</span>' +
+    '<span>Añadir</span></label>';
+  gridEl.innerHTML = html;
+}
+
+async function perrosAddRecuerdo(year, input) {
+  var data = await perrosLoadData();
+  if (!data.recuerdos) data.recuerdos = {};
+  if (!data.recuerdos[year]) data.recuerdos[year] = [];
+  var files = Array.from(input.files);
+  var pending = files.length;
+  files.forEach(function(f) {
+    perrosCompressImage(f, 600, async function(b64) {
+      data.recuerdos[year].push({ src: b64, fecha: new Date().toISOString() });
+      pending--;
+      if (pending === 0) {
+        await perrosSaveData(data);
+        perrosRenderYearGrid(data.recuerdos, year);
+      }
+    });
+  });
+}
+
+async function perrosDeleteRecuerdo(year, idx) {
+  if (!confirm('¿Eliminar esta foto?')) return;
+  var data = await perrosLoadData();
+  data.recuerdos[year].splice(idx, 1);
+  await perrosSaveData(data);
+  perrosRenderYearGrid(data.recuerdos, year);
 }
 
 async function perrosOpenPerfil(dogId) {
@@ -6324,34 +6384,46 @@ function perrosShowHome() {
   perrosRenderHome();
 }
 
+function perrosCompressImage(file, maxPx, cb) {
+  var r = new FileReader();
+  r.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var s = Math.min(1, maxPx / Math.max(img.width, img.height));
+      var c = document.createElement('canvas');
+      c.width = img.width * s; c.height = img.height * s;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      cb(c.toDataURL('image/jpeg', 0.7));
+    };
+    img.src = e.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
 async function perrosCambiarFoto() {
   var input = document.createElement('input');
   input.type = 'file'; input.accept = 'image/*';
-  input.onchange = async function() {
+  input.onchange = function() {
     if (!input.files[0]) return;
-    var reader = new FileReader();
-    reader.onload = async function(e) {
+    perrosCompressImage(input.files[0], 400, async function(b64) {
       var data = await perrosLoadData();
-      data[_perrosCurrent].foto = e.target.result;
+      data[_perrosCurrent].foto = b64;
       await perrosSaveData(data);
       var av = document.getElementById('perros-avatar');
-      av.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-    };
-    reader.readAsDataURL(input.files[0]);
+      av.innerHTML = '<img src="' + b64 + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    });
   };
   input.click();
 }
 
 async function perrosSubirFotoHome(dogId, input) {
   if (!input.files[0]) return;
-  var reader = new FileReader();
-  reader.onload = async function(e) {
+  perrosCompressImage(input.files[0], 400, async function(b64) {
     var data = await perrosLoadData();
-    data[dogId].foto = e.target.result;
+    data[dogId].foto = b64;
     await perrosSaveData(data);
     perrosRenderHome();
-  };
-  reader.readAsDataURL(input.files[0]);
+  });
 }
 
 async function perrosTab(tab) {
@@ -6628,6 +6700,9 @@ async function perrosDeleteDoc(idx) {
 }
 
 
+window.perrosSelectYear = perrosSelectYear;
+window.perrosAddRecuerdo = perrosAddRecuerdo;
+window.perrosDeleteRecuerdo = perrosDeleteRecuerdo;
 // Make perros functions accessible from inline onclick
 window.perrosOpenPerfil = perrosOpenPerfil;
 window.perrosSubirFotoHome = perrosSubirFotoHome;
