@@ -6283,15 +6283,21 @@ async function perrosRenderHome() {
     var age = perrosCalcAge(d.ficha.nacimiento);
     var raza = d.ficha.raza || 'Raza sin definir';
     var peso = d.ficha.peso ? d.ficha.peso + ' kg' : '';
-    var photoHtml = d.foto
-      ? '<img src="' + d.foto + '" style="width:100%;height:100%;object-fit:cover;">'
+    var photoInner = d.foto
+      ? '<img src="' + d.foto + '" style="width:100%;height:100%;object-fit:cover;border-radius:16px 16px 0 0;">'
       : '<span style="font-size:52px;">' + d.emoji + '</span>';
-    html += '<div class="perros-dog-card" onclick="perrosOpenPerfil(\'' + id + '\')">';
-    html += '<div class="perros-dog-card-photo">' + photoHtml + '</div>';
-    html += '<div class="perros-dog-card-body">';
+    html += '<div class="perros-dog-card">';
+    // Photo area — cámara para cambiar foto, tap en el resto para abrir perfil
+    html += '<div style="position:relative;" onclick="perrosOpenPerfil(\'' + id + '\')" >';
+    html += '<div class="perros-dog-card-photo">' + photoInner + '</div>';
+    html += '<label onclick="event.stopPropagation();" style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.45);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;">';
+    html += '<input type="file" accept="image/*" style="display:none;" onchange="perrosSubirFotoHome(\'' + id + '\',this)">';
+    html += '<span class="msym" style="font-size:16px;color:white;">photo_camera</span></label>';
+    html += '</div>';
+    html += '<div class="perros-dog-card-body" onclick="perrosOpenPerfil(\'' + id + '\')" style="cursor:pointer;">';
     html += '<div class="perros-dog-card-name">' + d.nombre + '</div>';
     html += '<div class="perros-dog-card-sub">' + raza + (age ? ' · ' + age : '') + (peso ? ' · ' + peso : '') + '</div>';
-    html += '<button class="perros-dog-card-btn" onclick="event.stopPropagation();perrosOpenPerfil(\'' + id + '\')">Ver perfil →</button>';
+    html += '<button class="perros-dog-card-btn">Ver perfil →</button>';
     html += '</div></div>';
   });
   grid.innerHTML = html;
@@ -6328,14 +6334,24 @@ async function perrosCambiarFoto() {
       var data = await perrosLoadData();
       data[_perrosCurrent].foto = e.target.result;
       await perrosSaveData(data);
-      // Update avatar immediately
       var av = document.getElementById('perros-avatar');
       av.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-      // Refresh home cards too
     };
     reader.readAsDataURL(input.files[0]);
   };
   input.click();
+}
+
+async function perrosSubirFotoHome(dogId, input) {
+  if (!input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = async function(e) {
+    var data = await perrosLoadData();
+    data[dogId].foto = e.target.result;
+    await perrosSaveData(data);
+    perrosRenderHome();
+  };
+  reader.readAsDataURL(input.files[0]);
 }
 
 async function perrosTab(tab) {
@@ -6611,6 +6627,24 @@ async function perrosDeleteDoc(idx) {
   perrosTab('docs');
 }
 
+
+// Make perros functions accessible from inline onclick
+window.perrosOpenPerfil = perrosOpenPerfil;
+window.perrosSubirFotoHome = perrosSubirFotoHome;
+window.perrosShowHome = perrosShowHome;
+window.perrosCambiarFoto = perrosCambiarFoto;
+window.perrosTab = perrosTab;
+window.perrosShowYear = perrosShowYear;
+window.perrosAddPhoto = perrosAddPhoto;
+window.perrosDeletePhoto = perrosDeletePhoto;
+window.perrosEditFicha = perrosEditFicha;
+window.perrosSaveFicha = perrosSaveFicha;
+window.perrosOpenSaludModal = perrosOpenSaludModal;
+window.perrosSaveSaludItem = perrosSaveSaludItem;
+window.perrosDeleteSalud = perrosDeleteSalud;
+window.perrosOpenDocModal = perrosOpenDocModal;
+window.perrosSaveDoc = perrosSaveDoc;
+window.perrosDeleteDoc = perrosDeleteDoc;
 // Init when tab opens
 var _origShowTab = typeof showTab === 'function' ? showTab : null;
 
