@@ -731,10 +731,10 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
       <button id="misala-rank-fab" onclick="openMiSalaRanking()" aria-label="Mi Ranking" style="display:none;position:fixed;bottom:96px;right:24px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#2a2a3e 0%,#1a1a2e 100%);border:2px solid rgba(124,58,237,0.5);padding:0;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.5);z-index:99;cursor:pointer;"><img id="misala-rank-icon" src="" width="30" height="30"></button>
       <button id="cine-add-fab" onclick="openAddCineModal()" aria-label="A&#241;adir" style="position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#f0c040 0%,#e8a020 100%);border:none;color:#13131f;font-size:32px;font-weight:300;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 6px 20px rgba(240,192,64,0.4);z-index:100;cursor:pointer;">+</button>
     </div>
-    <div id="tab-perros" class="tab-section" style="padding:0;display:flex;flex-direction:column;height:100%;">
+    <div id="tab-perros" class="tab-section" style="padding:0;overflow:hidden;">
 
       <!-- HOME PERROS -->
-      <div id="perros-home-view" class="perros-home">
+      <div id="perros-home-view" class="perros-home" style="overflow-y:auto;height:100%;">
         <div class="back-bar" style="margin:0 -16px 12px;padding:0 16px;"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
         <div class="perros-section-title"><span class="msym" style="color:var(--pr);">pets</span> Nuestros perros</div>
         <div class="perros-cards-grid" id="perros-cards-grid"></div>
@@ -745,7 +745,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
         <div class="perros-perfil-header">
           <button class="perros-perfil-back" onclick="perrosShowHome()"><span class="msym" style="font-size:20px;">arrow_back_ios</span> Nuestros perros</button>
           <div class="perros-perfil-top">
-            <div class="perros-perfil-avatar" id="perros-avatar">&#128062;</div>
+            <div class="perros-perfil-avatar" id="perros-avatar" onclick="perrosCambiarFoto()" style="cursor:pointer;position:relative;" title="Cambiar foto">&#128062;</div>
             <div>
               <div class="perros-perfil-name" id="perros-perfil-name">&#8212;</div>
               <div class="perros-perfil-badge"><span></span> <span id="perros-perfil-badge-text">En casa</span></div>
@@ -6283,8 +6283,11 @@ async function perrosRenderHome() {
     var age = perrosCalcAge(d.ficha.nacimiento);
     var raza = d.ficha.raza || 'Raza sin definir';
     var peso = d.ficha.peso ? d.ficha.peso + ' kg' : '';
+    var photoHtml = d.foto
+      ? '<img src="' + d.foto + '" style="width:100%;height:100%;object-fit:cover;">'
+      : '<span style="font-size:52px;">' + d.emoji + '</span>';
     html += '<div class="perros-dog-card" onclick="perrosOpenPerfil(\'' + id + '\')">';
-    html += '<div class="perros-dog-card-photo"><span style="font-size:52px;">' + d.emoji + '</span></div>';
+    html += '<div class="perros-dog-card-photo">' + photoHtml + '</div>';
     html += '<div class="perros-dog-card-body">';
     html += '<div class="perros-dog-card-name">' + d.nombre + '</div>';
     html += '<div class="perros-dog-card-sub">' + raza + (age ? ' · ' + age : '') + (peso ? ' · ' + peso : '') + '</div>';
@@ -6300,10 +6303,12 @@ async function perrosOpenPerfil(dogId) {
   var data = await perrosLoadData();
   var d = data[dogId];
   document.getElementById('perros-home-view').style.display = 'none';
-  document.getElementById('perros-perfil-view').style.display = 'flex';
+  document.getElementById('perros-perfil-view').style.display = 'block';
   document.getElementById('perros-perfil-name').textContent = d.nombre;
   var av = document.getElementById('perros-avatar');
-  av.innerHTML = '<span style="font-size:32px;">' + d.emoji + '</span>';
+  av.innerHTML = d.foto
+    ? '<img src="' + d.foto + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+    : '<span style="font-size:32px;">' + d.emoji + '</span>';
   perrosTab('ficha');
 }
 
@@ -6311,6 +6316,26 @@ function perrosShowHome() {
   document.getElementById('perros-home-view').style.display = 'block';
   document.getElementById('perros-perfil-view').style.display = 'none';
   perrosRenderHome();
+}
+
+async function perrosCambiarFoto() {
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = async function() {
+    if (!input.files[0]) return;
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+      var data = await perrosLoadData();
+      data[_perrosCurrent].foto = e.target.result;
+      await perrosSaveData(data);
+      // Update avatar immediately
+      var av = document.getElementById('perros-avatar');
+      av.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+      // Refresh home cards too
+    };
+    reader.readAsDataURL(input.files[0]);
+  };
+  input.click();
 }
 
 async function perrosTab(tab) {
