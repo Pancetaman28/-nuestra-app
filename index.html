@@ -2033,23 +2033,24 @@ window.openActiveBannerViaje = function() {
 window.viajeRadarMove = async function(id, dir) {
   var lista = (appData.viajes || []).filter(function(v){return v.estado==='En el radar';});
   lista.sort(function(a,b){return (a.radarOrder||0)-(b.radarOrder||0);});
+  // Normalize first so every item has a unique order
+  lista.forEach(function(v,i){ v.radarOrder = i; });
   var idx = lista.findIndex(function(v){return v.id===id;});
   if (idx < 0) return;
   var swapIdx = idx + dir;
   if (swapIdx < 0 || swapIdx >= lista.length) return;
-  var tmp = lista[idx].radarOrder || idx;
-  lista[idx].radarOrder = lista[swapIdx].radarOrder || swapIdx;
+  // Swap orders
+  var tmp = lista[idx].radarOrder;
+  lista[idx].radarOrder = lista[swapIdx].radarOrder;
   lista[swapIdx].radarOrder = tmp;
-  // Normalize orders
-  lista.forEach(function(v,i){ v.radarOrder = i; });
-  // Save both
-  for (var v of [lista[idx], lista[swapIdx]]) {
+  // Update appData
+  lista.forEach(function(v) {
     var vRef = appData.viajes.find(function(x){return x.id===v.id;});
     if (vRef) vRef.radarOrder = v.radarOrder;
-  }
+  });
   renderViajes();
-  // persist
-  for (var vv of [lista[idx], lista[swapIdx]]) {
+  // Persist all (to avoid order drift)
+  for (var vv of lista) {
     try { await updateDoc(doc(db,'viajes',vv.id),{radarOrder:vv.radarOrder}); } catch(e){}
   }
 };
