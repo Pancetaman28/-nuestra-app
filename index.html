@@ -807,6 +807,34 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
         </div>
       </div>
 
+      <!-- MODAL PESO -->
+      <div class="modal-bg" id="modal-perros-peso">
+        <div class="modal">
+          <div class="modal-handle"></div>
+          <div class="modal-title">Registrar peso</div>
+          <label>Fecha</label><input id="pp-fecha" type="date">
+          <label>Peso (kg)</label><input id="pp-peso" type="number" step="0.1" placeholder="0.0">
+          <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeModal('modal-perros-peso')">Cancelar</button>
+            <button class="btn-save" onclick="perrosGuardarPeso()">Guardar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL HISTORIAL PESO -->
+      <div class="modal-bg" id="panel-perros-peso">
+        <div class="modal" style="max-height:85vh;overflow-y:auto;">
+          <div class="modal-handle"></div>
+          <div class="modal-title" id="panel-peso-title">Historial de peso</div>
+          <div id="panel-peso-chart" style="text-align:center;"></div>
+          <div id="panel-peso-list"></div>
+          <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeModal('panel-perros-peso')">Cerrar</button>
+            <button class="btn-save" onclick="closeModal('panel-perros-peso');perrosAbrirPeso()">+ Nuevo</button>
+          </div>
+        </div>
+      </div>
+
       <!-- MODAL ADD DOC -->
       <div class="modal-bg" id="modal-perros-doc">
         <div class="modal">
@@ -1496,6 +1524,7 @@ window.showTab = function(t) {
     if (hv) hv.style.display = 'block';
     if (pv) pv.style.display = 'none';
     perrosRenderHome();
+    if (typeof perrosCheckNotifications === 'function') perrosCheckNotifications();
   }
   if(t === 'cine') {
     setCineTab(_cineTab);
@@ -6226,13 +6255,17 @@ var PERROS_DEFAULT = {
   perdigon: {
     emoji: '🐾', nombre: 'Perdigón',
     ficha: { raza: '', nacimiento: '', peso: '', chip: '', seguro: '' },
+    pesoHistorial: [],
     vacunas: [], tratamientos: [], medicamentos: [],
+    antiparasitarios: [], peluqueria: [],
     documentos: []
   },
   tolly: {
     emoji: '🐶', nombre: 'Tolly',
     ficha: { raza: '', nacimiento: '', peso: '', chip: '', seguro: '' },
+    pesoHistorial: [],
     vacunas: [], tratamientos: [], medicamentos: [],
+    antiparasitarios: [], peluqueria: [],
     documentos: []
   }
 };
@@ -6492,11 +6525,14 @@ function perrosRenderFicha(d) {
         '<span style="font-size:15px;font-weight:700;color:var(--pr2);">' + nacDisplay + edit + '</span>' +
       '</div>' +
     '</div>' +
-    '<div class="perros-bento-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;" onclick="perrosInlineEdit(this,\'peso\',\'number\')">' +
+    '<div class="perros-bento-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;">' +
       '<span class="msym perros-bento-icon" style="color:var(--pg);">scale</span>' +
       '<span class="perros-bento-label">Peso</span>' +
       '<span class="perros-bento-value">' + (f.peso ? f.peso+' kg' : '\u2014') + '</span>' +
-      '<span style="font-size:10px;color:var(--text2);margin-top:2px;">tocar para editar</span>' +
+      '<div style="display:flex;gap:6px;margin-top:6px;">' +
+        '<button onclick="perrosAbrirPeso()" style="border:none;background:rgba(45,106,79,0.1);color:var(--pg);border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;">+ Nuevo</button>' +
+        '<button onclick="perrosVerHistorialPeso()" style="border:none;background:rgba(45,106,79,0.1);color:var(--pg);border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer;">Historial</button>' +
+      '</div>' +
     '</div>' +
     '<div class="perros-bento-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;" onclick="perrosInlineEdit(this,\'chip\',\'text\')">' +
       '<span class="msym perros-bento-icon" style="color:var(--pb);">qr_code_2</span>' +
@@ -6570,9 +6606,68 @@ function perrosRenderSalud(d) {
       '<button class="perros-add-item-btn" onclick="perrosOpenSaludModal(\'' + tipo + '\')">+ Añadir</button>' +
       '</div></div>';
   }
+  function blockSimple(title, icon, items, tipo) {
+    var itemsHtml = '';
+    if (items.length === 0) {
+      itemsHtml = '<div style="text-align:center;padding:12px 0;font-size:13px;color:var(--text2);">Sin registros</div>';
+    } else {
+      items.forEach(function(it, i) {
+        var b = perrosBadgeStatus(it.proxima);
+        var proxStr = it.proxima ? new Date(it.proxima + 'T12:00').toLocaleDateString('es-ES') : '';
+        itemsHtml += '<div class="perros-health-item">' +
+          '<div class="perros-health-item-name">' + it.nombre +
+            (it.notas ? '<div style="font-size:11px;color:var(--text2);font-weight:400;">' + it.notas + '</div>' : '') +
+          '</div>' +
+          (proxStr ? '<div class="perros-health-item-date">Próx: ' + proxStr + '</div>' : '') +
+          (b.cls ? '<div class="perros-health-badge ' + b.cls + '">' + b.text + '</div>' : '') +
+          '<button onclick="perrosDeleteSalud(\'' + tipo + '\',' + i + ')" style="background:none;border:none;font-size:16px;color:var(--text2);opacity:0.4;padding:0 2px;cursor:pointer;">✕</button>' +
+          '</div>';
+      });
+    }
+    return '<div class="perros-health-block">' +
+      '<div class="perros-health-block-header" onclick="this.parentElement.classList.toggle(\'open\')">' +
+      '<span class="msym" style="color:var(--pr);">' + icon + '</span>' +
+      '<span class="perros-health-block-title">' + title + '</span>' +
+      '<span class="msym" style="color:var(--text2);font-size:18px;">expand_more</span></div>' +
+      '<div class="perros-health-block-body">' + itemsHtml +
+      '<button class="perros-add-item-btn" onclick="perrosOpenSaludModal(\'' + tipo + '\')">+ Añadir</button>' +
+      '</div></div>';
+  }
+
+  function blockPeluqueria(items) {
+    var itemsHtml = '';
+    if (items.length === 0) {
+      itemsHtml = '<div style="text-align:center;padding:12px 0;font-size:13px;color:var(--text2);">Sin registros</div>';
+    } else {
+      items.forEach(function(it, i) {
+        var b = perrosBadgeStatus(it.proxima);
+        var proxStr = it.proxima ? new Date(it.proxima + 'T12:00').toLocaleDateString('es-ES') : '';
+        var ultStr = it.ultima ? new Date(it.ultima + 'T12:00').toLocaleDateString('es-ES') : '';
+        itemsHtml += '<div class="perros-health-item">' +
+          '<div class="perros-health-item-name">' + (it.nombre||'Peluquería') +
+            (ultStr ? '<div style="font-size:11px;color:var(--text2);font-weight:400;">Última: ' + ultStr + '</div>' : '') +
+          '</div>' +
+          (proxStr ? '<div class="perros-health-item-date">Próx: ' + proxStr + '</div>' : '') +
+          (b.cls ? '<div class="perros-health-badge ' + b.cls + '">' + b.text + '</div>' : '') +
+          '<button onclick="perrosDeleteSalud(\'peluqueria\',' + i + ')" style="background:none;border:none;font-size:16px;color:var(--text2);opacity:0.4;padding:0 2px;cursor:pointer;">✕</button>' +
+          '</div>';
+      });
+    }
+    return '<div class="perros-health-block">' +
+      '<div class="perros-health-block-header" onclick="this.parentElement.classList.toggle(\'open\')">' +
+      '<span class="msym" style="color:var(--pr);">content_cut</span>' +
+      '<span class="perros-health-block-title">Peluquería</span>' +
+      '<span class="msym" style="color:var(--text2);font-size:18px;">expand_more</span></div>' +
+      '<div class="perros-health-block-body">' + itemsHtml +
+      '<button class="perros-add-item-btn" onclick="perrosOpenSaludModal(\'peluqueria\')">+ Añadir cita</button>' +
+      '</div></div>';
+  }
+
   return block('Vacunas', 'vaccines', d.vacunas || [], 'vacunas') +
+         blockSimple('Antiparasitarios', 'pest_control', d.antiparasitarios || [], 'antiparasitarios') +
          block('Tratamientos', 'medication', d.tratamientos || [], 'tratamientos') +
-         block('Medicamentos activos', 'pill', d.medicamentos || [], 'medicamentos');
+         block('Medicamentos activos', 'pill', d.medicamentos || [], 'medicamentos') +
+         blockPeluqueria(d.peluqueria || []);
 }
 
 function perrosRenderDocs(d) {
@@ -6853,6 +6948,181 @@ async function uploadPerrosDocToDrive(file, dogName, year) {
   return {fileId:data.id, url:data.webViewLink};
 }
 
+
+// ── PERROS: PESO HISTORIAL ────────────────────────────────
+function perrosAbrirPeso() {
+  document.getElementById('pp-fecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('pp-peso').value = '';
+  openModal('modal-perros-peso');
+}
+window.perrosAbrirPeso = perrosAbrirPeso;
+
+async function perrosGuardarPeso() {
+  var fecha = document.getElementById('pp-fecha').value;
+  var peso = document.getElementById('pp-peso').value.trim();
+  if (!fecha || !peso) return;
+  var data = await perrosLoadData();
+  var d = data[_perrosCurrent];
+  if (!d.pesoHistorial) d.pesoHistorial = [];
+  d.pesoHistorial.push({fecha: fecha, peso: parseFloat(peso)});
+  d.pesoHistorial.sort(function(a,b){return a.fecha.localeCompare(b.fecha);});
+  d.ficha.peso = peso; // update current weight too
+  await perrosSaveData(data);
+  closeModal('modal-perros-peso');
+  perrosTab('ficha');
+}
+window.perrosGuardarPeso = perrosGuardarPeso;
+
+async function perrosVerHistorialPeso() {
+  var data = await perrosLoadData();
+  var historial = (data[_perrosCurrent].pesoHistorial || []).slice().sort(function(a,b){return a.fecha.localeCompare(b.fecha);});
+  var nombre = data[_perrosCurrent].nombre;
+
+  document.getElementById('panel-peso-title').textContent = '\u2696\ufe0f Peso \u2014 ' + nombre;
+
+  var svg = '';
+  if (historial.length >= 2) {
+    var pesos = historial.map(function(h){return parseFloat(h.peso);});
+    var minP = Math.min.apply(null,pesos) - 0.3;
+    var maxP = Math.max.apply(null,pesos) + 0.3;
+    var W=260, H=90, pad=18;
+    var pts = historial.map(function(h,i){
+      var x = pad + (i/(historial.length-1))*(W-pad*2);
+      var y = pad + (1-(parseFloat(h.peso)-minP)/(maxP-minP))*(H-pad*2);
+      return {x:x, y:y, peso:h.peso, fecha:h.fecha};
+    });
+    var polyline = pts.map(function(p){return p.x+','+p.y;}).join(' ');
+    svg = '<svg width="'+W+'" height="'+H+'" style="overflow:visible;">' +
+      '<polyline points="'+polyline+'" fill="none" stroke="var(--pg)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      pts.map(function(p){
+        return '<circle cx="'+p.x+'" cy="'+p.y+'" r="3.5" fill="var(--pg)"/>' +
+               '<text x="'+p.x+'" y="'+(p.y-7)+'" text-anchor="middle" font-size="8" fill="var(--text2)">'+p.peso+'</text>';
+      }).join('') +
+      '<text x="'+pts[0].x+'" y="'+(H-2)+'" text-anchor="middle" font-size="7" fill="var(--text2)">'+pts[0].fecha.slice(5)+'</text>' +
+      (pts.length>1?'<text x="'+pts[pts.length-1].x+'" y="'+(H-2)+'" text-anchor="middle" font-size="7" fill="var(--text2)">'+pts[pts.length-1].fecha.slice(5)+'</text>':'') +
+      '</svg>';
+  }
+  document.getElementById('panel-peso-chart').innerHTML = svg ? svg : '<div style="color:var(--text2);font-size:12px;padding:8px;">A\u00f1ade al menos 2 mediciones para ver el gr\u00e1fico</div>';
+
+  var listHtml = historial.slice().reverse().map(function(h,i){
+    var idx = historial.length - 1 - i;
+    var fechaStr = new Date(h.fecha+'T12:00').toLocaleDateString('es-ES');
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px;">' +
+      '<span style="color:var(--text2);">'+fechaStr+'</span>' +
+      '<span style="font-weight:700;color:var(--pr2);">'+h.peso+' kg</span>' +
+      '<button onclick="perrosDeletePeso('+idx+')" style="background:none;border:none;color:var(--text2);opacity:0.4;font-size:14px;cursor:pointer;">\u2715</button>' +
+      '</div>';
+  }).join('');
+  document.getElementById('panel-peso-list').innerHTML = listHtml ||
+    '<div style="text-align:center;color:var(--text2);font-size:13px;padding:16px 0;">Sin registros todav\u00eda</div>';
+
+  openModal('panel-perros-peso');
+}
+window.perrosVerHistorialPeso = perrosVerHistorialPeso;
+
+async function perrosDeletePeso(idx) {
+  var data = await perrosLoadData();
+  data[_perrosCurrent].pesoHistorial.splice(idx, 1);
+  // Update current weight to last entry
+  var h = data[_perrosCurrent].pesoHistorial;
+  if (h.length) data[_perrosCurrent].ficha.peso = h[h.length-1].peso;
+  await perrosSaveData(data);
+  perrosVerHistorialPeso();
+}
+window.perrosDeletePeso = perrosDeletePeso;
+
+// ── PERROS: NOTIFICACIONES ───────────────────────────────
+var _perrosNotifShown = false;
+
+async function perrosCheckNotifications() {
+  var data = await perrosLoadData();
+  var now = new Date(); now.setHours(0,0,0,0);
+  var alerts = [];
+
+  ['perdigon','tolly'].forEach(function(id) {
+    var d = data[id];
+    var nombre = d.nombre;
+    var allItems = [
+      ...(d.vacunas||[]).map(function(v){return {nombre:v.nombre,proxima:v.proxima,tipo:'Vacuna'};}),
+      ...(d.antiparasitarios||[]).map(function(v){return {nombre:v.nombre,proxima:v.proxima,tipo:'Antiparasitario'};}),
+      ...(d.tratamientos||[]).map(function(v){return {nombre:v.nombre,proxima:v.proxima,tipo:'Tratamiento'};}),
+      ...(d.peluqueria||[]).map(function(v){return {nombre:v.nombre||'Peluquer\u00eda',proxima:v.proxima,tipo:'Peluquer\u00eda'};}),
+    ];
+    allItems.forEach(function(item) {
+      if (!item.proxima) return;
+      var fecha = new Date(item.proxima + 'T12:00');
+      var diff = Math.round((fecha - now) / 86400000);
+      if (diff < 0 || diff > 35) return;
+      var urgencia = diff <= 7 ? 'urgent' : (diff <= 15 ? 'warn' : 'ok');
+      var label = diff <= 0 ? 'Vencida' : (diff === 1 ? 'Ma\u00f1ana' : 'En '+diff+' d\u00edas');
+      alerts.push({nombre: nombre, item: item.nombre, tipo: item.tipo, diff: diff, urgencia: urgencia, label: label, id: id});
+    });
+  });
+
+  if (!alerts.length) return;
+
+  // Add to notification bell
+  alerts.forEach(function(a) {
+    var icon = a.urgencia==='urgent' ? '\ud83d\udea8' : (a.urgencia==='warn' ? '\u26a0\ufe0f' : '\ud83d\udc3e');
+    _notifItems.push({
+      type: 'perros',
+      text: a.nombre + ': ' + a.tipo + ' \u201c' + a.item + '\u201d \u2014 ' + a.label,
+      icon: icon,
+      action: "showTab('perros')"
+    });
+  });
+  updateNotifBadge();
+
+  // Popup for urgent items (7, 15, 30 days) — once per session
+  if (!_perrosNotifShown) {
+    var urgent = alerts.filter(function(a){return a.diff<=7;});
+    var warn   = alerts.filter(function(a){return a.diff>7&&a.diff<=15;});
+    var info   = alerts.filter(function(a){return a.diff>15&&a.diff<=35;});
+    var toShow = urgent.length ? urgent : (warn.length ? warn : info);
+    if (toShow.length) {
+      _perrosNotifShown = true;
+      var emoji = urgent.length ? '\ud83d\udea8' : (warn.length ? '\u26a0\ufe0f' : '\ud83d\udc3e');
+      var msg = toShow.slice(0,3).map(function(a){
+        return '\u2022 ' + a.nombre + ': ' + a.tipo + ' \u201c' + a.item + '\u201d \u2014 ' + a.label;
+      }).join('\n') + (toShow.length>3 ? '\n...y '+(toShow.length-3)+' m\u00e1s' : '');
+      setTimeout(function(){
+        appConfirm(emoji + ' Recordatorio de salud', msg.replace(/\n/g,'<br>'), function(){}, false);
+      }, 600);
+    }
+  }
+}
+window.perrosCheckNotifications = perrosCheckNotifications;
+
+// Hook into updateNotifBadge to include perros
+var _origUpdateNotifBadge = window.updateNotifBadge;
+window.updateNotifBadge = function() {
+  _origUpdateNotifBadge();
+  // perros notifs are added by perrosCheckNotifications when tab opens
+};
+
+// ── PERROS: SALUD MODAL para antiparasitarios / peluquería ─
+perrosOpenSaludModal = function(tipo) {
+  var labels = {
+    vacunas:'vacuna', tratamientos:'tratamiento', medicamentos:'medicamento',
+    antiparasitarios:'antiparasitario', peluqueria:'cita de peluquer\u00eda'
+  };
+  var titulo = document.getElementById('modal-salud-title');
+  if (titulo) titulo.textContent = 'A\u00f1adir ' + (labels[tipo]||tipo);
+  document.getElementById('ps-nombre').value = tipo==='peluqueria' ? 'Peluquer\u00eda' : '';
+  document.getElementById('ps-ultima').value = '';
+  document.getElementById('ps-proxima').value = '';
+  document.getElementById('ps-notas').value = '';
+  document.getElementById('ps-tipo').value = tipo;
+  document.getElementById('ps-idx').value = '-1';
+  openModal('modal-perros-salud');
+}
+window.perrosOpenSaludModal = perrosOpenSaludModal;
+
+window.perrosGuardarPeso = perrosGuardarPeso;
+window.perrosAbrirPeso = perrosAbrirPeso;
+window.perrosVerHistorialPeso = perrosVerHistorialPeso;
+window.perrosDeletePeso = perrosDeletePeso;
+window.perrosCheckNotifications = perrosCheckNotifications;
 // Make perros functions accessible from inline onclick
 window.perrosOpenPerfil = perrosOpenPerfil;
 window.perrosSubirFotoHome = perrosSubirFotoHome;
