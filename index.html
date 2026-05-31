@@ -543,6 +543,10 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
 .perros-field-lbl{font-size:12px;color:var(--text2);font-weight:600;width:90px;flex-shrink:0;}
 .perros-field-val{flex:1;font-size:15px;font-weight:600;color:var(--pr2);}
 .perros-field-input{flex:1;font-size:15px;border:none;border-bottom:2px solid var(--pr);background:transparent;color:var(--pr2);font-family:var(--font-body);font-weight:600;outline:none;padding:2px 0;}
+.viaje-ftab{flex:1;padding:8px 4px;border:none;border-radius:999px;background:var(--bg2);font-family:var(--font-body);font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.viaje-ftab.active{background:var(--accent1);color:white;}
+.viaje-radar-arrows{display:flex;gap:4px;flex-direction:column;}
+.viaje-radar-arrow{background:none;border:1px solid var(--border);border-radius:6px;width:24px;height:22px;font-size:12px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;padding:0;}
 </style>
 </head>
 <body>
@@ -629,11 +633,20 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
     </div>
 
     <!-- VIAJES -->
-    <div id="tab-viajes" class="tab-section">
-      <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
-      <div class="add-bar">
-        <input id="v-input" type="text" placeholder="&#191;A d&#243;nde vais?" />
-        <button class="add-btn" onclick="openViajeModal()">+</button>
+    <    <div id="tab-viajes" class="tab-section">
+      <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Menú</button></div>
+      <!-- Banner viaje activo -->
+      <div id="viaje-activo-banner" style="display:none;background:linear-gradient(135deg,var(--accent1),#5b8dee);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;cursor:pointer;" onclick="openActiveBannerViaje()">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">En viaje ahora</div>
+        <div id="viaje-activo-nombre" style="font-family:var(--font-title);font-size:20px;font-weight:700;color:white;"></div>
+        <div id="viaje-activo-sub" style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:3px;"></div>
+      </div>
+      <!-- Tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:14px;align-items:center;">
+        <button class="viaje-ftab active" id="vftab-proximos" onclick="setViajeTab('proximos')">Próximos</button>
+        <button class="viaje-ftab" id="vftab-radar" onclick="setViajeTab('radar')">En el radar</button>
+        <button class="viaje-ftab" id="vftab-realizados" onclick="setViajeTab('realizados')">Realizados</button>
+        <button class="add-btn" onclick="openViajeModal()" style="margin-left:auto;flex-shrink:0;width:36px;height:36px;">+</button>
       </div>
       <div id="viajes-list"></div>
     </div>
@@ -871,6 +884,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
     <div class="detail-badge-row">
       <span class="detail-state-badge" id="detail-state"></span>
       <span class="countdown-badge" id="detail-countdown"></span>
+      <button id="btn-finalizar-viaje" class="detail-edit-btn" onclick="finalizarViaje()" style="display:none;background:var(--accent2,#2d6a4f);">Finalizar</button>
       <button class="detail-edit-btn" onclick="openEditViaje()">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Editar
@@ -1054,7 +1068,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
     <select id="mv-estado">
       <option value="Planificando">Planificando</option>
       <option value="Confirmado">Confirmado</option>
-      <option value="En viaje">En viaje</option>
+      <option value="En el radar">En el radar</option>
       <option value="Completado">Completado</option>
     </select>
     <label>Fecha de ida</label><input id="mv-fecha-ida" type="date">
@@ -1517,6 +1531,7 @@ window.showTab = function(t) {
   if(t === 'cine') document.body.classList.add('cine-mode');
   else document.body.classList.remove('cine-mode');
   if(t === 'home') updateHome();
+  if(t === 'viajes') { _viajeTab = 'proximos'; setViajeTab('proximos'); }
   if(t === 'gastos') renderGastos();
   if(t === 'perros') {
     var hv = document.getElementById('perros-home-view');
@@ -1915,31 +1930,145 @@ function updateGastosNotif() {
 }
 
 // ── VIAJES ────────────────────────────────────────────────
+var _viajeTab = 'proximos';
+
+function setViajeTab(tab) {
+  _viajeTab = tab;
+  ['proximos','radar','realizados'].forEach(function(t) {
+    var btn = safe('vftab-' + t);
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+  renderViajes();
+}
+window.setViajeTab = setViajeTab;
+
 function renderViajes() {
-  var el = safe('viajes-list'); if(!el) return;
-  if(!appData.viajes.length) {
-    el.innerHTML = '<div class="empty"><span class="empty-icon">✈️</span><p>Crea vuestro primer viaje</p></div>';
+  var el = safe('viajes-list'); if (!el) return;
+  var all = appData.viajes || [];
+  var now = new Date(); now.setHours(0,0,0,0);
+
+  // ── Banner viaje activo ──
+  var activo = all.find(function(v) {
+    if (!v.fecha_ida) return false;
+    var d1 = new Date(v.fecha_ida); d1.setHours(0,0,0,0);
+    var d2 = v.fecha_vuelta ? new Date(v.fecha_vuelta) : d1; d2.setHours(23,59,59,0);
+    return now >= d1 && now <= d2;
+  });
+  var banner = safe('viaje-activo-banner');
+  if (banner) {
+    if (activo) {
+      safe('viaje-activo-nombre').textContent = activo.name;
+      var diasRest = activo.fecha_vuelta ? Math.ceil((new Date(activo.fecha_vuelta) - now) / 86400000) : 0;
+      safe('viaje-activo-sub').textContent = activo.fecha_ida + (activo.fecha_vuelta ? ' → ' + activo.fecha_vuelta : '') + (diasRest > 0 ? '  ·  Vuelve en ' + diasRest + ' día' + (diasRest===1?'':'s') : '  ·  ¡Último día!');
+      banner.style.display = 'block';
+      window._activoViajeId = activo.id;
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
+  // ── Filter ──
+  var lista;
+  if (_viajeTab === 'proximos') {
+    lista = all.filter(function(v) {
+      var estado = v.estado || '';
+      if (estado === 'Completado' || estado === 'En el radar') return false;
+      if (v.fecha_ida) {
+        var d1 = new Date(v.fecha_ida); d1.setHours(0,0,0,0);
+        // Include if trip hasn't ended yet OR no fecha_vuelta
+        var d2 = v.fecha_vuelta ? new Date(v.fecha_vuelta) : d1; d2.setHours(23,59,59,0);
+        return now <= d2;
+      }
+      return true;
+    });
+    lista.sort(function(a,b) {
+      if (!a.fecha_ida && !b.fecha_ida) return 0;
+      if (!a.fecha_ida) return 1;
+      if (!b.fecha_ida) return -1;
+      return a.fecha_ida.localeCompare(b.fecha_ida);
+    });
+  } else if (_viajeTab === 'radar') {
+    lista = all.filter(function(v) { return v.estado === 'En el radar'; });
+    lista.sort(function(a,b) { return (a.radarOrder||0) - (b.radarOrder||0); });
+  } else {
+    lista = all.filter(function(v) {
+      if (v.estado === 'Completado') return true;
+      if (v.fecha_vuelta) {
+        var d2 = new Date(v.fecha_vuelta); d2.setHours(23,59,59,0);
+        return now > d2 && v.estado !== 'En el radar';
+      }
+      return false;
+    });
+    lista.sort(function(a,b) {
+      if (!a.fecha_vuelta && !b.fecha_vuelta) return 0;
+      if (!a.fecha_vuelta) return 1;
+      if (!b.fecha_vuelta) return -1;
+      return b.fecha_vuelta.localeCompare(a.fecha_vuelta);
+    });
+  }
+
+  if (!lista.length) {
+    var msgs = {
+      proximos: 'No hay viajes próximos',
+      radar: 'Añade destinos que tengáis en mente',
+      realizados: 'Los viajes realizados aparecerán aquí'
+    };
+    el.innerHTML = '<div class="empty"><span class="empty-icon">✈️</span><p>' + msgs[_viajeTab] + '</p></div>';
     return;
   }
-  el.innerHTML = appData.viajes.map(function(v) {
+
+  el.innerHTML = lista.map(function(v, i) {
     var cd = countdown(v.fecha_ida, v.fecha_vuelta);
     var coverStyle = v.cover ? 'style="background-image:url(' + esc(v.cover) + ');background-size:cover;background-position:center;"' : '';
-    return '<div class="viaje-card" ' + coverStyle + '>'
-      + (v.cover ? '<div style="position:absolute;inset:0;background:rgba(255,255,255,0.8);border-radius:var(--radius);"></div>' : '')
-      + '<div class="viaje-card-inner">'
-      + '<div class="viaje-card-info" onclick="openDetail(\'' + v.id + '\')">'
-      + '<div class="viaje-card-name">' + esc(v.name) + '</div>'
-      + '<div class="viaje-card-dates">' + (v.fecha_ida ? '🛫 ' + v.fecha_ida : '') + (v.fecha_vuelta ? ' → 🛬 ' + v.fecha_vuelta : '') + '</div>'
-      + (cd ? '<div class="viaje-card-cd">' + cd + '</div>' : '')
-      + (v.notes ? '<div class="viaje-card-notes">' + esc(v.notes) + '</div>' : '')
-      + '</div>'
-      + '<div style="display:flex;gap:6px;align-items:center;">'
-      + '<button onclick="openDetail(\'' + v.id + '\')" style="background:none;border:none;font-size:20px;color:var(--text2);">›</button>'
-      + '<button class="viaje-card-del" onclick="delViaje(\'' + v.id + '\')">&#xD7;</button>'
-      + '</div>'
-      + '</div></div>';
+    var orderBtns = (_viajeTab === 'radar') ?
+      '<div class="viaje-radar-arrows">' +
+        (i > 0 ? '<button class="viaje-radar-arrow" onclick="event.stopPropagation();viajeRadarMove(\'' + v.id + '\',-1)">↑</button>' : '<div style="width:24px;height:22px;"></div>') +
+        (i < lista.length-1 ? '<button class="viaje-radar-arrow" onclick="event.stopPropagation();viajeRadarMove(\'' + v.id + '\',1)">↓</button>' : '<div style="width:24px;height:22px;"></div>') +
+      '</div>' : '';
+    return '<div class="viaje-card" ' + coverStyle + '>'      + (v.cover ? '<div style="position:absolute;inset:0;background:rgba(255,255,255,0.8);border-radius:var(--radius);"></div>' : '')      + '<div class="viaje-card-inner">'      + '<div class="viaje-card-info" onclick="openDetail(\'' + v.id + '\')">'      + '<div class="viaje-card-name">' + esc(v.name) + '</div>'      + '<div class="viaje-card-dates">' + (v.fecha_ida ? '🛫 ' + v.fecha_ida : '') + (v.fecha_vuelta ? ' → 🛬 ' + v.fecha_vuelta : '') + '</div>'      + (cd ? '<div class="viaje-card-cd">' + cd + '</div>' : '')      + (v.notes ? '<div class="viaje-card-notes">' + esc(v.notes) + '</div>' : '')      + '</div>'      + '<div style="display:flex;gap:6px;align-items:center;">'      + orderBtns      + '<button onclick="openDetail(\'' + v.id + '\')" style="background:none;border:none;font-size:20px;color:var(--text2);">›</button>'      + '<button class="viaje-card-del" onclick="delViaje(\'' + v.id + '\')">&#xD7;</button>'      + '</div>'      + '</div></div>';
   }).join('');
 }
+
+window.openActiveBannerViaje = function() {
+  if (window._activoViajeId) openDetail(window._activoViajeId);
+};
+
+window.viajeRadarMove = async function(id, dir) {
+  var lista = (appData.viajes || []).filter(function(v){return v.estado==='En el radar';});
+  lista.sort(function(a,b){return (a.radarOrder||0)-(b.radarOrder||0);});
+  var idx = lista.findIndex(function(v){return v.id===id;});
+  if (idx < 0) return;
+  var swapIdx = idx + dir;
+  if (swapIdx < 0 || swapIdx >= lista.length) return;
+  var tmp = lista[idx].radarOrder || idx;
+  lista[idx].radarOrder = lista[swapIdx].radarOrder || swapIdx;
+  lista[swapIdx].radarOrder = tmp;
+  // Normalize orders
+  lista.forEach(function(v,i){ v.radarOrder = i; });
+  // Save both
+  for (var v of [lista[idx], lista[swapIdx]]) {
+    var vRef = appData.viajes.find(function(x){return x.id===v.id;});
+    if (vRef) vRef.radarOrder = v.radarOrder;
+  }
+  renderViajes();
+  // persist
+  for (var vv of [lista[idx], lista[swapIdx]]) {
+    try { await updateDoc(doc(db,'viajes',vv.id),{radarOrder:vv.radarOrder}); } catch(e){}
+  }
+};
+
+window.finalizarViaje = async function() {
+  appConfirm('¿Finalizar viaje?', 'El viaje pasará a Realizados.', async function() {
+    var v = getViaje(); if (!v) return;
+    v.estado = 'Completado';
+    var vIdx = appData.viajes.findIndex(function(x){return x.id===currentViajeId;});
+    if (vIdx >= 0) appData.viajes[vIdx].estado = 'Completado';
+    if (safe('detail-state')) safe('detail-state').textContent = 'Completado';
+    if (safe('btn-finalizar-viaje')) safe('btn-finalizar-viaje').style.display = 'none';
+    try { await updateDoc(doc(db,'viajes',currentViajeId),{estado:'Completado'}); } catch(e) {}
+  }, false);
+};
+
 
 function countdown(fi, fv) {
   var now = new Date();
@@ -2058,6 +2187,8 @@ function renderDetail() {
   var v = getViaje(); if(!v) return;
   if(safe('detail-title')) safe('detail-title').textContent = v.name;
   if(safe('detail-state')) safe('detail-state').textContent = v.estado || '';
+  var finBtn = safe('btn-finalizar-viaje');
+  if (finBtn) finBtn.style.display = (v.estado !== 'Completado') ? 'inline-flex' : 'none';
   if(safe('detail-countdown')) safe('detail-countdown').textContent = countdown(v.fecha_ida, v.fecha_vuelta);
   var meta = '';
   if(v.fecha_ida) meta += '🛫 ' + v.fecha_ida;
