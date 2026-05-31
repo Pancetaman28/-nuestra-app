@@ -773,7 +773,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
       </div>
 
       <!-- MODAL EDIT FICHA -->
-      <div class="modal-bg" id="modal-perros-ficha" style="display:none;">
+      <div class="modal-bg" id="modal-perros-ficha">
         <div class="modal">
           <div class="modal-handle"></div>
           <div class="modal-title" id="modal-perros-ficha-title">Editar ficha</div>
@@ -790,7 +790,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
       </div>
 
       <!-- MODAL ADD SALUD ITEM -->
-      <div class="modal-bg" id="modal-perros-salud" style="display:none;">
+      <div class="modal-bg" id="modal-perros-salud">
         <div class="modal">
           <div class="modal-handle"></div>
           <div class="modal-title" id="modal-salud-title">Añadir elemento</div>
@@ -808,7 +808,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
       </div>
 
       <!-- MODAL ADD DOC -->
-      <div class="modal-bg" id="modal-perros-doc" style="display:none;">
+      <div class="modal-bg" id="modal-perros-doc">
         <div class="modal">
           <div class="modal-handle"></div>
           <div class="modal-title">Añadir documento</div>
@@ -6312,9 +6312,13 @@ function perrosRenderRecuerdosHome(data) {
   if (!yearsEl || !gridEl) return;
 
   var activeYear = years[0] || currentYear;
+
+  // Year tabs + download button on the right
   yearsEl.innerHTML = years.map(function(y) {
     return '<button class="perros-year-tab' + (y===activeYear?' active':'') + '" onclick="perrosSelectYear(\'' + y + '\')">' + y + '</button>';
-  }).join('') + '<button class="perros-year-tab" onclick="perrosSelectYear(\'' + currentYear + '\')" style="border-style:dashed;">+ Año</button>';
+  }).join('') +
+  '<button class="perros-year-tab" onclick="perrosSelectYear(\'' + currentYear + '\')" style="border-style:dashed;">+ Año</button>' +
+  '<button class="perros-year-tab" onclick="perrosDescargarRecuerdos()" style="margin-left:auto;background:none;border-color:var(--pb);color:var(--pb);display:flex;align-items:center;gap:4px;"><span class="msym" style="font-size:16px;">download</span>Drive</button>';
 
   perrosRenderYearGrid(recuerdos, activeYear);
 }
@@ -6343,6 +6347,16 @@ function perrosRenderYearGrid(recuerdos, year) {
   gridEl.innerHTML = html;
 }
 
+async function perrosDescargarRecuerdos() {
+  var data = await perrosLoadData();
+  var folderUrl = data.recuerdosDriveFolder;
+  if (folderUrl) {
+    appConfirm('Abrir en Google Drive', 'Se abrirá la carpeta de Recuerdos en Drive para descargar las fotos.', function(){ window.open(folderUrl, '_blank'); }, false);
+  } else {
+    appConfirm('Sin fotos en Drive', 'Sube alguna foto primero y se guardará en Drive automáticamente.', function(){}, false);
+  }
+}
+
 async function perrosAddRecuerdo(year, input) {
   var files = Array.from(input.files);
   if (!files.length) return;
@@ -6363,6 +6377,7 @@ async function perrosAddRecuerdo(year, input) {
     try {
       var result = await uploadPerrosFotoToDrive(files[i], year);
       data.recuerdos[year].push({fileId:result.fileId, url:result.url, viewUrl:result.viewUrl, fecha:new Date().toISOString(), name:files[i].name});
+      if (result.folderUrl) data.recuerdosDriveFolder = result.folderUrl;
     } catch(e) {
       console.error('Drive upload error:', e);
       alert('Error subiendo ' + files[i].name + '. Comprueba el acceso a Drive.');
@@ -6461,37 +6476,58 @@ async function perrosTab(tab) {
 function perrosRenderFicha(d) {
   var f = d.ficha;
   var age = perrosCalcAge(f.nacimiento);
-  var nacStr = f.nacimiento ? new Date(f.nacimiento + 'T12:00').toLocaleDateString('es-ES') : '';
-  var nacDisplay = nacStr + (age ? ' <span style="font-size:12px;color:var(--text2);font-weight:400;">· ' + age + '</span>' : '');
-  function row(key, lbl, display, type) {
-    var empty = !display;
-    var shownVal = display || '<span style="opacity:0.35;font-weight:400;">Toca para añadir</span>';
-    return '<div class="perros-field-row" onclick="perrosInlineEdit(this,\'' + key + '\',\'' + type + '\')">' +
-      '<span class="perros-field-lbl">' + lbl + '</span>' +
-      '<span class="perros-field-val">' + shownVal + '</span>' +
-      '<span class="msym" style="font-size:18px;color:var(--pr-border);">edit</span></div>';
-  }
-  return '<div class="perros-bento-card perros-bento-wide" style="padding:4px 14px;">' +
-    row('raza','Raza', f.raza, 'text') +
-    row('nacimiento','Nacimiento', nacDisplay, 'date') +
-    row('peso','Peso', f.peso ? f.peso + ' kg' : '', 'number') +
-    row('chip','Microchip', f.chip, 'text') +
-    row('seguro','Seguro', f.seguro, 'text') +
-    '</div>';
+  var nacStr = f.nacimiento ? new Date(f.nacimiento + 'T12:00').toLocaleDateString('es-ES') : '—';
+  var nacDisplay = nacStr + (age ? ' · ' + age : '');
+  var edit = '<span class="msym" style="font-size:14px;color:var(--pr-border);margin-left:4px;vertical-align:middle;opacity:0.6;">edit</span>';
+  return '<div class="perros-bento">' +
+    '<div class="perros-bento-card perros-bento-wide">' +
+      '<div class="perros-bento-label" style="margin-bottom:10px;">Información básica</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:2px 0;" onclick="perrosInlineEdit(this,'raza','text')">' +
+        '<span style="font-size:13px;color:var(--text2);">Raza</span>' +
+        '<span style="font-size:15px;font-weight:700;color:var(--pr2);">' + (f.raza||'—') + edit + '</span>' +
+      '</div>' +
+      '<div style="height:1px;background:#f0eae6;margin:8px 0;"></div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:2px 0;" onclick="perrosInlineEdit(this,'nacimiento','date')">' +
+        '<span style="font-size:13px;color:var(--text2);">Nacimiento</span>' +
+        '<span style="font-size:15px;font-weight:700;color:var(--pr2);">' + nacDisplay + edit + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="perros-bento-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;" onclick="perrosInlineEdit(this,'peso','number')">' +
+      '<span class="msym perros-bento-icon" style="color:var(--pg);">scale</span>' +
+      '<span class="perros-bento-label">Peso</span>' +
+      '<span class="perros-bento-value">' + (f.peso ? f.peso+' kg' : '—') + '</span>' +
+      '<span style="font-size:10px;color:var(--text2);margin-top:2px;">tocar para editar</span>' +
+    '</div>' +
+    '<div class="perros-bento-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;" onclick="perrosInlineEdit(this,'chip','text')">' +
+      '<span class="msym perros-bento-icon" style="color:var(--pb);">qr_code_2</span>' +
+      '<span class="perros-bento-label">Microchip</span>' +
+      '<span style="font-size:11px;font-weight:700;color:var(--pr2);word-break:break-all;">' + (f.chip||'—') + '</span>' +
+      '<span style="font-size:10px;color:var(--text2);margin-top:2px;">tocar para editar</span>' +
+    '</div>' +
+    '<div class="perros-bento-card perros-bento-wide" style="background:rgba(123,94,87,0.06);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="perrosInlineEdit(this,'seguro','text')">' +
+      '<div style="background:white;border-radius:999px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+        '<span class="msym" style="color:var(--pr);">health_and_safety</span>' +
+      '</div>' +
+      '<div style="flex:1;">' +
+        '<div style="font-size:12px;color:var(--text2);">Seguro de salud</div>' +
+        '<div style="font-size:15px;font-weight:700;color:var(--pr2);">' + (f.seguro||'Sin definir') + edit + '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
 }
 
-window.perrosInlineEdit = function(row, key, type) {
-  if (row.querySelector('input')) return;
-  var valEl = row.querySelector('.perros-field-val');
+window.perrosInlineEdit = function(card, key, type) {
+  if (card.querySelector('input')) return;
+  var valEl = card.querySelector('.perros-bento-value') || card.querySelector('span[style*="font-weight:700"]') || card.lastElementChild;
   perrosLoadData().then(function(data) {
     var raw = data[_perrosCurrent].ficha[key] || '';
     var input = document.createElement('input');
-    input.className = 'perros-field-input';
+    var centered = (key === 'peso' || key === 'chip');
+    input.style.cssText = 'border:none;border-bottom:2px solid var(--pr);background:transparent;font-size:14px;font-weight:700;color:var(--pr2);font-family:var(--font-body);outline:none;width:100%;' + (centered ? 'text-align:center;' : 'text-align:right;');
     input.type = type === 'number' ? 'number' : (type === 'date' ? 'date' : 'text');
     if (type === 'number') input.step = '0.1';
     input.value = raw;
     valEl.replaceWith(input);
-    row.querySelector('.msym').style.display = 'none';
     input.focus();
     var done = false;
     async function save() {
@@ -6773,6 +6809,7 @@ async function perrosDeleteDoc(idx) {
 
 
 window.perrosSelectYear = perrosSelectYear;
+window.perrosDescargarRecuerdos = perrosDescargarRecuerdos;
 window.uploadPerrosFotoToDrive = uploadPerrosFotoToDrive;
 window.uploadPerrosDocToDrive = uploadPerrosDocToDrive;
 window.perrosAddRecuerdo = perrosAddRecuerdo;
@@ -6790,10 +6827,12 @@ async function uploadPerrosFotoToDrive(file, year) {
   var form = new FormData();
   form.append('metadata', new Blob([JSON.stringify(meta)],{type:'application/json'}));
   form.append('file', file);
-  var res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink',{method:'POST',headers:{Authorization:'Bearer '+token},body:form});
+  var res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink,parents',{method:'POST',headers:{Authorization:'Bearer '+token},body:form});
   var data = await res.json();
   await fetch('https://www.googleapis.com/drive/v3/files/'+data.id+'/permissions',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({role:'reader',type:'anyone'})});
-  return {fileId:data.id, url:'https://drive.google.com/uc?export=view&id='+data.id, viewUrl:data.webViewLink};
+  // Get folder URL for download button
+  var folderUrl = 'https://drive.google.com/drive/folders/' + yearId;
+  return {fileId:data.id, url:'https://drive.google.com/uc?export=view&id='+data.id, viewUrl:data.webViewLink, folderUrl:folderUrl};
 }
 
 async function uploadPerrosDocToDrive(file, dogName, year) {
