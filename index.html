@@ -6476,35 +6476,35 @@ async function perrosTab(tab) {
 function perrosRenderFicha(d) {
   var f = d.ficha;
   var age = perrosCalcAge(f.nacimiento);
-  var nacStr = f.nacimiento ? new Date(f.nacimiento + 'T12:00').toLocaleDateString('es-ES') : '—';
-  var nacDisplay = nacStr + (age ? ' · ' + age : '');
+  var nacStr = f.nacimiento ? new Date(f.nacimiento + 'T12:00').toLocaleDateString('es-ES') : '\u2014';
+  var nacDisplay = nacStr + (age ? ' \u00b7 ' + age : '');
   var edit = '<span class="msym" style="font-size:14px;color:var(--pr-border);margin-left:4px;vertical-align:middle;opacity:0.6;">edit</span>';
   return '<div class="perros-bento">' +
     '<div class="perros-bento-card perros-bento-wide">' +
-      '<div class="perros-bento-label" style="margin-bottom:10px;">Información básica</div>' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:2px 0;" onclick="perrosInlineEdit(this,'raza','text')">' +
+      '<div class="perros-bento-label" style="margin-bottom:10px;">Informaci\u00f3n b\u00e1sica</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:2px 0;" onclick="perrosInlineEdit(this,\'raza\',\'text\')">' +
         '<span style="font-size:13px;color:var(--text2);">Raza</span>' +
-        '<span style="font-size:15px;font-weight:700;color:var(--pr2);">' + (f.raza||'—') + edit + '</span>' +
+        '<span style="font-size:15px;font-weight:700;color:var(--pr2);">' + (f.raza||'\u2014') + edit + '</span>' +
       '</div>' +
       '<div style="height:1px;background:#f0eae6;margin:8px 0;"></div>' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:2px 0;" onclick="perrosInlineEdit(this,'nacimiento','date')">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:2px 0;" onclick="perrosInlineEdit(this,\'nacimiento\',\'date\')">' +
         '<span style="font-size:13px;color:var(--text2);">Nacimiento</span>' +
         '<span style="font-size:15px;font-weight:700;color:var(--pr2);">' + nacDisplay + edit + '</span>' +
       '</div>' +
     '</div>' +
-    '<div class="perros-bento-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;" onclick="perrosInlineEdit(this,'peso','number')">' +
+    '<div class="perros-bento-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;" onclick="perrosInlineEdit(this,\'peso\',\'number\')">' +
       '<span class="msym perros-bento-icon" style="color:var(--pg);">scale</span>' +
       '<span class="perros-bento-label">Peso</span>' +
-      '<span class="perros-bento-value">' + (f.peso ? f.peso+' kg' : '—') + '</span>' +
+      '<span class="perros-bento-value">' + (f.peso ? f.peso+' kg' : '\u2014') + '</span>' +
       '<span style="font-size:10px;color:var(--text2);margin-top:2px;">tocar para editar</span>' +
     '</div>' +
-    '<div class="perros-bento-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;" onclick="perrosInlineEdit(this,'chip','text')">' +
+    '<div class="perros-bento-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;" onclick="perrosInlineEdit(this,\'chip\',\'text\')">' +
       '<span class="msym perros-bento-icon" style="color:var(--pb);">qr_code_2</span>' +
       '<span class="perros-bento-label">Microchip</span>' +
-      '<span style="font-size:11px;font-weight:700;color:var(--pr2);word-break:break-all;">' + (f.chip||'—') + '</span>' +
+      '<span style="font-size:11px;font-weight:700;color:var(--pr2);word-break:break-all;">' + (f.chip||'\u2014') + '</span>' +
       '<span style="font-size:10px;color:var(--text2);margin-top:2px;">tocar para editar</span>' +
     '</div>' +
-    '<div class="perros-bento-card perros-bento-wide" style="background:rgba(123,94,87,0.06);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="perrosInlineEdit(this,'seguro','text')">' +
+    '<div class="perros-bento-card perros-bento-wide" style="background:rgba(123,94,87,0.06);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="perrosInlineEdit(this,\'seguro\',\'text\')">' +
       '<div style="background:white;border-radius:999px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
         '<span class="msym" style="color:var(--pr);">health_and_safety</span>' +
       '</div>' +
@@ -6518,7 +6518,9 @@ function perrosRenderFicha(d) {
 
 window.perrosInlineEdit = function(card, key, type) {
   if (card.querySelector('input')) return;
-  var valEl = card.querySelector('.perros-bento-value') || card.querySelector('span[style*="font-weight:700"]') || card.lastElementChild;
+  var valEl = card.querySelector('.perros-bento-value') ||
+              card.querySelector('span[style*="font-weight:700"]') ||
+              card.lastElementChild;
   perrosLoadData().then(function(data) {
     var raw = data[_perrosCurrent].ficha[key] || '';
     var input = document.createElement('input');
@@ -6542,7 +6544,6 @@ window.perrosInlineEdit = function(card, key, type) {
     input.addEventListener('keydown', function(e){ if(e.key==='Enter') input.blur(); });
   });
 };
-
 function perrosRenderSalud(d) {
   function block(title, icon, items, tipo) {
     var itemsHtml = '';
