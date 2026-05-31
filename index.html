@@ -538,6 +538,11 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
 .perros-photo-thumb{aspect-ratio:1;border-radius:8px;object-fit:cover;width:100%;cursor:pointer;background:#f5ede8;}
 .perros-add-photo-btn{aspect-ratio:1;border-radius:8px;border:1.5px dashed var(--pr-border);background:rgba(123,94,87,0.04);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:11px;font-weight:600;color:var(--pr);}
 .perros-memory-note{font-size:12px;color:var(--text2);text-align:center;margin-top:4px;}
+.perros-field-row{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid #f0eae6;cursor:pointer;gap:8px;}
+.perros-field-row:last-child{border-bottom:none;}
+.perros-field-lbl{font-size:12px;color:var(--text2);font-weight:600;width:90px;flex-shrink:0;}
+.perros-field-val{flex:1;font-size:15px;font-weight:600;color:var(--pr2);}
+.perros-field-input{flex:1;font-size:15px;border:none;border-bottom:2px solid var(--pr);background:transparent;color:var(--pr2);font-family:var(--font-body);font-weight:600;outline:none;padding:2px 0;}
 </style>
 </head>
 <body>
@@ -755,7 +760,6 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
             <div class="perros-perfil-avatar" id="perros-avatar" onclick="perrosCambiarFoto()" style="cursor:pointer;position:relative;" title="Cambiar foto">&#128062;</div>
             <div>
               <div class="perros-perfil-name" id="perros-perfil-name">&#8212;</div>
-              <div class="perros-perfil-badge"><span></span> <span id="perros-perfil-badge-text">En casa</span></div>
             </div>
             <button onclick="perrosEditFicha()" style="margin-left:auto;background:rgba(123,94,87,0.1);border:none;border-radius:999px;padding:7px 10px;cursor:pointer;"><span class="msym" style="font-size:18px;color:var(--pr);">edit</span></button>
           </div>
@@ -811,8 +815,10 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <label>Descripción</label><input id="pd-desc" placeholder="p.ej. Factura consulta 12 mayo">
           <label>Fecha</label><input id="pd-fecha" type="date">
           <label>Importe (€) — opcional</label><input id="pd-importe" type="number" step="0.01" placeholder="0.00">
-          <label>Carpeta Drive</label>
-          <div style="padding:10px 12px;background:var(--bg2);border-radius:var(--radius-sm);font-size:13px;color:var(--text2);" id="pd-drive-path">Perros/<span id="pd-dog-folder">—</span>/<span id="pd-year">—</span>/</div>
+          <label>Archivo (PDF, imagen...)</label>
+          <label class="file-label"><input id="pd-file" type="file" accept=".pdf,image/*"><span id="pd-file-name">Seleccionar archivo</span></label>
+          <label>Se guardará en Drive</label>
+          <div style="padding:8px 12px;background:var(--bg2);border-radius:var(--radius-sm);font-size:12px;color:var(--text2);">Perros / <span id="pd-dog-folder">—</span> / Documentos / <span id="pd-year">—</span></div>
           <div class="modal-btns">
             <button class="btn-cancel" onclick="closeModal('modal-perros-doc')">Cancelar</button>
             <button class="btn-save" onclick="perrosSaveDoc()">Guardar</button>
@@ -6326,7 +6332,7 @@ function perrosRenderYearGrid(recuerdos, year) {
   var photos = recuerdos[year] || [];
   var html = photos.map(function(p, i) {
     return '<div style="position:relative;">' +
-      '<img class="perros-photo-thumb" src="' + p.src + '" onclick="openPhotoViewer(\'' + p.src + '\')">' +
+      '<img class="perros-photo-thumb" src="' + (p.url||p.src||'') + '" onclick="openPhotoViewer(\'' + (p.url||p.src||'') + '\')">' +
       '<button onclick="perrosDeleteRecuerdo(\'' + year + '\',' + i + ')" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:20px;height:20px;color:white;font-size:11px;cursor:pointer;">✕</button>' +
       '</div>';
   }).join('');
@@ -6338,21 +6344,32 @@ function perrosRenderYearGrid(recuerdos, year) {
 }
 
 async function perrosAddRecuerdo(year, input) {
+  var files = Array.from(input.files);
+  if (!files.length) return;
+  var gridEl = document.getElementById('perros-recuerdos-grid');
+  if (gridEl) {
+    var ldr = document.createElement('div');
+    ldr.id = 'perros-upload-ldr';
+    ldr.style = 'grid-column:1/-1;text-align:center;padding:12px;font-size:13px;color:var(--text2);';
+    ldr.textContent = 'Subiendo a Drive... 0/' + files.length;
+    gridEl.prepend(ldr);
+  }
   var data = await perrosLoadData();
   if (!data.recuerdos) data.recuerdos = {};
   if (!data.recuerdos[year]) data.recuerdos[year] = [];
-  var files = Array.from(input.files);
-  var pending = files.length;
-  files.forEach(function(f) {
-    perrosCompressImage(f, 600, async function(b64) {
-      data.recuerdos[year].push({ src: b64, fecha: new Date().toISOString() });
-      pending--;
-      if (pending === 0) {
-        await perrosSaveData(data);
-        perrosRenderYearGrid(data.recuerdos, year);
-      }
-    });
-  });
+  for (var i = 0; i < files.length; i++) {
+    if (document.getElementById('perros-upload-ldr'))
+      document.getElementById('perros-upload-ldr').textContent = 'Subiendo a Drive... ' + (i+1) + '/' + files.length;
+    try {
+      var result = await uploadPerrosFotoToDrive(files[i], year);
+      data.recuerdos[year].push({fileId:result.fileId, url:result.url, viewUrl:result.viewUrl, fecha:new Date().toISOString(), name:files[i].name});
+    } catch(e) {
+      console.error('Drive upload error:', e);
+      alert('Error subiendo ' + files[i].name + '. Comprueba el acceso a Drive.');
+    }
+  }
+  await perrosSaveData(data);
+  perrosRenderYearGrid(data.recuerdos, year);
 }
 
 async function perrosDeleteRecuerdo(year, idx) {
@@ -6428,7 +6445,7 @@ async function perrosSubirFotoHome(dogId, input) {
 
 async function perrosTab(tab) {
   _perrosActiveTab = tab;
-  ['ficha','salud','docs','recuerdos'].forEach(function(t) {
+  ['ficha','salud','docs'].forEach(function(t) {
     var btn = document.getElementById('ptab-' + t);
     if (btn) btn.classList.toggle('active', t === tab);
   });
@@ -6438,26 +6455,57 @@ async function perrosTab(tab) {
   if (tab === 'ficha') body.innerHTML = perrosRenderFicha(d);
   else if (tab === 'salud') body.innerHTML = perrosRenderSalud(d);
   else if (tab === 'docs') body.innerHTML = perrosRenderDocs(d);
-  else if (tab === 'recuerdos') body.innerHTML = perrosRenderRecuerdos(d);
+
 }
 
 function perrosRenderFicha(d) {
   var f = d.ficha;
   var age = perrosCalcAge(f.nacimiento);
-  var nacStr = f.nacimiento ? new Date(f.nacimiento + 'T12:00').toLocaleDateString('es-ES') : 'Sin definir';
-  return '<div class="perros-bento">' +
-    '<div class="perros-bento-card perros-bento-wide"><span class="perros-bento-label">Información básica</span>' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;"><span style="font-size:13px;color:var(--text2);">Raza</span><span style="font-size:15px;font-weight:700;color:var(--pr2);">' + (f.raza || '—') + '</span></div>' +
-    '<div style="height:1px;background:#f0eae6;margin:8px 0;"></div>' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--text2);">Nacimiento</span><span style="font-size:15px;font-weight:700;color:var(--pr2);">' + nacStr + (age ? ' · ' + age : '') + '</span></div>' +
-    '</div>' +
-    '<div class="perros-bento-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;"><span class="msym perros-bento-icon" style="color:var(--pg);">scale</span><span class="perros-bento-label">Peso</span><span class="perros-bento-value">' + (f.peso ? f.peso + ' kg' : '—') + '</span></div>' +
-    '<div class="perros-bento-card" style="display:flex;flex-direction:column;align-items:center;text-align:center;"><span class="msym perros-bento-icon" style="color:var(--pb);">qr_code_2</span><span class="perros-bento-label">Microchip</span><span style="font-size:11px;font-weight:700;color:var(--pr2);word-break:break-all;">' + (f.chip || '—') + '</span></div>' +
-    '<div class="perros-bento-card perros-bento-wide" style="background:rgba(123,94,87,0.06);display:flex;align-items:center;gap:12px;">' +
-    '<div style="background:white;border-radius:999px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span class="msym" style="color:var(--pr);">health_and_safety</span></div>' +
-    '<div><div style="font-size:12px;color:var(--text2);">Seguro de salud</div><div style="font-size:15px;font-weight:700;color:var(--pr2);">' + (f.seguro || 'Sin definir') + '</div></div>' +
-    '</div></div>';
+  var nacStr = f.nacimiento ? new Date(f.nacimiento + 'T12:00').toLocaleDateString('es-ES') : '';
+  var nacDisplay = nacStr + (age ? ' <span style="font-size:12px;color:var(--text2);font-weight:400;">· ' + age + '</span>' : '');
+  function row(key, lbl, display, type) {
+    var empty = !display;
+    var shownVal = display || '<span style="opacity:0.35;font-weight:400;">Toca para añadir</span>';
+    return '<div class="perros-field-row" onclick="perrosInlineEdit(this,\'' + key + '\',\'' + type + '\')">' +
+      '<span class="perros-field-lbl">' + lbl + '</span>' +
+      '<span class="perros-field-val">' + shownVal + '</span>' +
+      '<span class="msym" style="font-size:18px;color:var(--pr-border);">edit</span></div>';
+  }
+  return '<div class="perros-bento-card perros-bento-wide" style="padding:4px 14px;">' +
+    row('raza','Raza', f.raza, 'text') +
+    row('nacimiento','Nacimiento', nacDisplay, 'date') +
+    row('peso','Peso', f.peso ? f.peso + ' kg' : '', 'number') +
+    row('chip','Microchip', f.chip, 'text') +
+    row('seguro','Seguro', f.seguro, 'text') +
+    '</div>';
 }
+
+window.perrosInlineEdit = function(row, key, type) {
+  if (row.querySelector('input')) return;
+  var valEl = row.querySelector('.perros-field-val');
+  perrosLoadData().then(function(data) {
+    var raw = data[_perrosCurrent].ficha[key] || '';
+    var input = document.createElement('input');
+    input.className = 'perros-field-input';
+    input.type = type === 'number' ? 'number' : (type === 'date' ? 'date' : 'text');
+    if (type === 'number') input.step = '0.1';
+    input.value = raw;
+    valEl.replaceWith(input);
+    row.querySelector('.msym').style.display = 'none';
+    input.focus();
+    var done = false;
+    async function save() {
+      if (done) return; done = true;
+      var newVal = input.value.trim();
+      var d2 = await perrosLoadData();
+      d2[_perrosCurrent].ficha[key] = newVal;
+      await perrosSaveData(d2);
+      perrosTab('ficha');
+    }
+    input.addEventListener('blur', save);
+    input.addEventListener('keydown', function(e){ if(e.key==='Enter') input.blur(); });
+  });
+};
 
 function perrosRenderSalud(d) {
   function block(title, icon, items, tipo) {
@@ -6502,8 +6550,9 @@ function perrosRenderDocs(d) {
       html += '<div class="perros-doc-item">' +
         '<div class="perros-doc-icon"><span class="msym" style="color:var(--pr);">description</span></div>' +
         '<div class="perros-doc-info"><div class="perros-doc-name">' + doc.desc + '</div>' +
-        '<div class="perros-doc-sub">' + fechaStr + (doc.carpeta ? ' · ' + doc.carpeta : '') + '</div></div>' +
+        '<div class="perros-doc-sub">' + fechaStr + '</div></div>' +
         (doc.importe ? '<div class="perros-doc-amount">€' + parseFloat(doc.importe).toFixed(2) + '</div>' : '') +
+        (doc.driveUrl ? '<a href="' + doc.driveUrl + '" target="_blank" style="color:var(--pb);" onclick="event.stopPropagation();"><span class="msym" style="font-size:20px;">open_in_new</span></a>' : '') +
         '<button onclick="perrosDeleteDoc(' + i + ')" style="background:none;border:none;font-size:16px;color:var(--text2);opacity:0.4;padding:0 4px;cursor:pointer;">✕</button>' +
         '</div>';
     });
@@ -6529,7 +6578,7 @@ function perrosRenderRecuerdos(d) {
   var grid = '<div class="perros-photos-grid" id="perros-photos-grid-' + activeYear + '">';
   photos.forEach(function(p, i) {
     grid += '<div style="position:relative;">' +
-      '<img class="perros-photo-thumb" src="' + p.src + '" onclick="openPhotoViewer(\'' + p.src + '\')">' +
+      '<img class="perros-photo-thumb" src="' + (p.url||p.src||'') + '" onclick="openPhotoViewer(\'' + (p.url||p.src||'') + '\')">' +
       '<button onclick="perrosDeletePhoto(\'' + activeYear + '\',' + i + ')" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:20px;height:20px;color:white;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>' +
       '</div>';
   });
@@ -6560,7 +6609,7 @@ async function perrosReloadYear(year) {
   var html = '';
   photos.forEach(function(p, i) {
     html += '<div style="position:relative;">' +
-      '<img class="perros-photo-thumb" src="' + p.src + '" onclick="openPhotoViewer(\'' + p.src + '\')">' +
+      '<img class="perros-photo-thumb" src="' + (p.url||p.src||'') + '" onclick="openPhotoViewer(\'' + (p.url||p.src||'') + '\')">' +
       '<button onclick="perrosDeletePhoto(\'' + year + '\',' + i + ')" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:20px;height:20px;color:white;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>' +
       '</div>';
   });
@@ -6609,7 +6658,7 @@ function perrosEditFicha() {
     document.getElementById('pf-peso').value = f.peso || '';
     document.getElementById('pf-chip').value = f.chip || '';
     document.getElementById('pf-seguro').value = f.seguro || '';
-    document.getElementById('modal-perros-ficha').style.display = 'flex';
+    openModal('modal-perros-ficha');
   });
 }
 
@@ -6636,7 +6685,7 @@ function perrosOpenSaludModal(tipo) {
   document.getElementById('ps-notas').value = '';
   document.getElementById('ps-tipo').value = tipo;
   document.getElementById('ps-idx').value = '-1';
-  document.getElementById('modal-perros-salud').style.display = 'flex';
+  openModal('modal-perros-salud');
 }
 
 async function perrosSaveSaludItem() {
@@ -6668,21 +6717,44 @@ function perrosOpenDocModal() {
   document.getElementById('pd-desc').value = '';
   document.getElementById('pd-fecha').value = new Date().toISOString().split('T')[0];
   document.getElementById('pd-importe').value = '';
+  var fileInput = document.getElementById('pd-file');
+  if (fileInput) {
+    fileInput.value = '';
+    document.getElementById('pd-file-name').textContent = 'Seleccionar archivo';
+    fileInput.onchange = function() {
+      document.getElementById('pd-file-name').textContent = fileInput.files[0] ? fileInput.files[0].name : 'Seleccionar archivo';
+      var d = document.getElementById('pd-fecha').value;
+      if (d) document.getElementById('pd-year').textContent = d.substring(0,4);
+    };
+  }
   var nombre = _perrosCurrent === 'perdigon' ? 'Perdigón' : 'Tolly';
-  var year = new Date().getFullYear();
   document.getElementById('pd-dog-folder').textContent = nombre;
-  document.getElementById('pd-year').textContent = year;
-  document.getElementById('modal-perros-doc').style.display = 'flex';
+  document.getElementById('pd-year').textContent = new Date().getFullYear();
+  openModal('modal-perros-doc');
 }
 
 async function perrosSaveDoc() {
-  var doc = {
-    desc: document.getElementById('pd-desc').value.trim(),
-    fecha: document.getElementById('pd-fecha').value,
-    importe: document.getElementById('pd-importe').value,
-    carpeta: 'Perros/' + (_perrosCurrent === 'perdigon' ? 'Perdigón' : 'Tolly') + '/' + new Date().getFullYear()
-  };
-  if (!doc.desc) return;
+  var desc = document.getElementById('pd-desc').value.trim();
+  var fecha = document.getElementById('pd-fecha').value;
+  if (!desc) return;
+  var dogName = _perrosCurrent === 'perdigon' ? 'Perdigón' : 'Tolly';
+  var year = fecha ? fecha.substring(0,4) : new Date().getFullYear().toString();
+  var doc = {desc:desc, fecha:fecha, importe:document.getElementById('pd-importe').value, carpeta:'Perros/'+dogName+'/Documentos/'+year};
+  var fileInput = document.getElementById('pd-file');
+  if (fileInput && fileInput.files[0]) {
+    var saveBtn = document.querySelector('#modal-perros-doc .btn-save');
+    if (saveBtn) { saveBtn.disabled=true; saveBtn.textContent='Subiendo...'; }
+    try {
+      var result = await uploadPerrosDocToDrive(fileInput.files[0], dogName, year);
+      doc.driveUrl = result.url;
+      doc.fileId = result.fileId;
+    } catch(e) {
+      alert('Error subiendo a Drive. Comprueba tu conexión.');
+      if (saveBtn) { saveBtn.disabled=false; saveBtn.textContent='Guardar'; }
+      return;
+    }
+    if (saveBtn) { saveBtn.disabled=false; saveBtn.textContent='Guardar'; }
+  }
   var data = await perrosLoadData();
   if (!data[_perrosCurrent].documentos) data[_perrosCurrent].documentos = [];
   data[_perrosCurrent].documentos.push(doc);
@@ -6701,8 +6773,46 @@ async function perrosDeleteDoc(idx) {
 
 
 window.perrosSelectYear = perrosSelectYear;
+window.uploadPerrosFotoToDrive = uploadPerrosFotoToDrive;
+window.uploadPerrosDocToDrive = uploadPerrosDocToDrive;
 window.perrosAddRecuerdo = perrosAddRecuerdo;
 window.perrosDeleteRecuerdo = perrosDeleteRecuerdo;
+
+// ── PERROS DRIVE ──────────────────────────────────────────
+async function uploadPerrosFotoToDrive(file, year) {
+  var token = await getDriveToken();
+  var rootId = await getDriveFolderId(token, null, DRIVE_FOLDER_NAME);
+  var perrosId = await getDriveFolderId(token, rootId, 'Perros');
+  var recuerdosId = await getDriveFolderId(token, perrosId, 'Recuerdos');
+  var yearId = await getDriveFolderId(token, recuerdosId, year);
+  var ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+  var meta = {name: ts + '_' + file.name, parents:[yearId]};
+  var form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(meta)],{type:'application/json'}));
+  form.append('file', file);
+  var res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink',{method:'POST',headers:{Authorization:'Bearer '+token},body:form});
+  var data = await res.json();
+  await fetch('https://www.googleapis.com/drive/v3/files/'+data.id+'/permissions',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({role:'reader',type:'anyone'})});
+  return {fileId:data.id, url:'https://drive.google.com/uc?export=view&id='+data.id, viewUrl:data.webViewLink};
+}
+
+async function uploadPerrosDocToDrive(file, dogName, year) {
+  var token = await getDriveToken();
+  var rootId = await getDriveFolderId(token, null, DRIVE_FOLDER_NAME);
+  var perrosId = await getDriveFolderId(token, rootId, 'Perros');
+  var dogFolderId = await getDriveFolderId(token, perrosId, dogName);
+  var docsId = await getDriveFolderId(token, dogFolderId, 'Documentos');
+  var yearId = await getDriveFolderId(token, docsId, year);
+  var meta = {name: file.name, parents:[yearId]};
+  var form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(meta)],{type:'application/json'}));
+  form.append('file', file);
+  var res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink',{method:'POST',headers:{Authorization:'Bearer '+token},body:form});
+  var data = await res.json();
+  await fetch('https://www.googleapis.com/drive/v3/files/'+data.id+'/permissions',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({role:'reader',type:'anyone'})});
+  return {fileId:data.id, url:data.webViewLink};
+}
+
 // Make perros functions accessible from inline onclick
 window.perrosOpenPerfil = perrosOpenPerfil;
 window.perrosSubirFotoHome = perrosSubirFotoHome;
