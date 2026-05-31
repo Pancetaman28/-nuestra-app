@@ -259,9 +259,9 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
 .gastos-balance-label{font-size:14px;font-weight:700;color:rgba(255,255,255,0.9);margin-bottom:8px;position:relative;z-index:1;}
 .gastos-balance-amount{font-size:52px;font-weight:900;color:white;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:10px;}
 .gastos-balance-sub{display:inline-block;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.3);border-radius:999px;padding:6px 16px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.95);margin-top:12px;position:relative;z-index:1;}
-.gastos-btns-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
-.gastos-btn-add{width:100%;padding:16px 12px;border:none;border-radius:16px;background:linear-gradient(135deg,#006b5f,#2dd4bf);color:white;font-family:var(--font-body);font-size:14px;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(0,107,95,0.25);cursor:pointer;}
-.gastos-btn-saldar{width:100%;padding:16px 12px;border:1.5px solid #e0e5f0;border-radius:16px;background:white;color:#a93349;font-family:var(--font-body);font-size:14px;font-weight:800;display:none;flex-direction:column;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;}
+.gastos-btns-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.gastos-btn-add{width:100%;padding:16px 12px;border:none;border-radius:16px;background:linear-gradient(135deg,#006b5f,#2dd4bf);color:white;font-family:var(--font-body);font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(0,107,95,0.25);cursor:pointer;}
+.gastos-btn-saldar{width:100%;padding:14px 12px;border:1.5px solid #f5c0c8;border-radius:16px;background:#fff5f7;color:#a93349;font-family:var(--font-body);font-size:15px;font-weight:800;display:none;align-items:center;justify-content:center;gap:8px;box-shadow:0 2px 8px rgba(169,51,73,0.08);cursor:pointer;}
 .gastos-section-title{font-size:20px;font-weight:800;color:#111c2d;margin-bottom:12px;}
 .gasto-item{background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:0 4px 16px rgba(0,0,0,0.06);display:flex;align-items:center;gap:14px;cursor:pointer;}
 .gasto-item-icon{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#f0f3ff,#e7eeff);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid rgba(255,255,255,0.8);}
@@ -1091,20 +1091,18 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
   </div>
   <div style="padding:32px 20px 16px;text-align:center;">
     <div style="font-size:13px;color:#888;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Importe</div>
-    <div style="display:flex;align-items:baseline;justify-content:center;gap:8px;">
-      <span style="font-size:28px;color:#aaa;font-weight:700;">&#8364;</span>
-      <input id="mg-importe" type="number" min="0" step="0.01" placeholder="0,00" oninput="updateGastoSubs()" style="font-size:52px;font-weight:900;border:none;background:transparent;text-align:center;width:220px;color:#111c2d;outline:none;font-family:var(--font-title);">
+    <div style="display:flex;align-items:center;justify-content:center;gap:0;background:#f4f6fb;border-radius:16px;padding:10px 20px;border:1.5px solid #e0e5f0;">
+      <input id="mg-importe" type="number" min="0" step="0.01" placeholder="0,00" oninput="updateGastoSubs()" style="font-size:48px;font-weight:900;border:none;background:transparent;text-align:right;width:160px;color:#111c2d;outline:none;font-family:var(--font-title);">
+      <span style="font-size:28px;color:#aaa;font-weight:700;margin-left:4px;padding-bottom:4px;">&#8364;</span>
     </div>
   </div>
   <div style="padding:0 20px 16px;">
     <div style="background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.6);border-radius:20px;padding:18px;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
-      <div style="position:relative;margin-bottom:14px;">
-        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;">&#128717;</span>
-        <input id="mg-desc" type="text" placeholder="&#191;Qu&#233; habéis gastado? Cena, compra..." style="width:100%;padding:14px 14px 14px 44px;border:1.5px solid #e0e5f0;border-radius:14px;font-size:15px;font-family:var(--font-body);color:#111c2d;background:#f9f9ff;outline:none;box-sizing:border-box;">
+      <div style="margin-bottom:10px;">
+        <input id="mg-desc" type="text" placeholder="&#191;Qu&#233; habéis gastado? Cena, compra..." style="width:100%;padding:14px;border:1.5px solid #e0e5f0;border-radius:14px;font-size:15px;font-family:var(--font-body);color:#111c2d;background:#f9f9ff;outline:none;box-sizing:border-box;">
       </div>
-      <div style="position:relative;">
-        <span style="position:absolute;left:14px;top:14px;font-size:18px;">&#128203;</span>
-        <input id="mg-notas" type="text" placeholder="Notas adicionales (opcional)" style="width:100%;padding:14px 14px 14px 44px;border:1.5px solid #e0e5f0;border-radius:14px;font-size:15px;font-family:var(--font-body);color:#111c2d;background:#f9f9ff;outline:none;box-sizing:border-box;">
+      <div>
+        <input id="mg-notas" type="text" placeholder="Notas adicionales (opcional)" style="width:100%;padding:14px;border:1.5px solid #e0e5f0;border-radius:14px;font-size:15px;font-family:var(--font-body);color:#111c2d;background:#f9f9ff;outline:none;box-sizing:border-box;">
       </div>
     </div>
   </div>
@@ -3530,32 +3528,43 @@ function renderGastos() {
   var funnyDebt = ['Anda, paga... 😅','El cajón sigue vacío 👀','Toca pasar por caja 😬','Que no se te olvide... ⏰','El karma lleva la cuenta 🎯','Esto no se olvida fácil 😬','La deuda crece, el amor también 💸','Payaso, paga 🤡'];
   var rand = function(arr){ return arr[Math.floor(Math.random()*arr.length)]; };
 
-  // Decorative overlays for balance card
-  var cardOverlay = '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,0.2),transparent);pointer-events:none;z-index:2;"></div>'
-    + '<div style="position:absolute;inset:0;border:1px solid rgba(255,255,255,0.3);border-radius:24px;pointer-events:none;z-index:2;"></div>'
+  var pulse = '<span style="display:inline-flex;position:relative;"><span style="position:absolute;display:inline-flex;width:10px;height:10px;border-radius:50%;background:white;opacity:0.7;animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></span><span style="position:relative;display:inline-flex;width:10px;height:10px;border-radius:50%;background:white;"></span></span>';
+  if(!document.getElementById('gastos-ping-css')){var st=document.createElement('style');st.id='gastos-ping-css';st.textContent='@keyframes ping{75%,100%{transform:scale(2);opacity:0;}}';document.head.appendChild(st);}
+
+  var overlays = '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,0.2),transparent);pointer-events:none;z-index:2;border-radius:24px;"></div>'
     + '<div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(255,255,255,0.1);border-radius:50%;filter:blur(20px);pointer-events:none;z-index:1;"></div>'
     + '<div style="position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;background:rgba(0,0,0,0.08);border-radius:50%;filter:blur(20px);pointer-events:none;z-index:1;"></div>';
-  var pulse = '<span class="relative" style="display:inline-flex;"><span style="position:absolute;display:inline-flex;width:10px;height:10px;border-radius:50%;background:white;opacity:0.7;animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></span><span style="position:relative;display:inline-flex;width:10px;height:10px;border-radius:50%;background:white;"></span></span>';
-  if(!document.getElementById('gastos-ping-css')){var st=document.createElement('style');st.id='gastos-ping-css';st.textContent='@keyframes ping{75%,100%{transform:scale(2);opacity:0;}}';document.head.appendChild(st);}
+
+  var saldaBtn = safe('gastos-saldar-btn');
+
   if(Math.abs(myBal) < 0.01) {
-    if(card){ card.style.background='linear-gradient(135deg,#2ecc71,#1abc9c)'; card.innerHTML='<div class="gastos-anim" id="gastos-anim"></div>'+cardOverlay; }
-    if(label) label.innerHTML = myEmoji + ' ' + otherEmoji + ' ¡Estáis en paz!';
-    if(amount) amount.innerHTML = '0,00 €';
-    if(sub) sub.textContent = '&#127881; ¡Bien hecho los dos!';
+    if(card) {
+      card.style.background = 'linear-gradient(135deg,#2ecc71,#1abc9c)';
+      card.innerHTML = '<div class="gastos-anim" id="gastos-anim"></div>' + overlays
+        + '<div class="gastos-balance-label" id="gastos-label" style="position:relative;z-index:3;">' + myEmoji + ' ' + otherEmoji + ' ¡Estáis en paz!</div>'
+        + '<div class="gastos-balance-amount" id="gastos-amount" style="position:relative;z-index:3;">0,00 €</div>'
+        + '<div class="gastos-balance-sub" id="gastos-sub" style="position:relative;z-index:3;">🎉 ¡Bien hecho los dos!</div>';
+    }
     if(saldaBtn) saldaBtn.style.display = 'none';
     playGastoAnim('paz');
   } else if(myBal > 0) {
-    if(card){ card.style.background='linear-gradient(135deg,#ff7488,#a93349)'; card.innerHTML='<div class="gastos-anim" id="gastos-anim"></div>'+cardOverlay; }
-    if(label) label.innerHTML = '<div style="font-size:36px;margin-bottom:8px;position:relative;z-index:3;">'+myEmoji+'</div>Debes a '+otherEmoji+' '+other;
-    if(amount) amount.innerHTML = myBal.toFixed(2).replace('.',',') + ' €&nbsp;' + pulse;
-    if(sub) sub.textContent = rand(funnyDebt);
-    if(saldaBtn){ saldaBtn.style.display='flex'; }
+    if(card) {
+      card.style.background = 'linear-gradient(135deg,#ff7488,#a93349)';
+      card.innerHTML = '<div class="gastos-anim" id="gastos-anim"></div>' + overlays
+        + '<div class="gastos-balance-label" id="gastos-label" style="position:relative;z-index:3;"><div style="font-size:36px;margin-bottom:8px;">' + myEmoji + '</div>Debes a ' + otherEmoji + ' ' + other + '</div>'
+        + '<div class="gastos-balance-amount" id="gastos-amount" style="position:relative;z-index:3;">' + myBal.toFixed(2).replace('.',',') + ' €&nbsp;' + pulse + '</div>'
+        + '<div class="gastos-balance-sub" id="gastos-sub" style="position:relative;z-index:3;">' + rand(funnyDebt) + '</div>';
+    }
+    if(saldaBtn) saldaBtn.style.display = 'flex';
     playGastoAnim('deuda');
   } else {
-    if(card){ card.style.background='linear-gradient(135deg,#006b5f,#2dd4bf)'; card.innerHTML='<div class="gastos-anim" id="gastos-anim"></div>'+cardOverlay; }
-    if(label) label.innerHTML = '<div style="font-size:36px;margin-bottom:8px;position:relative;z-index:3;">'+otherEmoji+'</div>'+other+' te debe';
-    if(amount) amount.innerHTML = Math.abs(myBal).toFixed(2).replace('.',',') + ' €&nbsp;' + pulse;
-    if(sub) sub.textContent = rand(funnyOwed);
+    if(card) {
+      card.style.background = 'linear-gradient(135deg,#006b5f,#2dd4bf)';
+      card.innerHTML = '<div class="gastos-anim" id="gastos-anim"></div>' + overlays
+        + '<div class="gastos-balance-label" id="gastos-label" style="position:relative;z-index:3;"><div style="font-size:36px;margin-bottom:8px;">' + otherEmoji + '</div>' + other + ' te debe</div>'
+        + '<div class="gastos-balance-amount" id="gastos-amount" style="position:relative;z-index:3;">' + Math.abs(myBal).toFixed(2).replace('.',',') + ' €&nbsp;' + pulse + '</div>'
+        + '<div class="gastos-balance-sub" id="gastos-sub" style="position:relative;z-index:3;">' + rand(funnyOwed) + '</div>';
+    }
     if(saldaBtn) saldaBtn.style.display = 'none';
     playGastoAnim('cobrar');
   }
