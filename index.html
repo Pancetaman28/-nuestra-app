@@ -1967,20 +1967,22 @@ function renderViajes() {
     }
   }
 
-  // ── Filter ──
+  // ── Classify each trip ──
+  function tabForViaje(v) {
+    if (v.estado === 'En el radar') return 'radar';
+    if (v.estado === 'Completado') return 'realizados';
+    // Auto-detect past trips
+    var refDate = v.fecha_vuelta || v.fecha_ida;
+    if (refDate) {
+      var d = new Date(refDate); d.setHours(23,59,59,0);
+      if (now > d) return 'realizados';
+    }
+    return 'proximos'; // default: no dates, or future dates
+  }
+
   var lista;
   if (_viajeTab === 'proximos') {
-    lista = all.filter(function(v) {
-      var estado = v.estado || '';
-      if (estado === 'Completado' || estado === 'En el radar') return false;
-      if (v.fecha_ida) {
-        var d1 = new Date(v.fecha_ida); d1.setHours(0,0,0,0);
-        // Include if trip hasn't ended yet OR no fecha_vuelta
-        var d2 = v.fecha_vuelta ? new Date(v.fecha_vuelta) : d1; d2.setHours(23,59,59,0);
-        return now <= d2;
-      }
-      return true;
-    });
+    lista = all.filter(function(v){ return tabForViaje(v) === 'proximos'; });
     lista.sort(function(a,b) {
       if (!a.fecha_ida && !b.fecha_ida) return 0;
       if (!a.fecha_ida) return 1;
@@ -1988,22 +1990,17 @@ function renderViajes() {
       return a.fecha_ida.localeCompare(b.fecha_ida);
     });
   } else if (_viajeTab === 'radar') {
-    lista = all.filter(function(v) { return v.estado === 'En el radar'; });
-    lista.sort(function(a,b) { return (a.radarOrder||0) - (b.radarOrder||0); });
+    lista = all.filter(function(v){ return tabForViaje(v) === 'radar'; });
+    lista.sort(function(a,b){ return (a.radarOrder||0) - (b.radarOrder||0); });
   } else {
-    lista = all.filter(function(v) {
-      if (v.estado === 'Completado') return true;
-      if (v.fecha_vuelta) {
-        var d2 = new Date(v.fecha_vuelta); d2.setHours(23,59,59,0);
-        return now > d2 && v.estado !== 'En el radar';
-      }
-      return false;
-    });
+    lista = all.filter(function(v){ return tabForViaje(v) === 'realizados'; });
     lista.sort(function(a,b) {
-      if (!a.fecha_vuelta && !b.fecha_vuelta) return 0;
-      if (!a.fecha_vuelta) return 1;
-      if (!b.fecha_vuelta) return -1;
-      return b.fecha_vuelta.localeCompare(a.fecha_vuelta);
+      var da = a.fecha_vuelta || a.fecha_ida || '';
+      var db2 = b.fecha_vuelta || b.fecha_ida || '';
+      if (!da && !db2) return 0;
+      if (!da) return 1;
+      if (!db2) return -1;
+      return db2.localeCompare(da);
     });
   }
 
