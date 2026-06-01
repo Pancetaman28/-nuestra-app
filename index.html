@@ -68,7 +68,7 @@ button{cursor:pointer;}
 .header-avatar{background:rgba(255,255,255,0.25);border:none;border-radius:50%;width:36px;height:36px;font-weight:700;font-size:14px;color:white;}
 
 /* ── CONTENT ── */
-.app-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:32px;}
+.app-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0;padding-bottom:32px;}
 .app-content.cine-active{padding:0;}
 #modal-add-cine.misala-modal .modal-card,#modal-add-cine.misala-modal .modal-content{border:1.5px solid #3b1f6e !important;}
 #modal-add-cine.misala-modal .pcheck.on{background:linear-gradient(135deg,#7c3aed,#5b21b6) !important;color:white !important;border-color:#7c3aed !important;}
@@ -91,7 +91,7 @@ button{cursor:pointer;}
 body.cine-mode .app-header,body.cine-mode .header-bar,body.cine-mode .header-row,body.cine-mode #screen-app > .app-header{display:none !important;height:0 !important;visibility:hidden !important;}
 body.cine-mode .app-content{padding:0 !important;}
 body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
-.tab-section{display:none;}
+.tab-section{display:none;padding:16px 16px 0;}
 .tab-section.active{display:block;}
 
 /* ── BACK TO MENU ── */
@@ -596,7 +596,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
           <div class="notif-dot" id="notif-dot"></div>
         </button>
           <span id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ff4488;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:900;align-items:center;justify-content:center;border:2px solid #0a0a12;"></span>
-          <div id="notif-panel" style="display:none;position:absolute;right:0;top:calc(100% + 8px);width:280px;background:#13131f;border:1px solid #2a2a3e;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,0.6);z-index:999;overflow:hidden;"></div>
+          <div id="notif-panel" style="display:none;position:fixed;right:12px;top:72px;width:290px;background:#13131f;border:1px solid #2a2a3e;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,0.6);z-index:9999;overflow:hidden;max-height:70vh;overflow-y:auto;"></div>
         </div>
         <button class="header-btn" onclick="openSettings()">&#9881;&#65039;</button>
         <button class="header-avatar" id="header-avatar" onclick="openSettings()">?</button>
@@ -5712,7 +5712,10 @@ window.renderSwipeCard = function() {
       + '<div style="text-align:center;margin-top:14px;color:#666;font-size:11px;">Tip: desliza la tarjeta a izq/dcha/arriba</div>';
   }
 
-  el.innerHTML = '<div id="swipe-card-wrap" style="transition:transform 0.3s ease-out,opacity 0.3s ease-out;">'+cardInner+'</div>'+actions;
+  var linkBtn = item.link
+    ? '<a href="'+esc(item.link)+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;padding:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#ccc;font-size:13px;font-weight:700;font-family:var(--font-body);text-decoration:none;">'      + '<span style="font-size:16px;">&#x1F517;</span> Ver recomendaci&#243;n</a>'
+    : '';
+  el.innerHTML = '<div id="swipe-card-wrap" style="transition:transform 0.3s ease-out,opacity 0.3s ease-out;">'+cardInner+'</div>'+linkBtn+actions;
   // Attach swipe handlers
   setTimeout(attachSwipeHandlers, 50);
 };
