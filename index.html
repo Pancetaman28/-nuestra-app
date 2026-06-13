@@ -619,7 +619,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
   <div class="app-header">
     <div class="header-row">
       <div>
-        <div class="app-name">Nuestra App <span style="color:#f0c040;font-size:11px;font-weight:900;">v46</span></div>
+        <div class="app-name">Nuestra App <span style="color:#f0c040;font-size:11px;font-weight:900;">v47</span></div>
         <div class="header-sub" id="header-sub">Hola</div>
       </div>
       <div class="header-actions">
@@ -737,8 +737,38 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
             <div style="font-size:10px;color:var(--text2);margin-top:2px;">Por Claude</div>
           </div>
         </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+          <div class="li-card" style="cursor:pointer;margin-bottom:0;display:flex;align-items:center;gap:8px;" onclick="liGo('tickets')">
+            <span style="font-size:20px;">🧾</span>
+            <div><div style="font-size:13px;font-weight:700;color:var(--text);">Tickets</div><div style="font-size:10px;color:var(--text2);" id="li-tickets-count">Historial</div></div>
+          </div>
+          <div class="li-card" style="cursor:pointer;margin-bottom:0;display:flex;align-items:center;gap:8px;" onclick="liGo('precios')">
+            <span style="font-size:20px;">📈</span>
+            <div><div style="font-size:13px;font-weight:700;color:var(--text);">Precios</div><div style="font-size:10px;color:var(--text2);">Evolución</div></div>
+          </div>
+        </div>
         <div class="li-section-label">Listas activas</div>
         <div id="li-listas-activas"></div>
+      </div>
+
+      <!-- TICKETS -->
+      <div id="li-tickets-view" style="display:none;">
+        <button class="back-btn-menu" onclick="liGo('compra')" style="margin-bottom:12px;">&#8249; La Compra</button>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-family:var(--font-title);font-size:18px;font-weight:700;color:var(--text);">Tickets</div>
+          <button onclick="liAddTicketModal()" class="add-btn" style="width:34px;height:34px;">+</button>
+        </div>
+        <div id="li-tickets-list"></div>
+      </div>
+
+      <!-- DETALLE TICKET -->
+      <div id="li-ticket-detail-view" style="display:none;"></div>
+
+      <!-- PRECIOS -->
+      <div id="li-precios-view" style="display:none;">
+        <button class="back-btn-menu" onclick="liGo('compra')" style="margin-bottom:12px;">&#8249; La Compra</button>
+        <div style="font-family:var(--font-title);font-size:18px;font-weight:700;color:var(--text);margin-bottom:12px;">Evolución de precios</div>
+        <div id="li-precios-content"></div>
       </div>
 
       <!-- MODO COMPRA -->
@@ -825,6 +855,34 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
         <div class="modal-btns">
           <button class="btn-cancel" onclick="closeModal('li-modal-nueva-lista')">Cancelar</button>
           <button class="btn-save" onclick="liConfirmNuevaLista()">Crear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-bg" id="li-modal-ticket">
+      <div class="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-title">Nuevo ticket</div>
+        <label>Supermercado</label>
+        <select id="li-ticket-super"></select>
+        <label>Fecha</label><input id="li-ticket-fecha" type="date">
+        <div class="modal-btns">
+          <button class="btn-cancel" onclick="closeModal('li-modal-ticket')">Cancelar</button>
+          <button class="btn-save" onclick="liCrearTicket()">Crear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-bg" id="li-modal-ticket-prod">
+      <div class="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-title">Añadir producto</div>
+        <label>Producto</label><input id="li-tp-nombre" placeholder="p.ej. Leche entera">
+        <label>Cantidad (opcional)</label><input id="li-tp-cant" placeholder="p.ej. x2">
+        <label>Precio (€)</label><input id="li-tp-precio" type="number" step="0.01" placeholder="0.00">
+        <div class="modal-btns">
+          <button class="btn-cancel" onclick="closeModal('li-modal-ticket-prod')">Cancelar</button>
+          <button class="btn-save" onclick="liSaveTicketProd()">Añadir</button>
         </div>
       </div>
     </div>
@@ -1623,7 +1681,7 @@ const DRIVE_CLIENT_ID = '53107031853-g5t7qtca5017mf2umvf8it2alt9lqfpn.apps.googl
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const DRIVE_FOLDER_NAME = 'Nuestra App';
 let currentViajeId = null;
-let appData = { viajes: [], recetas: [], listas: [], gastos: [], plantillas: [], li_supers: [], li_listas: [], li_apuntado: [] };
+let appData = { viajes: [], recetas: [], listas: [], gastos: [], plantillas: [], li_supers: [], li_listas: [], li_apuntado: [], li_tickets: [] };
 let _mFilter = 'todos';
 let _selectedPersons = [];
 let _gastoOp = 0;
@@ -1946,6 +2004,10 @@ function subscribeAll() {
   }));
   _unsubs.push(onSnapshot(collection(db,'li_apuntado'), function(snap) {
     appData.li_apuntado = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+    if(typeof liRefresh==='function') liRefresh();
+  }));
+  _unsubs.push(onSnapshot(collection(db,'li_tickets'), function(snap) {
+    appData.li_tickets = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
     if(typeof liRefresh==='function') liRefresh();
   }));
   _unsubs.push(onSnapshot(query(collection(db,'gastos_compartidos'), orderBy('createdAt','desc')), async function(snap) {
@@ -4432,6 +4494,332 @@ window.liMarcarComprado = async function(id) {
 window.liDelApuntado = function(id) {
   appConfirm('¿Eliminar?','',async function(){ await deleteDoc(doc(db,'li_apuntado',id)); },true);
 };
+
+// ════════════════ LISTAS FASE 2: TICKETS + PRECIOS ════════════════
+var _liCurrentTicket = null;
+
+function liTickets(){ return (appData.li_tickets||[]); }
+
+// ── Update liGo to handle new views ──
+var _liGoBase = liGo;
+liGo = function(view) {
+  _liView = view;
+  ['home','compra','modo','supers','super-detail','apuntado','tickets','ticket-detail','precios'].forEach(function(v){
+    var el = safe('li-'+v+'-view');
+    if(el) el.style.display = (v===view)?'block':'none';
+  });
+  if(view==='home') liRenderHome();
+  else if(view==='compra') liRenderCompra();
+  else if(view==='supers') liRenderSupers();
+  else if(view==='apuntado') liRenderApuntado();
+  else if(view==='tickets') liRenderTickets();
+  else if(view==='precios') liRenderPrecios();
+};
+window.liGo = liGo;
+
+// Extend liRefresh
+var _liRefreshBase = liRefresh;
+liRefresh = function() {
+  if(_liView==='home') liRenderHome();
+  else if(_liView==='compra') liRenderCompra();
+  else if(_liView==='modo') liRenderModo();
+  else if(_liView==='supers') liRenderSupers();
+  else if(_liView==='super-detail') liRenderSuperDetail();
+  else if(_liView==='apuntado') liRenderApuntado();
+  else if(_liView==='tickets') liRenderTickets();
+  else if(_liView==='ticket-detail') liRenderTicketDetail();
+  else if(_liView==='precios') liRenderPrecios();
+};
+window.liRefresh = liRefresh;
+
+// ── Update compra view counts (tickets) ──
+var _liRenderCompraBase = liRenderCompra;
+liRenderCompra = function() {
+  _liRenderCompraBase();
+  var tc = safe('li-tickets-count');
+  if(tc){ var n=liTickets().length; tc.textContent = n+' ticket'+(n===1?'':'s'); }
+};
+window.liRenderCompra = liRenderCompra;
+
+// ── TICKETS ──
+function liRenderTickets() {
+  var el = safe('li-tickets-list'); if(!el) return;
+  var tks = liTickets().slice().sort(function(a,b){return (b.fecha||'').localeCompare(a.fecha||'');});
+  if(!tks.length){ el.innerHTML='<div class="empty"><span class="empty-icon">🧾</span><p>Sin tickets. Añade el primero.</p></div>'; return; }
+  el.innerHTML = tks.map(function(t){
+    var sup = liSupers().find(function(s){return s.id===t.superId;});
+    var prods = t.productos||[];
+    var total = prods.reduce(function(s,p){return s+(parseFloat(p.precio)||0);},0);
+    var fechaStr = t.fecha ? new Date(t.fecha+'T12:00').toLocaleDateString('es-ES') : '';
+    return '<div class="li-card"><div style="display:flex;align-items:center;gap:10px;">'
+      +(sup?'<div style="width:8px;height:8px;border-radius:50%;background:'+sup.color+';flex-shrink:0;"></div>':'')
+      +'<div style="flex:1;cursor:pointer;" onclick="liOpenTicket(\''+t.id+'\')">'
+      +'<div style="display:flex;align-items:center;gap:6px;"><span style="font-size:13px;font-weight:700;color:var(--text);">'+(sup?esc(sup.nombre):'Ticket')+'</span>'
+      +'<span class="li-bdg '+(t.abierto?'li-bdg-media':'li-bdg-baja')+'" style="'+(t.abierto?'':'background:rgba(39,174,96,.12);color:var(--li-green);')+'">'+(t.abierto?'Abierto':'Cerrado')+'</span></div>'
+      +'<div style="font-size:11px;color:var(--text2);">'+fechaStr+' · '+prods.length+' productos</div></div>'
+      +'<div style="text-align:right;"><div style="font-size:14px;font-weight:800;color:var(--text);">'+total.toFixed(2).replace('.',',')+'€</div>'
+      +'<button onclick="liDelTicket(\''+t.id+'\')" style="background:none;border:none;color:var(--text2);opacity:.4;font-size:13px;cursor:pointer;padding:0;margin-top:2px;">eliminar</button></div>'
+      +'</div></div>';
+  }).join('');
+}
+
+window.liAddTicketModal = function() {
+  var sups = liSupers();
+  if(!sups.length){ appConfirm('Sin supermercados','Añade primero un supermercado.',function(){liGo('supers');},false); return; }
+  safe('li-ticket-super').innerHTML = sups.map(function(s){return '<option value="'+s.id+'">'+esc(s.nombre)+'</option>';}).join('');
+  safe('li-ticket-fecha').value = new Date().toISOString().split('T')[0];
+  openModal('li-modal-ticket');
+};
+window.liCrearTicket = async function() {
+  var superId = safe('li-ticket-super').value;
+  var fecha = safe('li-ticket-fecha').value;
+  var ref = await addDoc(collection(db,'li_tickets'),{superId:superId,fecha:fecha,productos:[],abierto:true,createdAt:new Date().toISOString()});
+  closeModal('li-modal-ticket');
+  liOpenTicket(ref.id);
+};
+window.liDelTicket = function(id) {
+  appConfirm('¿Eliminar ticket?','También se quitará del histórico de precios.',async function(){
+    await deleteDoc(doc(db,'li_tickets',id));
+  },true);
+};
+
+// ── DETALLE TICKET ──
+window.liOpenTicket = function(id) {
+  _liCurrentTicket = id;
+  liRenderTicketDetail();
+  liGo('ticket-detail');
+};
+function liRenderTicketDetail() {
+  var t = liTickets().find(function(x){return x.id===_liCurrentTicket;});
+  if(!t){ liGo('tickets'); return; }
+  var sup = liSupers().find(function(s){return s.id===t.superId;});
+  var prods = t.productos||[];
+  var total = prods.reduce(function(s,p){return s+(parseFloat(p.precio)||0);},0);
+  var fechaStr = t.fecha ? new Date(t.fecha+'T12:00').toLocaleDateString('es-ES') : '';
+  var el = safe('li-ticket-detail-view');
+
+  var html = '<button class="back-btn-menu" onclick="liGo(\'tickets\')" style="margin-bottom:12px;">‹ Tickets</button>'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">'
+    +(sup?'<div style="width:14px;height:14px;border-radius:50%;background:'+sup.color+';"></div>':'')
+    +'<div style="font-family:var(--font-title);font-size:20px;font-weight:700;color:var(--text);flex:1;">'+(sup?esc(sup.nombre):'Ticket')+'</div>'
+    +'<span class="li-bdg '+(t.abierto?'li-bdg-media':'')+'" style="'+(t.abierto?'':'background:rgba(39,174,96,.12);color:var(--li-green);')+'">'+(t.abierto?'Abierto':'Cerrado')+'</span></div>'
+    +'<div style="font-size:12px;color:var(--text2);margin-bottom:14px;">'+fechaStr+'</div>';
+
+  if(t.abierto) {
+    html += '<button class="li-card" onclick="liAddTicketProdModal()" style="width:100%;text-align:center;border:1.5px dashed var(--border);background:none;color:var(--li);font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-body);margin-bottom:10px;">+ Añadir producto</button>';
+  }
+
+  if(!prods.length) {
+    html += '<div class="empty"><span class="empty-icon">🧾</span><p>Sin productos</p></div>';
+  } else {
+    html += '<div class="li-card">';
+    prods.forEach(function(p,i){
+      var subida = liPrecioSubida(p.nombre, t.superId, p.precio, t.fecha);
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:'+(i<prods.length-1?'1px solid var(--bg2)':'none')+';">'
+        +'<div style="flex:1;"><span style="font-size:13px;color:var(--text);">'+esc(p.nombre)+(p.cant?' <span style="color:var(--text2);">'+esc(p.cant)+'</span>':'')+'</span>'
+        +(subida?'<div style="font-size:10px;color:var(--li-orange);font-weight:700;">↑ +'+subida+'€ vs anterior</div>':'')+'</div>'
+        +'<span style="font-size:13px;font-weight:700;color:'+(subida?'var(--li-orange)':'var(--text)')+';">'+(parseFloat(p.precio)||0).toFixed(2).replace('.',',')+'€</span>'
+        +(t.abierto?'<button onclick="liDelTicketProd('+i+')" style="background:none;border:none;color:var(--text2);opacity:.35;font-size:13px;cursor:pointer;margin-left:8px;">✕</button>':'')
+        +'</div>';
+    });
+    html += '<div style="display:flex;justify-content:space-between;padding:10px 0 0;border-top:2px solid var(--text);margin-top:4px;">'
+      +'<span style="font-size:13px;font-weight:700;color:var(--text);">Total</span>'
+      +'<span style="font-family:var(--font-title);font-size:17px;font-weight:900;color:var(--text);">'+total.toFixed(2).replace('.',',')+'€</span></div>';
+    html += '</div>';
+  }
+
+  // Open/close actions
+  if(t.abierto) {
+    html += '<button class="btn-save" style="width:100%;margin-top:10px;" onclick="liCerrarTicket()">Cerrar ticket</button>';
+  } else {
+    html += '<button class="li-card" onclick="liReabrirTicket()" style="width:100%;margin-top:10px;text-align:center;border:1.5px solid var(--border);background:none;color:var(--text2);font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-body);">Reabrir para editar</button>';
+  }
+
+  el.innerHTML = html;
+}
+window.liAddTicketProdModal = function() {
+  safe('li-tp-nombre').value=''; safe('li-tp-cant').value=''; safe('li-tp-precio').value='';
+  openModal('li-modal-ticket-prod');
+};
+window.liSaveTicketProd = async function() {
+  var nombre = safe('li-tp-nombre').value.trim();
+  var precio = safe('li-tp-precio').value;
+  if(!nombre || !precio) return;
+  var t = liTickets().find(function(x){return x.id===_liCurrentTicket;});
+  var prods = (t.productos||[]).slice();
+  prods.push({nombre:nombre,cant:safe('li-tp-cant').value.trim(),precio:parseFloat(precio)});
+  t.productos=prods;
+  await updateDoc(doc(db,'li_tickets',_liCurrentTicket),{productos:prods});
+  closeModal('li-modal-ticket-prod');
+  liRenderTicketDetail();
+};
+window.liDelTicketProd = async function(i) {
+  var t = liTickets().find(function(x){return x.id===_liCurrentTicket;});
+  var prods = (t.productos||[]).slice();
+  prods.splice(i,1);
+  t.productos=prods;
+  await updateDoc(doc(db,'li_tickets',_liCurrentTicket),{productos:prods});
+  liRenderTicketDetail();
+};
+window.liCerrarTicket = function() {
+  var t = liTickets().find(function(x){return x.id===_liCurrentTicket;});
+  if(!(t.productos||[]).length){ appConfirm('Ticket vacío','Añade al menos un producto antes de cerrar.',function(){},false); return; }
+  appConfirm('¿Cerrar ticket?','Los precios se guardarán en el histórico.',async function(){
+    await updateDoc(doc(db,'li_tickets',_liCurrentTicket),{abierto:false,cerradoAt:new Date().toISOString()});
+    liRenderTicketDetail();
+  },false);
+};
+window.liReabrirTicket = async function() {
+  await updateDoc(doc(db,'li_tickets',_liCurrentTicket),{abierto:true});
+  liRenderTicketDetail();
+};
+
+// ── PRECIOS / HISTÓRICO ──
+// Construye histórico de un producto a partir de tickets cerrados
+function liHistorialProducto(nombre, superId) {
+  var pts = [];
+  liTickets().filter(function(t){return !t.abierto && (!superId||t.superId===superId);}).forEach(function(t){
+    (t.productos||[]).forEach(function(p){
+      if(p.nombre.toLowerCase()===nombre.toLowerCase() && p.precio) pts.push({fecha:t.fecha,precio:parseFloat(p.precio),superId:t.superId});
+    });
+  });
+  pts.sort(function(a,b){return (a.fecha||'').localeCompare(b.fecha||'');});
+  return pts;
+}
+// Devuelve la subida (string) si el precio es mayor que el último registrado antes de esta fecha
+function liPrecioSubida(nombre, superId, precio, fecha) {
+  var hist = liHistorialProducto(nombre, superId).filter(function(p){return p.fecha < fecha;});
+  if(!hist.length) return null;
+  var ultimo = hist[hist.length-1].precio;
+  var diff = parseFloat(precio) - ultimo;
+  return diff > 0.009 ? diff.toFixed(2).replace('.',',') : null;
+}
+// Lista de todos los productos con histórico
+function liProductosConHistorico() {
+  var map = {};
+  liTickets().filter(function(t){return !t.abierto;}).forEach(function(t){
+    (t.productos||[]).forEach(function(p){
+      var k = p.nombre.toLowerCase();
+      if(!map[k]) map[k] = {nombre:p.nombre, count:0};
+      map[k].count++;
+    });
+  });
+  return Object.keys(map).map(function(k){return map[k];}).filter(function(p){return p.count>=1;});
+}
+
+var _liPrecioProducto = null;
+function liRenderPrecios() {
+  var el = safe('li-precios-content'); if(!el) return;
+  var prods = liProductosConHistorico();
+  if(!prods.length){ el.innerHTML='<div class="empty"><span class="empty-icon">📈</span><p>Cierra algún ticket para ver la evolución de precios</p></div>'; return; }
+
+  // Default selected product
+  if(!_liPrecioProducto || !prods.find(function(p){return p.nombre===_liPrecioProducto;})) _liPrecioProducto = prods[0].nombre;
+
+  // Selector pills
+  var html = '<div class="li-pill-tabs">'+prods.map(function(p){
+    return '<button class="li-ptab'+(p.nombre===_liPrecioProducto?' active':'')+'" onclick="liSelectPrecio(\''+esc(p.nombre).replace(/'/g,"")+'\')">'+esc(p.nombre)+'</button>';
+  }).join('')+'</div>';
+
+  // Chart
+  var hist = liHistorialProducto(_liPrecioProducto, null);
+  html += '<div class="li-card">';
+  html += '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">'+esc(_liPrecioProducto)+'</div>';
+  html += liChartSVG(hist);
+  if(hist.length>=2) {
+    var first = hist[0].precio, last = hist[hist.length-1].precio;
+    var pct = first>0 ? Math.round((last-first)/first*100) : 0;
+    html += '<div style="display:flex;gap:8px;margin-top:10px;">'
+      +'<div style="flex:1;padding:8px;background:var(--bg2);border-radius:10px;text-align:center;"><div style="font-size:9px;color:var(--text2);font-weight:700;">Primero</div><div style="font-size:14px;font-weight:800;color:var(--text);">'+first.toFixed(2).replace('.',',')+'€</div></div>'
+      +'<div style="flex:1;padding:8px;background:var(--bg2);border-radius:10px;text-align:center;"><div style="font-size:9px;color:var(--text2);font-weight:700;">Ahora</div><div style="font-size:14px;font-weight:800;color:'+(pct>0?'var(--li-orange)':'var(--text)')+';">'+last.toFixed(2).replace('.',',')+'€</div></div>'
+      +'<div style="flex:1;padding:8px;background:'+(pct>0?'rgba(231,76,60,.07)':'var(--bg2)')+';border-radius:10px;text-align:center;'+(pct>0?'border:1px solid rgba(231,76,60,.2);':'')+'"><div style="font-size:9px;color:'+(pct>0?'var(--li-red)':'var(--text2)')+';font-weight:700;">Cambio</div><div style="font-size:14px;font-weight:800;color:'+(pct>0?'var(--li-red)':(pct<0?'var(--li-green)':'var(--text)'))+';">'+(pct>0?'+':'')+pct+'%</div></div>'
+      +'</div>';
+  }
+  html += '</div>';
+
+  // Comparativa entre supers (si el producto está en varios)
+  var porSuper = {};
+  hist.forEach(function(p){ if(!porSuper[p.superId]) porSuper[p.superId]=[]; porSuper[p.superId].push(p.precio); });
+  var supersConEste = Object.keys(porSuper);
+  if(supersConEste.length>1) {
+    html += '<div class="li-section-label" style="margin-top:14px;">Comparativa entre supermercados</div>';
+    supersConEste.forEach(function(sid){
+      var sup = liSupers().find(function(s){return s.id===sid;});
+      var precios = porSuper[sid];
+      var avg = precios.reduce(function(a,b){return a+b;},0)/precios.length;
+      html += '<div class="li-card" style="display:flex;align-items:center;gap:10px;">'
+        +(sup?'<div style="width:8px;height:8px;border-radius:50%;background:'+sup.color+';"></div>':'')
+        +'<span style="flex:1;font-size:13px;font-weight:600;color:var(--text);">'+(sup?esc(sup.nombre):'?')+'</span>'
+        +'<span style="font-size:13px;font-weight:700;color:var(--text);">media '+avg.toFixed(2).replace('.',',')+'€</span></div>';
+    });
+  }
+
+  // Más subidos
+  var subidas = [];
+  prods.forEach(function(p){
+    var h = liHistorialProducto(p.nombre, null);
+    if(h.length>=2) {
+      var pct = h[0].precio>0 ? Math.round((h[h.length-1].precio-h[0].precio)/h[0].precio*100) : 0;
+      if(pct>0) subidas.push({nombre:p.nombre, pct:pct});
+    }
+  });
+  subidas.sort(function(a,b){return b.pct-a.pct;});
+  if(subidas.length) {
+    html += '<div class="li-section-label" style="margin-top:14px;">Más subidos</div>';
+    subidas.slice(0,5).forEach(function(s){
+      html += '<div class="li-card" style="display:flex;align-items:center;gap:10px;">'
+        +'<span style="flex:1;font-size:13px;font-weight:600;color:var(--text);">'+esc(s.nombre)+'</span>'
+        +'<span style="font-size:14px;font-weight:800;color:'+(s.pct>=15?'var(--li-red)':'var(--li-orange)')+';">+'+s.pct+'%</span></div>';
+    });
+  }
+
+  el.innerHTML = html;
+}
+window.liSelectPrecio = function(nombre) { _liPrecioProducto = nombre; liRenderPrecios(); };
+
+// SVG line chart
+function liChartSVG(data) {
+  if(data.length<2) return '<div style="font-size:12px;color:var(--text2);padding:12px;text-align:center;">Necesitas al menos 2 tickets cerrados con este producto para ver el gráfico</div>';
+  var W=280,H=120,pl=38,pr=12,pt=16,pb=24;
+  var iw=W-pl-pr, ih=H-pt-pb;
+  var vals=data.map(function(d){return d.precio;});
+  var min=Math.min.apply(null,vals), max=Math.max.apply(null,vals), range=(max-min)||1;
+  function px(i){return pl+(i/(data.length-1))*iw;}
+  function py(v){return pt+(1-(v-min)/range)*ih;}
+  var pts=data.map(function(d,i){return {x:px(i),y:py(d.precio),v:d.precio,f:d.fecha};});
+  var path=pts.map(function(p,i){return (i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1);}).join(' ');
+  var area=path+' L'+pts[pts.length-1].x.toFixed(1)+','+(pt+ih)+' L'+pl+','+(pt+ih)+' Z';
+  var yt=[min,(min+max)/2,max];
+  var svg='<svg width="100%" viewBox="0 0 '+W+' '+H+'" style="overflow:visible;">';
+  yt.forEach(function(v){ var y=py(v); svg+='<line x1="'+pl+'" y1="'+y.toFixed(1)+'" x2="'+(pl+iw)+'" y2="'+y.toFixed(1)+'" stroke="var(--bg2)" stroke-width="1"/><text x="'+(pl-6)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" font-size="9" fill="var(--text2)">'+v.toFixed(2)+'€</text>'; });
+  svg+='<path d="'+area+'" fill="var(--li)" opacity="0.08"/>';
+  svg+='<path d="'+path+'" fill="none" stroke="var(--li)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  pts.forEach(function(p){
+    var fl = p.f ? p.f.slice(5) : '';
+    svg+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3.5" fill="var(--li)" stroke="white" stroke-width="1.5"/>';
+    svg+='<text x="'+p.x.toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-size="8" fill="var(--text2)">'+fl+'</text>';
+  });
+  svg+='</svg>';
+  return svg;
+}
+
+// ── Integrar Modo Compra → crear ticket al finalizar ──
+// Sobrescribe liFinalizarCompra para ofrecer crear ticket
+var _liFinalizarBase = window.liFinalizarCompra;
+window.liFinalizarCompra = function() {
+  var l = liListas().find(function(x){return x.id===_liCurrentLista;});
+  appConfirm('¿Finalizar compra?','Se creará un ticket abierto con los productos para que añadas los precios.',async function(){
+    await updateDoc(doc(db,'li_listas',_liCurrentLista),{completada:true,completadaAt:new Date().toISOString()});
+    // Crear ticket abierto con los items
+    var prods = (l.items||[]).map(function(it){return {nombre:it.nombre,cant:it.cant||'',precio:it.ref?parseFloat(it.ref):0};});
+    var ref = await addDoc(collection(db,'li_tickets'),{superId:l.superId,fecha:new Date().toISOString().split('T')[0],productos:prods,abierto:true,createdAt:new Date().toISOString(),fromLista:_liCurrentLista});
+    liOpenTicket(ref.id);
+  },false);
+};
+
+// ── Actualizar precios de referencia desde tickets cerrados ──
+// Cuando se cierra un ticket, los precios pasan a ser la referencia (se calcula on-the-fly en liHistorialProducto)
+
 
 
 // ── SERVICE WORKER ────────────────────────────────────────
