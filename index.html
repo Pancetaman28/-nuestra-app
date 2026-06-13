@@ -547,6 +547,38 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
 .viaje-ftab.active{background:var(--accent1);color:white;}
 .viaje-radar-arrows{display:flex;gap:4px;flex-direction:column;}
 .viaje-radar-arrow{background:none;border:1px solid var(--border);border-radius:6px;width:24px;height:22px;font-size:12px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;padding:0;}
+
+/* ── LISTAS (FASE 1) ── */
+:root{--li:#4A90D9;--li2:#2C6FAC;--li-green:#27AE60;--li-orange:#E67E22;--li-red:#E74C3C;}
+.li-home{padding:0;}
+.li-section-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.li-blocks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.li-block{background:white;border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);border:1px solid var(--border);cursor:pointer;}
+.li-block-title{font-family:var(--font-title);font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.li-block-sub{font-size:11px;color:var(--text2);}
+.li-block-link{margin-top:10px;font-size:12px;font-weight:700;color:var(--li);}
+.li-supers-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
+.li-super-chip{background:white;border-radius:10px;padding:8px 12px;flex-shrink:0;cursor:pointer;text-align:center;min-width:72px;border:1.5px solid var(--border);}
+.li-super-dot{width:8px;height:8px;border-radius:50%;margin:0 auto 4px;}
+.li-super-name{font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;}
+.li-fab{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--li),var(--li2));border:none;color:white;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(74,144,217,.4);cursor:pointer;z-index:60;}
+.li-card{background:white;border-radius:14px;padding:13px 14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1px solid var(--border);}
+.li-pill-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;}
+.li-ptab{flex-shrink:0;padding:6px 14px;border-radius:999px;border:1.5px solid var(--border);background:white;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;}
+.li-ptab.active{background:var(--li);color:white;border-color:var(--li);}
+.li-active-banner{background:linear-gradient(135deg,var(--li2),var(--li));border-radius:16px;padding:14px 16px;margin-bottom:14px;cursor:pointer;position:relative;overflow:hidden;}
+.li-chk-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bg2);cursor:pointer;}
+.li-chk-item:last-child{border-bottom:none;}
+.li-cb{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;font-size:12px;transition:all .18s;}
+.li-cb.on{background:var(--li);border-color:var(--li);}
+.li-sec-header{background:var(--bg2);border-radius:10px;padding:7px 10px;margin:10px 0 4px;display:flex;align-items:center;gap:6px;}
+.li-arr-btn{background:none;border:1px solid var(--border);border-radius:6px;width:22px;height:20px;font-size:11px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;padding:0;}
+.li-arr-btn:disabled{opacity:.25;}
+.li-bdg{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;}
+.li-bdg-alta{background:rgba(231,76,60,.12);color:var(--li-red);}
+.li-bdg-media{background:rgba(230,126,34,.12);color:var(--li-orange);}
+.li-bdg-baja{background:var(--bg2);color:var(--text2);}
+
 </style>
 </head>
 <body>
@@ -587,7 +619,7 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
   <div class="app-header">
     <div class="header-row">
       <div>
-        <div class="app-name">Nuestra App</div>
+        <div class="app-name">Nuestra App <span style="color:#f0c040;font-size:11px;font-weight:900;">v46</span></div>
         <div class="header-sub" id="header-sub">Hola</div>
       </div>
       <div class="header-actions">
@@ -664,11 +696,156 @@ body.cine-mode #tab-cine{padding-top:env(safe-area-inset-top,0);}
     <!-- LISTAS -->
     <div id="tab-listas" class="tab-section">
       <div class="back-bar"><button class="back-btn-menu" onclick="showTab('home')">&#8249; Men&#250;</button></div>
-      <div class="add-bar">
-        <input id="l-input" type="text" placeholder="Nueva lista..." />
-        <button class="add-btn" onclick="addLista()">+</button>
+
+      <!-- HOME LISTAS -->
+      <div id="li-home-view">
+        <div id="li-active-banner-wrap"></div>
+        <div class="li-blocks">
+          <div class="li-block" onclick="liGo('compra')">
+            <div class="li-block-title">La Compra</div>
+            <div class="li-block-sub">Listas y supermercados</div>
+            <div class="li-block-link" id="li-compra-count">Ver &#8594;</div>
+          </div>
+          <div class="li-block" onclick="liGo('apuntado')">
+            <div class="li-block-title">Apuntado</div>
+            <div class="li-block-sub">Por comprar</div>
+            <div class="li-block-link" id="li-apuntado-count">Ver &#8594;</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);">Supermercados</div>
+          <button onclick="liGo('supers')" style="background:none;border:none;font-size:11px;color:var(--li);font-weight:700;font-family:var(--font-body);cursor:pointer;">Gestionar</button>
+        </div>
+        <div class="li-supers-row" id="li-supers-row"></div>
       </div>
-      <div id="listas-list"></div>
+
+      <!-- LA COMPRA -->
+      <div id="li-compra-view" style="display:none;">
+        <button class="back-btn-menu" onclick="liGo('home')" style="margin-bottom:12px;">&#8249; Listas</button>
+        <div class="li-section-label">Nueva lista</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
+          <div class="li-card" style="text-align:center;cursor:pointer;margin-bottom:0;" onclick="liCrearLista('vacia')">
+            <div style="font-size:12px;font-weight:700;color:var(--text);">Vac&#237;a</div>
+            <div style="font-size:10px;color:var(--text2);margin-top:2px;">Desde cero</div>
+          </div>
+          <div class="li-card" style="text-align:center;cursor:pointer;margin-bottom:0;" onclick="liCrearLista('ultima')">
+            <div style="font-size:12px;font-weight:700;color:var(--text);">&#218;ltima</div>
+            <div style="font-size:10px;color:var(--text2);margin-top:2px;">Repetir</div>
+          </div>
+          <div class="li-card" style="text-align:center;cursor:pointer;margin-bottom:0;" onclick="liCrearLista('sugerida')">
+            <div style="font-size:12px;font-weight:700;color:var(--text);">Sugerida</div>
+            <div style="font-size:10px;color:var(--text2);margin-top:2px;">Por Claude</div>
+          </div>
+        </div>
+        <div class="li-section-label">Listas activas</div>
+        <div id="li-listas-activas"></div>
+      </div>
+
+      <!-- MODO COMPRA -->
+      <div id="li-modo-view" style="display:none;"></div>
+
+      <!-- SUPERMERCADOS -->
+      <div id="li-supers-view" style="display:none;">
+        <button class="back-btn-menu" onclick="liGo('home')" style="margin-bottom:12px;">&#8249; Listas</button>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-family:var(--font-title);font-size:18px;font-weight:700;color:var(--text);">Supermercados</div>
+          <button onclick="liAddSuperModal()" class="add-btn" style="width:34px;height:34px;">+</button>
+        </div>
+        <div id="li-supers-list"></div>
+      </div>
+
+      <!-- DETALLE SUPER -->
+      <div id="li-super-detail-view" style="display:none;"></div>
+
+      <!-- APUNTADO -->
+      <div id="li-apuntado-view" style="display:none;">
+        <button class="back-btn-menu" onclick="liGo('home')" style="margin-bottom:12px;">&#8249; Listas</button>
+        <div class="li-pill-tabs" id="li-apuntado-tabs">
+          <button class="li-ptab active" onclick="liApuntadoFilter('Todos')">Todos</button>
+          <button class="li-ptab" onclick="liApuntadoFilter('Alta')">Alta</button>
+          <button class="li-ptab" onclick="liApuntadoFilter('Media')">Media</button>
+          <button class="li-ptab" onclick="liApuntadoFilter('Baja')">Baja</button>
+        </div>
+        <div id="li-apuntado-list"></div>
+        <button class="li-fab" onclick="liAddApuntadoModal()">+</button>
+      </div>
+
+    </div>
+
+    <!-- MODALES LISTAS -->
+    <div class="modal-bg" id="li-modal-super">
+      <div class="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-title" id="li-modal-super-title">Nuevo supermercado</div>
+        <label>Nombre</label><input id="li-super-nombre" placeholder="p.ej. Mercadona">
+        <label>Color</label>
+        <div id="li-super-colors" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"></div>
+        <input id="li-super-color" type="hidden" value="#E31E24">
+        <div class="modal-btns">
+          <button class="btn-cancel" onclick="closeModal('li-modal-super')">Cancelar</button>
+          <button class="btn-save" onclick="liSaveSuper()">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-bg" id="li-modal-item">
+      <div class="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-title">Añadir producto</div>
+        <label>Producto</label><input id="li-item-nombre" placeholder="p.ej. Leche entera">
+        <label>Cantidad (opcional)</label><input id="li-item-cant" placeholder="p.ej. x2">
+        <label>Sección</label>
+        <select id="li-item-sec"></select>
+        <div class="modal-btns">
+          <button class="btn-cancel" onclick="closeModal('li-modal-item')">Cancelar</button>
+          <button class="btn-save" onclick="liSaveItem()">Añadir</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-bg" id="li-modal-seccion">
+      <div class="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-title">Nueva sección</div>
+        <label>Nombre de la sección</label><input id="li-seccion-nombre" placeholder="p.ej. Congelados">
+        <div class="modal-btns">
+          <button class="btn-cancel" onclick="closeModal('li-modal-seccion')">Cancelar</button>
+          <button class="btn-save" onclick="liSaveSeccion()">Añadir</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-bg" id="li-modal-nueva-lista">
+      <div class="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-title">Nueva lista de la compra</div>
+        <label>Nombre (opcional)</label><input id="li-lista-nombre" placeholder="p.ej. Compra semanal">
+        <label>Supermercado</label>
+        <select id="li-lista-super"></select>
+        <div class="modal-btns">
+          <button class="btn-cancel" onclick="closeModal('li-modal-nueva-lista')">Cancelar</button>
+          <button class="btn-save" onclick="liConfirmNuevaLista()">Crear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-bg" id="li-modal-apuntado">
+      <div class="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-title" id="li-modal-apuntado-title">Apuntar algo</div>
+        <label>Qué es</label><input id="li-ap-nombre" placeholder="p.ej. Zapatillas running">
+        <label>Categoría</label><input id="li-ap-cat" placeholder="p.ej. Ropa, Tecnología...">
+        <label>Precio aprox. (€) opcional</label><input id="li-ap-precio" type="number" step="0.01" placeholder="0.00">
+        <label>Enlace (opcional)</label><input id="li-ap-url" placeholder="https://...">
+        <label>Nota (opcional)</label><input id="li-ap-nota" placeholder="p.ej. Talla 42">
+        <label>Prioridad</label>
+        <select id="li-ap-prioridad"><option value="Alta">Alta</option><option value="Media" selected>Media</option><option value="Baja">Baja</option></select>
+        <input id="li-ap-id" type="hidden" value="">
+        <div class="modal-btns">
+          <button class="btn-cancel" onclick="closeModal('li-modal-apuntado')">Cancelar</button>
+          <button class="btn-save" onclick="liSaveApuntado()">Guardar</button>
+        </div>
+      </div>
     </div>
 
     <!-- GASTOS COMPARTIDOS -->
@@ -1446,7 +1623,7 @@ const DRIVE_CLIENT_ID = '53107031853-g5t7qtca5017mf2umvf8it2alt9lqfpn.apps.googl
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const DRIVE_FOLDER_NAME = 'Nuestra App';
 let currentViajeId = null;
-let appData = { viajes: [], recetas: [], listas: [], gastos: [], plantillas: [] };
+let appData = { viajes: [], recetas: [], listas: [], gastos: [], plantillas: [], li_supers: [], li_listas: [], li_apuntado: [] };
 let _mFilter = 'todos';
 let _selectedPersons = [];
 let _gastoOp = 0;
@@ -1531,6 +1708,7 @@ window.showTab = function(t) {
   if(t === 'home') updateHome();
   if(t === 'viajes') { _viajeTab = 'proximos'; setViajeTab('proximos'); }
   if(t === 'gastos') renderGastos();
+  if(t === 'listas') { _liView='home'; liGo('home'); }
   if(t === 'perros') {
     var hv = document.getElementById('perros-home-view');
     var pv = document.getElementById('perros-perfil-view');
@@ -1757,6 +1935,18 @@ function subscribeAll() {
   _unsubs.push(onSnapshot(query(collection(db,'listas'), orderBy('createdAt','desc')), function(snap) {
     appData.listas = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
     renderListas();
+  }));
+  _unsubs.push(onSnapshot(collection(db,'li_supers'), function(snap) {
+    appData.li_supers = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+    if(typeof liRefresh==='function') liRefresh();
+  }));
+  _unsubs.push(onSnapshot(collection(db,'li_listas'), function(snap) {
+    appData.li_listas = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+    if(typeof liRefresh==='function') liRefresh();
+  }));
+  _unsubs.push(onSnapshot(collection(db,'li_apuntado'), function(snap) {
+    appData.li_apuntado = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+    if(typeof liRefresh==='function') liRefresh();
   }));
   _unsubs.push(onSnapshot(query(collection(db,'gastos_compartidos'), orderBy('createdAt','desc')), async function(snap) {
     var all = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
@@ -3848,57 +4038,401 @@ window.saveReceta = async function(){
 };
 
 // ── LISTAS ────────────────────────────────────────────────
-function renderListas() {
-  var el = safe('listas-list'); if(!el) return;
-  if(!appData.listas.length){ el.innerHTML='<div class="empty"><span class="empty-icon">📋</span><p>Crea vuestra primera lista</p></div>'; return; }
-  el.innerHTML = appData.listas.map(function(lista) {
-    var items = lista.items||[];
-    var done = items.filter(function(i){ return i.done; }).length;
-    return '<div class="lista-card">'
-      +'<div class="lista-header">'
-      +'<div class="lista-name">'+esc(lista.name)+'</div>'
-      +'<div class="lista-count">'+done+'/'+items.length+'</div>'
-      +'</div>'
-      +'<div class="lista-items" id="litems-'+lista.id+'">'
-      +items.map(function(item){
-        return '<div class="lista-item">'
-          +'<div class="lista-item-check'+(item.done?' done':'')+'" onclick="toggleListaItem(\''+lista.id+'\',\''+item.id+'\')">'+( item.done?'✓':'')+'</div>'
-          +'<div class="lista-item-text'+(item.done?' done':'')+'">'+esc(item.text)+'</div>'
-          +'<button class="lista-item-del" onclick="delListaItem(\''+lista.id+'\',\''+item.id+'\')">&#xD7;</button>'
-          +'</div>';
-      }).join('')
-      +'</div>'
-      +'<div class="lista-add-row">'
-      +'<input type="text" id="ladd-'+lista.id+'" placeholder="Añadir..." onkeydown="if(event.key===\'Enter\')addListaItem(\''+lista.id+'\')">'
-      +'<button onclick="addListaItem(\''+lista.id+'\')">+</button>'
-      +'</div>'
+function renderListas() { /* legacy listas collection no longer used; replaced by Listas Fase 1 */ }
+
+function liRefresh() {
+  if(_liView==='home') liRenderHome();
+  else if(_liView==='compra') liRenderCompra();
+  else if(_liView==='modo') liRenderModo();
+  else if(_liView==='supers') liRenderSupers();
+  else if(_liView==='super-detail') liRenderSuperDetail();
+  else if(_liView==='apuntado') liRenderApuntado();
+}
+window.liRefresh = liRefresh;
+
+// ════════════════ LISTAS (FASE 1) ════════════════
+var SUPER_COLORS = ['#E31E24','#FF6B00','#FFD800','#27AE60','#4A90D9','#9B59B6','#1ABC9C','#34495E'];
+var SECCIONES_DEFAULT = ['Fruta y Verdura','Lácteos','Carnicería y Pescadería','Conservas','Pasta y Arroz','Congelados','Bebidas','Limpieza y Hogar'];
+var _liView = 'home';
+var _liCurrentLista = null;
+var _liCurrentSuper = null;
+var _liApFilter = 'Todos';
+
+function liGo(view) {
+  _liView = view;
+  ['home','compra','modo','supers','super-detail','apuntado'].forEach(function(v){
+    var el = safe('li-'+v+'-view');
+    if(el) el.style.display = (v===view)?'block':'none';
+  });
+  if(view==='home') liRenderHome();
+  else if(view==='compra') liRenderCompra();
+  else if(view==='supers') liRenderSupers();
+  else if(view==='apuntado') liRenderApuntado();
+}
+window.liGo = liGo;
+
+// ── Data helpers (Firestore) ──
+function liSupers(){ return (appData.li_supers||[]).slice().sort(function(a,b){return (a.order||0)-(b.order||0);}); }
+function liListas(){ return (appData.li_listas||[]); }
+function liApuntados(){ return (appData.li_apuntado||[]); }
+
+// ── HOME ──
+function liRenderHome() {
+  // Active banner: lista en curso (la más reciente no completada)
+  var listas = liListas();
+  var activa = listas.find(function(l){ return !l.completada; });
+  var wrap = safe('li-active-banner-wrap');
+  if(wrap) {
+    if(activa) {
+      var items = activa.items||[];
+      var pend = items.filter(function(i){return !i.done;}).length;
+      var sup = liSupers().find(function(s){return s.id===activa.superId;});
+      wrap.innerHTML = '<div class="li-active-banner" onclick="liAbrirModo(\''+activa.id+'\')">'
+        +'<div style="position:absolute;top:-16px;right:-16px;width:70px;height:70px;background:rgba(255,255,255,.1);border-radius:50%;"></div>'
+        +'<div style="font-size:10px;color:rgba(255,255,255,.7);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Lista activa</div>'
+        +'<div style="font-family:var(--font-title);font-size:18px;color:white;font-weight:700;">'+esc(activa.nombre||'Compra')+'</div>'
+        +'<div style="font-size:12px;color:rgba(255,255,255,.8);margin-top:2px;">'+(sup?esc(sup.nombre):'')+' · '+pend+' pendientes</div>'
+        +'<div style="margin-top:10px;background:rgba(255,255,255,.2);display:inline-flex;border-radius:999px;padding:4px 12px;font-size:12px;color:white;font-weight:700;">Continuar →</div>'
+        +'</div>';
+    } else wrap.innerHTML = '';
+  }
+  // Counts
+  var cc = safe('li-compra-count');
+  if(cc) cc.innerHTML = listas.length+' lista'+(listas.length===1?'':'s')+' →';
+  var ac = safe('li-apuntado-count');
+  if(ac) { var ap=liApuntados().filter(function(a){return a.estado!=='Comprado';}); ac.innerHTML = ap.length+' pendiente'+(ap.length===1?'':'s')+' →'; }
+  // Supers row
+  var row = safe('li-supers-row');
+  if(row) {
+    var sups = liSupers();
+    var html = sups.map(function(s){
+      return '<div class="li-super-chip" onclick="liGo(\'supers\')"><div class="li-super-dot" style="background:'+s.color+';"></div><div class="li-super-name">'+esc(s.nombre)+'</div></div>';
+    }).join('');
+    html += '<div class="li-super-chip" onclick="liAddSuperModal()" style="border-style:dashed;"><div class="li-super-dot" style="background:var(--li);"></div><div class="li-super-name">+ Añadir</div></div>';
+    row.innerHTML = html;
+  }
+}
+
+// ── SUPERMERCADOS ──
+function liRenderSupers() {
+  var el = safe('li-supers-list'); if(!el) return;
+  var sups = liSupers();
+  if(!sups.length){ el.innerHTML='<div class="empty"><span class="empty-icon">🏪</span><p>Añade vuestro primer supermercado</p></div>'; return; }
+  el.innerHTML = sups.map(function(s){
+    var nsec = (s.secciones||SECCIONES_DEFAULT).length;
+    return '<div class="li-card" style="display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="liOpenSuperDetail(\''+s.id+'\')">'
+      +'<div style="width:12px;height:12px;border-radius:50%;background:'+s.color+';flex-shrink:0;"></div>'
+      +'<div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--text);">'+esc(s.nombre)+'</div>'
+      +'<div style="font-size:11px;color:var(--text2);">'+nsec+' secciones</div></div>'
+      +'<button onclick="event.stopPropagation();liDelSuper(\''+s.id+'\')" style="background:none;border:none;color:var(--text2);opacity:.4;font-size:16px;cursor:pointer;">✕</button>'
+      +'<span style="color:var(--text2);font-size:18px;">›</span>'
       +'</div>';
   }).join('');
 }
 
-window.addLista = async function(){
-  var inp=safe('l-input'); if(!inp||!inp.value.trim()) return;
-  await addDoc(collection(db,'listas'),{name:inp.value.trim(),items:[],createdAt:new Date().toISOString()});
-  inp.value='';
+window.liAddSuperModal = function() {
+  safe('li-super-nombre').value='';
+  safe('li-super-color').value=SUPER_COLORS[0];
+  var cont = safe('li-super-colors');
+  cont.innerHTML = SUPER_COLORS.map(function(col){
+    return '<div onclick="liPickColor(\''+col+'\',this)" style="width:30px;height:30px;border-radius:50%;background:'+col+';cursor:pointer;border:3px solid '+(col===SUPER_COLORS[0]?'var(--text)':'transparent')+';"></div>';
+  }).join('');
+  safe('li-modal-super-title').textContent='Nuevo supermercado';
+  openModal('li-modal-super');
 };
-window.addListaItem = async function(listId){
-  var inp=safe('ladd-'+listId); if(!inp||!inp.value.trim()) return;
-  var lista=appData.listas.find(function(l){return l.id===listId;}); if(!lista) return;
-  var items=JSON.parse(JSON.stringify(lista.items||[]));
-  items.push({id:Date.now()+'',text:inp.value.trim(),done:false});
-  await updateDoc(doc(db,'listas',listId),{items:items});
-  inp.value='';
+window.liPickColor = function(col, el) {
+  safe('li-super-color').value=col;
+  el.parentElement.querySelectorAll('div').forEach(function(d){ d.style.border='3px solid transparent'; });
+  el.style.border='3px solid var(--text)';
 };
-window.toggleListaItem = async function(listId,itemId){
-  var lista=appData.listas.find(function(l){return l.id===listId;}); if(!lista) return;
-  var items=(lista.items||[]).map(function(i){return i.id===itemId?Object.assign({},i,{done:!i.done}):i;});
-  await updateDoc(doc(db,'listas',listId),{items:items});
+window.liSaveSuper = async function() {
+  var nombre = safe('li-super-nombre').value.trim();
+  if(!nombre) return;
+  var color = safe('li-super-color').value;
+  await addDoc(collection(db,'li_supers'),{nombre:nombre,color:color,secciones:SECCIONES_DEFAULT.slice(),order:liSupers().length,createdAt:new Date().toISOString()});
+  closeModal('li-modal-super');
 };
-window.delListaItem = async function(listId,itemId){
-  var lista=appData.listas.find(function(l){return l.id===listId;}); if(!lista) return;
-  var items=(lista.items||[]).filter(function(i){return i.id!==itemId;});
-  await updateDoc(doc(db,'listas',listId),{items:items});
+window.liDelSuper = function(id) {
+  appConfirm('¿Eliminar supermercado?','Se eliminará junto con su configuración de secciones.',async function(){
+    await deleteDoc(doc(db,'li_supers',id));
+  },true);
 };
+
+// ── DETALLE SUPER (secciones ordenables) ──
+window.liOpenSuperDetail = function(id) {
+  _liCurrentSuper = id;
+  liRenderSuperDetail();
+  liGo('super-detail');
+};
+function liRenderSuperDetail() {
+  var s = liSupers().find(function(x){return x.id===_liCurrentSuper;});
+  if(!s) { liGo('supers'); return; }
+  var secs = s.secciones||SECCIONES_DEFAULT;
+  var el = safe('li-super-detail-view');
+  el.innerHTML = '<button class="back-btn-menu" onclick="liGo(\'supers\')" style="margin-bottom:12px;">‹ Supermercados</button>'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
+    +'<div style="width:16px;height:16px;border-radius:50%;background:'+s.color+';"></div>'
+    +'<div style="font-family:var(--font-title);font-size:20px;font-weight:700;color:var(--text);">'+esc(s.nombre)+'</div></div>'
+    +'<div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Ordena las secciones según tu ruta en el súper. El orden se guarda.</div>'
+    +'<div id="li-secs-list">'+secs.map(function(sec,i){
+      return '<div class="li-card" style="display:flex;align-items:center;gap:10px;padding:11px 12px;">'
+        +'<span style="flex:1;font-size:14px;font-weight:600;color:var(--text);">'+esc(sec)+'</span>'
+        +'<button class="li-arr-btn" onclick="liMoveSeccion('+i+',-1)" '+(i===0?'disabled':'')+'>↑</button>'
+        +'<button class="li-arr-btn" onclick="liMoveSeccion('+i+',1)" '+(i===secs.length-1?'disabled':'')+'>↓</button>'
+        +'<button onclick="liDelSeccion('+i+')" style="background:none;border:none;color:var(--text2);opacity:.4;font-size:15px;cursor:pointer;">✕</button>'
+        +'</div>';
+    }).join('')+'</div>'
+    +'<button class="li-card" onclick="liAddSeccionModal()" style="width:100%;text-align:center;border:1.5px dashed var(--border);background:none;color:var(--li);font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-body);">+ Añadir sección</button>';
+}
+window.liMoveSeccion = async function(i, dir) {
+  var s = liSupers().find(function(x){return x.id===_liCurrentSuper;});
+  var secs = (s.secciones||SECCIONES_DEFAULT).slice();
+  var j = i+dir;
+  if(j<0||j>=secs.length) return;
+  var tmp=secs[i]; secs[i]=secs[j]; secs[j]=tmp;
+  await updateDoc(doc(db,'li_supers',_liCurrentSuper),{secciones:secs});
+  // local update for instant feedback
+  s.secciones = secs;
+  liRenderSuperDetail();
+};
+window.liDelSeccion = async function(i) {
+  var s = liSupers().find(function(x){return x.id===_liCurrentSuper;});
+  var secs = (s.secciones||SECCIONES_DEFAULT).slice();
+  secs.splice(i,1);
+  await updateDoc(doc(db,'li_supers',_liCurrentSuper),{secciones:secs});
+  s.secciones=secs;
+  liRenderSuperDetail();
+};
+window.liAddSeccionModal = function(){ safe('li-seccion-nombre').value=''; openModal('li-modal-seccion'); };
+window.liSaveSeccion = async function() {
+  var n = safe('li-seccion-nombre').value.trim();
+  if(!n) return;
+  var s = liSupers().find(function(x){return x.id===_liCurrentSuper;});
+  var secs = (s.secciones||SECCIONES_DEFAULT).slice();
+  secs.push(n);
+  await updateDoc(doc(db,'li_supers',_liCurrentSuper),{secciones:secs});
+  s.secciones=secs;
+  closeModal('li-modal-seccion');
+  liRenderSuperDetail();
+};
+
+// ── LA COMPRA ──
+function liRenderCompra() {
+  var el = safe('li-listas-activas'); if(!el) return;
+  var listas = liListas();
+  if(!listas.length){ el.innerHTML='<div class="empty"><span class="empty-icon">🛒</span><p>Crea tu primera lista de la compra</p></div>'; return; }
+  el.innerHTML = listas.map(function(l){
+    var items=l.items||[];
+    var done=items.filter(function(i){return i.done;}).length;
+    var sup=liSupers().find(function(s){return s.id===l.superId;});
+    return '<div class="li-card" style="display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="liAbrirModo(\''+l.id+'\')">'
+      +(sup?'<div style="width:10px;height:10px;border-radius:50%;background:'+sup.color+';flex-shrink:0;"></div>':'')
+      +'<div style="flex:1;"><div style="font-size:14px;font-weight:700;color:var(--text);">'+esc(l.nombre||'Compra')+(l.completada?' <span style="font-size:10px;color:var(--li-green);">✓ hecha</span>':'')+'</div>'
+      +'<div style="font-size:11px;color:var(--text2);">'+(sup?esc(sup.nombre)+' · ':'')+done+'/'+items.length+' ítems</div></div>'
+      +'<button onclick="event.stopPropagation();liDelLista(\''+l.id+'\')" style="background:none;border:none;color:var(--text2);opacity:.4;font-size:16px;cursor:pointer;">✕</button>'
+      +'<span style="color:var(--text2);font-size:18px;">›</span></div>';
+  }).join('');
+}
+window.liDelLista = function(id){
+  appConfirm('¿Eliminar lista?','',async function(){ await deleteDoc(doc(db,'li_listas',id)); },true);
+};
+
+window.liCrearLista = function(tipo) {
+  var sups = liSupers();
+  if(!sups.length){ appConfirm('Sin supermercados','Añade primero un supermercado para crear una lista.',function(){liGo('supers');},false); return; }
+  var sel = safe('li-lista-super');
+  sel.innerHTML = sups.map(function(s){return '<option value="'+s.id+'">'+esc(s.nombre)+'</option>';}).join('');
+  safe('li-lista-nombre').value = tipo==='ultima'?'Compra (repetir)':(tipo==='sugerida'?'Compra sugerida':'');
+  safe('li-modal-nueva-lista').dataset.tipo = tipo;
+  openModal('li-modal-nueva-lista');
+};
+window.liConfirmNuevaLista = async function() {
+  var nombre = safe('li-lista-nombre').value.trim()||'Compra';
+  var superId = safe('li-lista-super').value;
+  var tipo = safe('li-modal-nueva-lista').dataset.tipo;
+  var items = [];
+  if(tipo==='ultima') {
+    var prev = liListas().filter(function(l){return l.superId===superId && l.completada;}).sort(function(a,b){return (b.completadaAt||'').localeCompare(a.completadaAt||'');})[0];
+    if(prev) items = (prev.items||[]).map(function(it){return {id:Date.now()+''+Math.random(),nombre:it.nombre,cant:it.cant,sec:it.sec,done:false,ref:it.ref||null};});
+  } else if(tipo==='sugerida') {
+    // Sugerencia: productos más frecuentes del historial + apuntados de supermercado
+    var freq = {};
+    liListas().filter(function(l){return l.completada;}).forEach(function(l){
+      (l.items||[]).forEach(function(it){ var k=it.nombre.toLowerCase(); freq[k]=(freq[k]||0)+1; if(!freq[k+'__data']) freq[k+'__data']=it; });
+    });
+    Object.keys(freq).filter(function(k){return k.indexOf('__data')<0 && freq[k]>=2;}).slice(0,12).forEach(function(k){
+      var it=freq[k+'__data']; items.push({id:Date.now()+''+Math.random(),nombre:it.nombre,cant:it.cant,sec:it.sec,done:false,ref:it.ref||null});
+    });
+  }
+  var ref = await addDoc(collection(db,'li_listas'),{nombre:nombre,superId:superId,items:items,completada:false,createdAt:new Date().toISOString()});
+  closeModal('li-modal-nueva-lista');
+  liAbrirModo(ref.id);
+};
+
+// ── MODO COMPRA ──
+window.liAbrirModo = function(listaId) {
+  _liCurrentLista = listaId;
+  liRenderModo();
+  liGo('modo');
+};
+function liRenderModo() {
+  var l = liListas().find(function(x){return x.id===_liCurrentLista;});
+  if(!l){ liGo('compra'); return; }
+  var sup = liSupers().find(function(s){return s.id===l.superId;});
+  var secs = sup ? (sup.secciones||SECCIONES_DEFAULT) : SECCIONES_DEFAULT;
+  var items = l.items||[];
+  var done = items.filter(function(i){return i.done;}).length;
+  var total = items.filter(function(i){return i.done && i.ref;}).reduce(function(s,i){return s+parseFloat(i.ref);},0);
+
+  // Group by section in super's order; unknown sections at the end
+  var groups = secs.map(function(sec){ return {sec:sec, items:items.filter(function(i){return i.sec===sec;})}; }).filter(function(g){return g.items.length;});
+  var otras = items.filter(function(i){ return secs.indexOf(i.sec)<0; });
+  if(otras.length) groups.push({sec:'Otros', items:otras});
+
+  var el = safe('li-modo-view');
+  el.innerHTML = '<button class="back-btn-menu" onclick="liGo(\'compra\')" style="margin-bottom:10px;">‹ La Compra</button>'
+    +'<div style="background:linear-gradient(135deg,var(--li),var(--li2));border-radius:16px;padding:14px 16px;margin-bottom:14px;position:relative;overflow:hidden;">'
+    +'<div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(255,255,255,.1);border-radius:50%;"></div>'
+    +'<div style="display:flex;align-items:flex-end;justify-content:space-between;position:relative;z-index:1;">'
+    +'<div><div style="font-family:var(--font-title);font-size:18px;color:white;font-weight:700;">'+esc(l.nombre||'Compra')+'</div>'
+    +'<div style="font-size:12px;color:rgba(255,255,255,.75);">'+(sup?esc(sup.nombre)+' · ':'')+done+'/'+items.length+'</div></div>'
+    +'<div style="text-align:right;"><div style="font-size:10px;color:rgba(255,255,255,.7);">Total</div>'
+    +'<div style="font-family:var(--font-title);font-size:22px;color:white;font-weight:900;">'+total.toFixed(2).replace('.',',')+'€</div></div></div>'
+    +'<div style="margin-top:10px;height:3px;background:rgba(255,255,255,.2);border-radius:999px;overflow:hidden;"><div style="height:100%;background:rgba(255,255,255,.9);width:'+(items.length?(done/items.length*100):0)+'%;transition:width .35s;"></div></div>'
+    +'</div>'
+    +'<button class="li-card" onclick="liAddItemModal()" style="width:100%;text-align:center;border:1.5px dashed var(--border);background:none;color:var(--li);font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-body);margin-bottom:10px;">+ Añadir producto</button>';
+
+  if(!items.length) {
+    el.innerHTML += '<div class="empty"><span class="empty-icon">🛒</span><p>Lista vacía. Añade productos.</p></div>';
+  } else {
+    groups.forEach(function(g){
+      var pend = g.items.filter(function(i){return !i.done;}).length;
+      el.innerHTML += '<div class="li-sec-header"><span style="flex:1;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);">'+esc(g.sec)+'</span><span style="font-size:10px;color:var(--text2);">'+pend+' pend.</span></div>';
+      var inner = '<div class="li-card">';
+      // done items go to bottom
+      var sorted = g.items.slice().sort(function(a,b){return (a.done?1:0)-(b.done?1:0);});
+      sorted.forEach(function(it){
+        inner += '<div class="li-chk-item" onclick="liToggleItem(\''+it.id+'\')">'
+          +'<div class="li-cb '+(it.done?'on':'')+'">'+(it.done?'✓':'')+'</div>'
+          +'<div style="flex:1;"><span style="font-size:13px;font-weight:600;color:'+(it.done?'var(--text2)':'var(--text)')+';text-decoration:'+(it.done?'line-through':'none')+';">'+esc(it.nombre)+(it.cant?' <span style="color:var(--text2);font-weight:400;">'+esc(it.cant)+'</span>':'')+'</span></div>'
+          +(it.ref?'<span style="font-size:11px;color:var(--text2);">'+parseFloat(it.ref).toFixed(2).replace('.',',')+'€</span>':'')
+          +'<button onclick="event.stopPropagation();liDelItem(\''+it.id+'\')" style="background:none;border:none;color:var(--text2);opacity:.35;font-size:14px;cursor:pointer;margin-left:6px;">✕</button>'
+          +'</div>';
+      });
+      inner += '</div>';
+      el.innerHTML += inner;
+    });
+    // Finalizar (Fase 1: marca completada; el ticket es Fase 2)
+    el.innerHTML += '<button class="btn-save" style="width:100%;margin-top:8px;" onclick="liFinalizarCompra()">Finalizar compra</button>';
+  }
+}
+window.liToggleItem = async function(itemId) {
+  var l = liListas().find(function(x){return x.id===_liCurrentLista;});
+  var items = (l.items||[]).map(function(i){return i.id===itemId?Object.assign({},i,{done:!i.done}):i;});
+  l.items = items; liRenderModo();
+  await updateDoc(doc(db,'li_listas',_liCurrentLista),{items:items});
+};
+window.liDelItem = async function(itemId) {
+  var l = liListas().find(function(x){return x.id===_liCurrentLista;});
+  var items = (l.items||[]).filter(function(i){return i.id!==itemId;});
+  l.items=items; liRenderModo();
+  await updateDoc(doc(db,'li_listas',_liCurrentLista),{items:items});
+};
+window.liAddItemModal = function() {
+  var l = liListas().find(function(x){return x.id===_liCurrentLista;});
+  var sup = liSupers().find(function(s){return s.id===l.superId;});
+  var secs = sup ? (sup.secciones||SECCIONES_DEFAULT) : SECCIONES_DEFAULT;
+  safe('li-item-nombre').value='';
+  safe('li-item-cant').value='';
+  safe('li-item-sec').innerHTML = secs.map(function(s){return '<option value="'+esc(s)+'">'+esc(s)+'</option>';}).join('');
+  openModal('li-modal-item');
+};
+window.liSaveItem = async function() {
+  var nombre = safe('li-item-nombre').value.trim();
+  if(!nombre) return;
+  var l = liListas().find(function(x){return x.id===_liCurrentLista;});
+  var items = (l.items||[]).slice();
+  // buscar precio de referencia del histórico
+  var ref = null;
+  liListas().filter(function(x){return x.completada;}).forEach(function(x){
+    (x.items||[]).forEach(function(it){ if(it.nombre.toLowerCase()===nombre.toLowerCase() && it.ref) ref=it.ref; });
+  });
+  items.push({id:Date.now()+''+Math.random(),nombre:nombre,cant:safe('li-item-cant').value.trim(),sec:safe('li-item-sec').value,done:false,ref:ref});
+  l.items=items;
+  await updateDoc(doc(db,'li_listas',_liCurrentLista),{items:items});
+  closeModal('li-modal-item');
+  liRenderModo();
+};
+window.liFinalizarCompra = function() {
+  appConfirm('¿Finalizar compra?','La lista quedará marcada como hecha. (El escaneo de ticket llegará en la próxima fase.)',async function(){
+    await updateDoc(doc(db,'li_listas',_liCurrentLista),{completada:true,completadaAt:new Date().toISOString()});
+    liGo('compra');
+  },false);
+};
+
+// ── APUNTADO ──
+window.liApuntadoFilter = function(f) {
+  _liApFilter = f;
+  safe('li-apuntado-tabs').querySelectorAll('.li-ptab').forEach(function(b){ b.classList.toggle('active', b.textContent.trim()===f); });
+  liRenderApuntado();
+};
+function liRenderApuntado() {
+  var el = safe('li-apuntado-list'); if(!el) return;
+  var aps = liApuntados().filter(function(a){return a.estado!=='Comprado';});
+  if(_liApFilter!=='Todos') aps = aps.filter(function(a){return a.prioridad===_liApFilter;});
+  var ord={Alta:0,Media:1,Baja:2};
+  aps.sort(function(a,b){return (ord[a.prioridad]||1)-(ord[b.prioridad]||1);});
+  if(!aps.length){ el.innerHTML='<div class="empty"><span class="empty-icon">📝</span><p>Nada apuntado todavía</p></div>'; return; }
+  el.innerHTML = aps.map(function(a){
+    var bcls = a.prioridad==='Alta'?'li-bdg-alta':(a.prioridad==='Media'?'li-bdg-media':'li-bdg-baja');
+    return '<div class="li-card"><div style="display:flex;gap:10px;align-items:flex-start;">'
+      +'<div style="flex:1;">'
+      +'<div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;flex-wrap:wrap;">'
+      +'<span style="font-size:13px;font-weight:700;color:var(--text);">'+esc(a.nombre)+'</span>'
+      +'<span class="li-bdg '+bcls+'">'+a.prioridad+'</span></div>'
+      +'<div style="font-size:11px;color:var(--text2);">'+(a.cat?esc(a.cat):'')+(a.precio?' · ~'+parseFloat(a.precio).toFixed(2).replace('.',',')+'€':'')+'</div>'
+      +(a.nota?'<div style="font-size:11px;color:var(--text2);margin-top:1px;">'+esc(a.nota)+'</div>':'')
+      +(a.url?'<a href="'+esc(a.url)+'" target="_blank" onclick="event.stopPropagation();" style="margin-top:4px;display:inline-block;font-size:11px;color:var(--li);font-weight:600;">↗ enlace</a>':'')
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">'
+      +'<button onclick="liMarcarComprado(\''+a.id+'\')" title="Comprado" style="background:none;border:none;color:var(--li-green);font-size:18px;cursor:pointer;padding:0;">✓</button>'
+      +'<button onclick="liEditApuntado(\''+a.id+'\')" style="background:none;border:none;color:var(--text2);font-size:15px;cursor:pointer;padding:0;">✎</button>'
+      +'<button onclick="liDelApuntado(\''+a.id+'\')" style="background:none;border:none;color:var(--text2);opacity:.4;font-size:14px;cursor:pointer;padding:0;">✕</button>'
+      +'</div></div></div>';
+  }).join('');
+}
+window.liAddApuntadoModal = function() {
+  safe('li-modal-apuntado-title').textContent='Apuntar algo';
+  safe('li-ap-nombre').value=''; safe('li-ap-cat').value=''; safe('li-ap-precio').value='';
+  safe('li-ap-url').value=''; safe('li-ap-nota').value=''; safe('li-ap-prioridad').value='Media';
+  safe('li-ap-id').value='';
+  openModal('li-modal-apuntado');
+};
+window.liEditApuntado = function(id) {
+  var a = liApuntados().find(function(x){return x.id===id;}); if(!a) return;
+  safe('li-modal-apuntado-title').textContent='Editar';
+  safe('li-ap-nombre').value=a.nombre||''; safe('li-ap-cat').value=a.cat||'';
+  safe('li-ap-precio').value=a.precio||''; safe('li-ap-url').value=a.url||'';
+  safe('li-ap-nota').value=a.nota||''; safe('li-ap-prioridad').value=a.prioridad||'Media';
+  safe('li-ap-id').value=id;
+  openModal('li-modal-apuntado');
+};
+window.liSaveApuntado = async function() {
+  var nombre = safe('li-ap-nombre').value.trim();
+  if(!nombre) return;
+  var data = {nombre:nombre,cat:safe('li-ap-cat').value.trim(),precio:safe('li-ap-precio').value,url:safe('li-ap-url').value.trim(),nota:safe('li-ap-nota').value.trim(),prioridad:safe('li-ap-prioridad').value,estado:'Pendiente'};
+  var id = safe('li-ap-id').value;
+  if(id) await updateDoc(doc(db,'li_apuntado',id),data);
+  else { data.createdAt=new Date().toISOString(); await addDoc(collection(db,'li_apuntado'),data); }
+  closeModal('li-modal-apuntado');
+};
+window.liMarcarComprado = async function(id) {
+  await updateDoc(doc(db,'li_apuntado',id),{estado:'Comprado',compradoAt:new Date().toISOString()});
+};
+window.liDelApuntado = function(id) {
+  appConfirm('¿Eliminar?','',async function(){ await deleteDoc(doc(db,'li_apuntado',id)); },true);
+};
+
 
 // ── SERVICE WORKER ────────────────────────────────────────
 if('serviceWorker' in navigator) {
